@@ -430,8 +430,19 @@
                 </div>
 
                 <div class="cadastro-field">
-                    <label>Preço de Venda/kg (R$):</label>
-                    <input type="number" id="precoVendaKgInput" placeholder="0.00" step="0.01" min="0">
+                    <label>Preço de Venda:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="precoVendaInput" placeholder="0.00" step="0.01" min="0" style="flex: 1;">
+                        <select id="unidadePrecoSelect" style="padding: 8px; border: 2px solid #d4af37; border-radius: 4px;">
+                            <option value="kg">R$/kg</option>
+                            <option value="arroba">R$/@</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cadastro-field">
+                    <label>Rendimento (%):</label>
+                    <input type="number" id="rendimentoInput" value="50" step="0.1" min="0" max="100">
                 </div>
 
                 <button class="btn-iniciar" onclick="iniciarPesagem()">
@@ -523,16 +534,15 @@
         function iniciarPesagem() {
             const vendedor = document.getElementById('vendedorInput').value || 'Não informado';
             const precoCompra = parseFloat(document.getElementById('precoCompraInput').value) || 0;
-            const precoVendaKg = parseFloat(document.getElementById('precoVendaKgInput').value) || 0;
-
-            // Pelo menos um valor deve ser informado (compra OU venda)
-            if (precoCompra === 0 && precoVendaKg === 0) {
-                // Permitir continuar mesmo sem preços
-            }
+            const precoVenda = parseFloat(document.getElementById('precoVendaInput').value) || 0;
+            const unidadePreco = document.getElementById('unidadePrecoSelect').value;
+            const rendimento = parseFloat(document.getElementById('rendimentoInput').value) || 50;
 
             window.vendedorLote = vendedor;
             window.precoCompraLote = precoCompra;
-            precoVendaKgLote = precoVendaKg;
+            window.rendimentoLote = rendimento;
+            window.unidadePrecLote = unidadePreco;
+            precoVendaKgLote = precoVenda;
 
             // Atualizar header
             document.getElementById('headerVendedor').textContent = vendedor;
@@ -583,7 +593,17 @@
 
             const qtd = parseInt(document.getElementById('qtdInput').value) || 1;
             const media = (peso / qtd).toFixed(2);
-            const precoTotal = peso * precoVendaKgLote;
+
+            // Calcular preço total baseado na unidade
+            let precoTotal = 0;
+            if (window.unidadePrecLote === 'arroba') {
+                // Arroba Bruta = Peso / 30
+                const arrobaBruta = peso / 30;
+                precoTotal = arrobaBruta * precoVendaKgLote;
+            } else {
+                // Por kg
+                precoTotal = peso * precoVendaKgLote;
+            }
 
             const pesagem = {
                 id: Date.now(),
@@ -679,6 +699,7 @@
 
             // Montar relatório dinâmico
             let relatorioFinanceiro = '';
+            const unidadeTexto = window.unidadePrecLote === 'arroba' ? 'R$/@' : 'R$/kg';
 
             if (window.precoCompraLote > 0 || precoVendaKgLote > 0) {
                 relatorioFinanceiro = `
@@ -690,7 +711,9 @@
                     relatorioFinanceiro += `\n💵 Preço Compra: R$ ${window.precoCompraLote.toFixed(2)}`;
                 }
                 if (precoVendaKgLote > 0) {
-                    relatorioFinanceiro += `\n💲 Preço Venda: R$ ${totalValor.toFixed(2)}`;
+                    const unidadeLabel = window.unidadePrecLote === 'arroba' ? 'Preço Venda/@' : 'Preço Venda/kg';
+                    relatorioFinanceiro += `\n💲 ${unidadeLabel}: R$ ${precoVendaKgLote.toFixed(2)}`;
+                    relatorioFinanceiro += `\n💲 Valor Total Venda: R$ ${totalValor.toFixed(2)}`;
                 }
                 if (window.precoCompraLote > 0 && precoVendaKgLote > 0) {
                     relatorioFinanceiro += `\n📈 Lucro/Prejuízo: R$ ${lucro.toFixed(2)} ${lucro >= 0 ? '✅' : '❌'}`;
@@ -713,7 +736,8 @@ ${window.precoCompraLote > 0 ? `💰 Preço Compra: R$ ${window.precoCompraLote.
 🔢 Pesagens: ${pesagens.length}
 🐄 Total Bios: ${totalBios}
 ⚖️ Peso Total: ${totalPeso.toFixed(2)} kg
-${precoVendaKgLote > 0 ? `💵 Preço Venda/kg: R$ ${precoVendaKgLote.toFixed(2)}\n💲 Valor Total Venda: R$ ${totalValor.toFixed(2)}\n` : ''}
+% Rendimento: ${window.rendimentoLote}%
+${precoVendaKgLote > 0 ? `💵 Preço Venda (${unidadeTexto}): R$ ${precoVendaKgLote.toFixed(2)}\n💲 Valor Total Venda: R$ ${totalValor.toFixed(2)}\n` : ''}
 ${relatorioFinanceiro}
 ═════════════════════════════════════════
 Gerado por Pesagem de Gado
