@@ -849,10 +849,37 @@ Gerado por Pecuária Premium
                 navigator.share({
                     title: `Relatório - ${cliente}`,
                     files: [file]
-                }).catch(() => alert('✅ Arquivo salvo!'));
+                }).catch(() => {
+                    alert('✅ Arquivo salvo!');
+                    perguntarNovoLote();
+                });
             } else {
                 alert('✅ Arquivo salvo em Downloads!');
+                perguntarNovoLote();
             }
+        }
+
+        function perguntarNovoLote() {
+            if (confirm('🔄 Deseja começar um novo lote?\n\n✅ Sim - Zerar tudo\n❌ Não - Manter dados')) {
+                zerarLote();
+            }
+        }
+
+        function zerarLote() {
+            pesagens = [];
+            brincoCounter = 1;
+            qtdNaBalanca = 1;
+            document.getElementById('pesoInput').value = '';
+            document.getElementById('precoKgInput').value = '';
+            document.getElementById('rendimento').value = '50';
+            document.getElementById('nomeCliente').value = '';
+            document.getElementById('nomeVendedor').value = '';
+            document.getElementById('precoCompra').value = '';
+            document.getElementById('qtdMeta').value = '';
+            selecionarCabecas(1);
+            salvarDados();
+            renderizar();
+            alert('🆕 Novo lote iniciado!');
         }
 
         document.getElementById('pesoInput').addEventListener('input', atualizarMedia);
