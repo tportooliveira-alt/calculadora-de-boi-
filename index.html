@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#8B4513">
     <meta name="description" content="App de Pesagem de Gado - Funciona Offline">
     <title>Pecuária Premium</title>
-    <link rel="manifest" id="manifest-placeholder">
+    <link rel="manifest" href="manifest.json">
     <style>
         * {
             margin: 0;
@@ -830,10 +830,15 @@ Gerado por Pecuária Premium
             renderizar();
             setInterval(() => {
                 const now = new Date();
-                document.getElementById('statusTime').textContent = 
+                document.getElementById('statusTime').textContent =
                     now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
             }, 1000);
         });
+
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
     </script>
 </body>
 </html>
