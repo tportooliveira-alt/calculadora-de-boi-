@@ -1,928 +1,447 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#8B4513">
-    <meta name="description" content="Pesagem de Gado - Calculadora Rápida">
-    <title>Pesagem de Gado</title>
-    <link rel="manifest" href="manifest.json">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#8B4513">
+<title>Pesagem de Gado</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1410;height:100vh;overflow:hidden}
+.app{max-width:500px;height:100vh;margin:0 auto;background:#f5f1e8;display:flex;flex-direction:column;overflow:hidden}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(to bottom, #1a1410, #2d2419);
-            height: 100vh;
-            overflow: hidden;
-        }
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;padding:10px 16px;text-align:center;border-bottom:3px solid #d4af37;flex-shrink:0}
+.hdr h1{font-size:20px;font-weight:900}
+.hdr-sub{font-size:11px;color:#f4e4c1;display:flex;justify-content:space-around;margin-top:2px}
 
-        .app-container {
-            max-width: 500px;
-            height: 100vh;
-            margin: 0 auto;
-            background: #f5f1e8;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+/* TELA CADASTRO */
+.t-cad{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;overflow-y:auto}
+.t-cad.off{display:none}
+.cad-box{background:white;padding:22px;border-radius:12px;width:100%;max-width:400px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.cad-box h2{color:#8B4513;margin-bottom:16px;font-size:18px;text-align:center}
+.campo{margin-bottom:12px}
+.campo label{display:block;font-weight:700;color:#654321;margin-bottom:4px;font-size:13px}
+.campo input,.campo select{width:100%;padding:10px;border:2px solid #d4af37;border-radius:6px;font-size:15px;color:#654321}
+.row{display:flex;gap:8px}
+.row input{flex:1}
+.row select{width:110px}
+.btn-start{width:100%;padding:13px;background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;border:none;border-radius:6px;font-size:16px;font-weight:700;margin-top:16px;cursor:pointer}
 
-        /* ═══════════════════════════════════════ HEADER ═══════════════════════════════════════ */
-        .header {
-            background: linear-gradient(135deg, #8B4513, #654321);
-            color: #d4af37;
-            padding: 16px;
-            text-align: center;
-            border-bottom: 4px solid #d4af37;
-        }
+/* TELA PESAGEM */
+.t-pes{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.t-pes.off{display:none}
+.pes-top{padding:12px 14px;flex-shrink:0}
 
-        .header h1 {
-            font-size: 24px;
-            font-weight: 900;
-            margin-bottom: 4px;
-        }
+/* DISPLAY */
+.display{background:linear-gradient(135deg,#2d1f13,#3d2b1f);border:3px solid #d4af37;border-radius:8px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:flex-end;min-height:70px}
+.dval{font-size:46px;font-weight:900;color:#d4af37;font-family:'Courier New',monospace}
+.dunit{font-size:15px;color:#f4e4c1;margin-left:6px}
 
-        .header-info {
-            font-size: 12px;
-            color: #f4e4c1;
-            display: flex;
-            justify-content: space-around;
-        }
+/* QUANTIDADE PICKER */
+.qtd-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.qtd-row label{font-weight:700;color:#654321;font-size:13px;width:45px;flex-shrink:0}
+.qtd-wrap{flex:1;position:relative;height:44px;overflow:hidden;border:2px solid #d4af37;border-radius:8px;background:white}
+.qtd-wrap::before,.qtd-wrap::after{content:'';position:absolute;top:0;bottom:0;width:30px;z-index:2;pointer-events:none}
+.qtd-wrap::before{left:0;background:linear-gradient(to right,white,transparent)}
+.qtd-wrap::after{right:0;background:linear-gradient(to left,white,transparent)}
+.qtd-ind{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:36px;border:2px solid #d4af37;border-radius:6px;z-index:1;pointer-events:none;background:rgba(212,175,55,.1)}
+.qtd-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;height:100%;align-items:center}
+.qtd-track::-webkit-scrollbar{display:none}
+.qtd-item{min-width:44px;height:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:20px;font-weight:700;color:#654321;cursor:pointer;flex-shrink:0}
+.qtd-item.sel{color:#8B4513;background:#fef9ee}
 
-        /* ═══════════════════════════════════════ TELA CADASTRO ═══════════════════════════════════════ */
-        .cadastro-screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-y: auto;
-        }
+/* CONFIRMAÇÃO */
+.conf-box{min-height:0}
+.conf-msg{background:#27ae60;color:white;padding:10px 14px;border-radius:6px;text-align:center;font-size:15px;font-weight:700;margin-bottom:10px;animation:sld .3s ease-out}
+@keyframes sld{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
-        .cadastro-screen.hidden {
-            display: none;
-        }
+/* TECLADO */
+.teclado{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:0}
+.key{height:60px;border:2px solid #d4af37;border-radius:8px;font-size:22px;font-weight:700;background:white;color:#654321;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s}
+.key:active{background:#d4af37;transform:scale(.95)}
+.key.del{background:#e74c3c;color:white;font-size:16px}
+.key.del:active{background:#c0392b}
+.key.clr{background:#e67e22;color:white;font-size:13px;font-weight:900}
+.key.clr:active{background:#d35400}
+.key.ok{background:linear-gradient(135deg,#27ae60,#229954);color:white;font-size:26px}
+.key.ok:active{background:#1e8449}
+.key.prox{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;font-size:13px;font-weight:900}
+.key.prox:active{background:#5a3a26}
 
-        .cadastro-box {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+/* SEÇÃO SCROLLÁVEL */
+.pes-scroll{flex:1;overflow-y:auto;padding:10px 14px;-webkit-overflow-scrolling:touch}
 
-        .cadastro-box h2 {
-            color: #8B4513;
-            margin-bottom: 20px;
-            font-size: 20px;
-            text-align: center;
-        }
+/* TABELA */
+.tabela-wrap{background:white;border-radius:8px;overflow:hidden;margin-bottom:10px;border:2px solid #d4af37}
+.tab-header,.tab-row,.tab-total{display:grid;grid-template-columns:28px 40px 68px 72px 80px 30px;align-items:center;padding:7px 4px}
+.tab-header{background:linear-gradient(135deg,#8B4513,#654321)}
+.tab-header span{color:#d4af37;font-size:9px;font-weight:900;text-transform:uppercase;text-align:center}
+.tab-row{border-bottom:1px solid #f0e8d8;animation:sld2 .2s ease-out}
+@keyframes sld2{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.tab-row:nth-child(even){background:#fdf9f3}
+.tab-row span{font-size:12px;color:#654321;text-align:center;font-weight:600}
+.tab-row span.n{color:#8B4513;font-weight:900}
+.tab-total{background:linear-gradient(135deg,#2d1f13,#3d2b1f);padding:9px 4px}
+.tab-total span{color:#d4af37;font-size:11px;font-weight:900;text-align:center}
+.tab-total .tlbl{font-size:10px;grid-column:1/3;text-align:left;padding-left:4px}
+.del-btn{background:none;border:none;font-size:13px;cursor:pointer;padding:0;line-height:1}
+.tab-empty{color:#bbb;text-align:center;padding:18px;font-size:13px}
 
-        .cadastro-field {
-            margin-bottom: 16px;
-        }
-
-        .cadastro-field label {
-            display: block;
-            font-weight: bold;
-            color: #654321;
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
-
-        .cadastro-field input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #d4af37;
-            border-radius: 6px;
-            font-size: 16px;
-            color: #654321;
-        }
-
-        .btn-iniciar {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #8B4513, #654321);
-            color: #d4af37;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-iniciar:active {
-            transform: scale(0.98);
-        }
-
-        /* ═══════════════════════════════════════ TELA PESAGEM ═══════════════════════════════════════ */
-        .pesagem-screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .pesagem-screen.hidden {
-            display: none;
-        }
-
-        .pesagem-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            padding: 0;
-        }
-
-        .pesagem-top {
-            padding: 16px;
-            flex-shrink: 0;
-        }
-
-        .pesagem-scroll {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* Display da Calculadora */
-        .calc-display {
-            background: linear-gradient(135deg, #2d1f13, #3d2b1f);
-            border: 3px solid #d4af37;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: right;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        .display-value {
-            font-size: 48px;
-            font-weight: 900;
-            color: #d4af37;
-            font-family: 'Courier New', monospace;
-        }
-
-        .display-unit {
-            font-size: 16px;
-            color: #f4e4c1;
-            margin-left: 8px;
-        }
-
-        .quantidade-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            align-items: center;
-        }
-
-        .quantidade-selector label {
-            font-weight: bold;
-            color: #654321;
-            font-size: 14px;
-            width: 50px;
-            flex-shrink: 0;
-        }
-
-        /* Scroll picker de quantidade */
-        .qtd-scroll-wrap {
-            flex: 1;
-            position: relative;
-            height: 48px;
-            overflow: hidden;
-            border: 2px solid #d4af37;
-            border-radius: 8px;
-            background: white;
-        }
-
-        .qtd-scroll-wrap::before,
-        .qtd-scroll-wrap::after {
-            content: '';
-            position: absolute;
-            left: 0; right: 0;
-            height: 14px;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .qtd-scroll-wrap::before { top: 0; background: linear-gradient(white, transparent); }
-        .qtd-scroll-wrap::after  { bottom: 0; background: linear-gradient(transparent, white); }
-
-        .qtd-scroll-track {
-            display: flex;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            height: 100%;
-            align-items: center;
-            gap: 0;
-        }
-
-        .qtd-scroll-track::-webkit-scrollbar { display: none; }
-
-        .qtd-item {
-            min-width: 48px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            scroll-snap-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            color: #654321;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: color 0.1s;
-        }
-
-        .qtd-item.selected {
-            color: #8B4513;
-            background: #fef9ee;
-        }
-
-        /* Linha central indicadora */
-        .qtd-indicator {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 48px;
-            height: 44px;
-            border: 2px solid #d4af37;
-            border-radius: 6px;
-            pointer-events: none;
-            z-index: 1;
-            background: rgba(212,175,55,0.08);
-        }
-
-        /* Teclado Numérico */
-        .numeric-keypad {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-shrink: 0;
-        }
-
-        .key-btn {
-            height: 64px;
-            padding: 0;
-            border: 2px solid #d4af37;
-            border-radius: 8px;
-            font-size: 24px;
-            font-weight: bold;
-            background: white;
-            color: #654321;
-            cursor: pointer;
-            transition: all 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .key-btn:active {
-            background: #d4af37;
-            transform: scale(0.95);
-        }
-
-        .key-btn.delete {
-            background: #e74c3c;
-            color: white;
-            font-size: 18px;
-        }
-
-        .key-btn.delete:active {
-            background: #c0392b;
-        }
-
-        .key-btn.clear {
-            background: #e67e22;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .key-btn.clear:active {
-            background: #d35400;
-        }
-
-        .key-btn.confirm {
-            background: linear-gradient(135deg, #27ae60, #229954);
-            color: white;
-            font-size: 28px;
-        }
-
-        .key-btn.confirm:active {
-            background: #1e8449;
-        }
-
-        .key-btn.ok {
-            background: linear-gradient(135deg, #8B4513, #654321);
-            color: #d4af37;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .key-btn.ok:active {
-            background: #5a3a26;
-        }
-
-        /* Mensagem de Confirmação */
-        .confirmation-message {
-            background: #27ae60;
-            color: white;
-            padding: 16px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 16px;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Lista de Pesagens */
-        .pesagens-list {
-            margin-bottom: 16px;
-        }
-
-        .pesagens-list h3 {
-            color: #654321;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .pesagem-item {
-            background: white;
-            padding: 12px;
-            border-left: 4px solid #8B4513;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            animation: slideIn 0.2s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .pesagem-info {
-            flex: 1;
-        }
-
-        .pesagem-number {
-            font-weight: bold;
-            color: #8B4513;
-            font-size: 14px;
-        }
-
-        .pesagem-details {
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
-        }
-
-        .pesagem-delete {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        /* Totalizador */
-        .totalizador {
-            background: linear-gradient(135deg, #8B4513, #654321);
-            color: #d4af37;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            flex-shrink: 0;
-        }
-
-        .totalizador h3 {
-            margin-bottom: 10px;
-            font-size: 14px;
-            text-transform: uppercase;
-            border-bottom: 2px solid #d4af37;
-            padding-bottom: 8px;
-        }
-
-        .tot-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* Botão Finalizar */
-        .btn-finalizar {
-            background: linear-gradient(135deg, #8B4513, #654321);
-            color: #d4af37;
-            border: 3px solid #d4af37;
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 16px;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .btn-finalizar:active {
-            transform: scale(0.98);
-        }
-    </style>
+/* BOTÕES FINAIS */
+.btn-exportar{width:100%;background:linear-gradient(135deg,#1a5c2e,#0f3d1e);color:#fff;border:none;padding:13px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:8px;transition:all .2s}
+.btn-exportar:active{transform:scale(.98)}
+.btn-finalizar{width:100%;background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;border:3px solid #d4af37;padding:13px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px;transition:all .2s}
+.btn-finalizar:active{transform:scale(.98)}
+</style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- HEADER -->
-        <div class="header">
-            <h1>🐄 PESAGEM</h1>
-            <div class="header-info">
-                <span id="headerVendedor">-</span>
-                <span id="headerCompra">-</span>
-            </div>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <h1>🐄 PESAGEM DE GADO</h1>
+    <div class="hdr-sub">
+      <span id="h-vendedor">—</span>
+      <span id="h-preco">—</span>
+    </div>
+  </div>
+
+  <!-- TELA CADASTRO -->
+  <div class="t-cad" id="tCad">
+    <div class="cad-box">
+      <h2>📋 CADASTRO DO LOTE</h2>
+      <div class="campo"><label>Vendedor / Comprador</label><input id="iVendedor" type="text" placeholder="Nome"></div>
+      <div class="campo"><label>Preço de Compra (R$ total do lote)</label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="campo">
+        <label>Preço de Venda</label>
+        <div class="row">
+          <input id="iVenda" type="number" placeholder="0.00" step="0.01" min="0">
+          <select id="iUnidade"><option value="kg">R$/kg</option><option value="arroba">R$/@</option></select>
         </div>
+      </div>
+      <div class="campo"><label>Rendimento (%)</label><input id="iRendimento" type="number" value="50" step="0.1" min="0" max="100"></div>
+      <button class="btn-start" onclick="iniciar()">✓ COMEÇAR PESAGEM</button>
+    </div>
+  </div>
 
-        <!-- TELA CADASTRO -->
-        <div class="cadastro-screen" id="cadastroScreen">
-            <div class="cadastro-box">
-                <h2>📋 CADASTRO DO LOTE</h2>
+  <!-- TELA PESAGEM -->
+  <div class="t-pes off" id="tPes">
 
-                <div class="cadastro-field">
-                    <label>Vendedor/Comprador:</label>
-                    <input type="text" id="vendedorInput" placeholder="Nome" autofocus>
-                </div>
-
-                <div class="cadastro-field">
-                    <label>Preço de Compra (R$):</label>
-                    <input type="number" id="precoCompraInput" placeholder="0.00" step="0.01" min="0">
-                </div>
-
-                <div class="cadastro-field">
-                    <label>Preço de Venda:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="number" id="precoVendaInput" placeholder="0.00" step="0.01" min="0" style="flex: 1;">
-                        <select id="unidadePrecoSelect" style="padding: 8px; border: 2px solid #d4af37; border-radius: 4px;">
-                            <option value="kg">R$/kg</option>
-                            <option value="arroba">R$/@</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="cadastro-field">
-                    <label>Rendimento (%):</label>
-                    <input type="number" id="rendimentoInput" value="50" step="0.1" min="0" max="100">
-                </div>
-
-                <button class="btn-iniciar" onclick="iniciarPesagem()">
-                    ✓ COMEÇAR PESAGEM
-                </button>
-            </div>
+    <!-- PARTE FIXA: display + qtd + confirmação + teclado -->
+    <div class="pes-top">
+      <div class="display">
+        <span class="dval" id="dval">0</span>
+        <span class="dunit">kg</span>
+      </div>
+      <div class="qtd-row">
+        <label>Bois:</label>
+        <div class="qtd-wrap">
+          <div class="qtd-ind"></div>
+          <div class="qtd-track" id="qtdTrack"></div>
         </div>
+        <input type="hidden" id="iQtd" value="1">
+      </div>
+      <div id="confBox" class="conf-box"></div>
+      <div class="teclado">
+        <button class="key" onclick="dig('7')">7</button>
+        <button class="key" onclick="dig('8')">8</button>
+        <button class="key" onclick="dig('9')">9</button>
+        <button class="key del" onclick="apagar()">⌫</button>
 
-        <!-- TELA PESAGEM -->
-        <div class="pesagem-screen hidden" id="pesagemScreen">
-            <div class="pesagem-content">
-                <!-- SEÇÃO SUPERIOR (Fixo) -->
-                <div class="pesagem-top">
-                    <!-- Display -->
-                    <div class="calc-display">
-                        <span class="display-value" id="displayValue">0</span>
-                        <span class="display-unit">kg</span>
-                    </div>
+        <button class="key" onclick="dig('4')">4</button>
+        <button class="key" onclick="dig('5')">5</button>
+        <button class="key" onclick="dig('6')">6</button>
+        <button class="key clr" onclick="limpar()">CLR</button>
 
-                    <!-- Quantidade de Bios -->
-                    <div class="quantidade-selector">
-                        <label>Bois:</label>
-                        <div class="qtd-scroll-wrap">
-                            <div class="qtd-indicator"></div>
-                            <div class="qtd-scroll-track" id="qtdTrack">
-                                <!-- gerado por JS -->
-                            </div>
-                        </div>
-                        <input type="hidden" id="qtdInput" value="1">
-                    </div>
+        <button class="key" onclick="dig('1')">1</button>
+        <button class="key" onclick="dig('2')">2</button>
+        <button class="key" onclick="dig('3')">3</button>
+        <button class="key" onclick="dig('.')">.</button>
 
-                    <!-- Mensagem de Confirmação -->
-                    <div id="confirmationBox"></div>
-
-                    <!-- Teclado Numérico -->
-                    <div class="numeric-keypad">
-                        <button class="key-btn" onclick="digitarNumero('7')">7</button>
-                        <button class="key-btn" onclick="digitarNumero('8')">8</button>
-                        <button class="key-btn" onclick="digitarNumero('9')">9</button>
-                        <button class="key-btn delete" onclick="deletarDigito()">⌫</button>
-
-                        <button class="key-btn" onclick="digitarNumero('4')">4</button>
-                        <button class="key-btn" onclick="digitarNumero('5')">5</button>
-                        <button class="key-btn" onclick="digitarNumero('6')">6</button>
-                        <button class="key-btn clear" onclick="limparDisplay()">CLR</button>
-
-                        <button class="key-btn" onclick="digitarNumero('1')">1</button>
-                        <button class="key-btn" onclick="digitarNumero('2')">2</button>
-                        <button class="key-btn" onclick="digitarNumero('3')">3</button>
-                        <button class="key-btn" onclick="digitarNumero('.')">.</button>
-
-                        <button class="key-btn confirm" onclick="salvarPesagem()">✓</button>
-                        <button class="key-btn" onclick="digitarNumero('0')">0</button>
-                        <button class="key-btn ok" onclick="proximaPesagem()">OK</button>
-                        <button class="key-btn delete" onclick="deletarDigito()">⌫</button>
-                    </div>
-                </div>
-
-                <!-- SEÇÃO SCROLLÁVEL -->
-                <div class="pesagem-scroll">
-                    <!-- Lista de Pesagens -->
-                    <div class="pesagens-list">
-                        <h3>Pesagens:</h3>
-                        <div id="pesagensContainer"></div>
-                    </div>
-
-                    <!-- Totalizador -->
-                    <div class="totalizador" id="totalizador" style="display: none;">
-                        <h3>📊 TOTAL</h3>
-                        <div class="tot-item">
-                            <span>Pesagens:</span>
-                            <span id="totPesagens">0</span>
-                        </div>
-                        <div class="tot-item">
-                            <span>Total Bios:</span>
-                            <span id="totBios">0</span>
-                        </div>
-                        <div class="tot-item">
-                            <span>Peso Total:</span>
-                            <span id="totPeso">0 kg</span>
-                        </div>
-                        <div class="tot-item">
-                            <span>Valor Total:</span>
-                            <span id="totValor">R$ 0.00</span>
-                        </div>
-                    </div>
-
-                    <!-- Botão Finalizar -->
-                    <button class="btn-finalizar" onclick="finalizarPesagem()">
-                        ✓ FINALIZAR LOTE
-                    </button>
-                </div>
-            </div>
-        </div>
+        <button class="key ok" onclick="salvar()">✓</button>
+        <button class="key" onclick="dig('0')">0</button>
+        <button class="key" onclick="dig('0')">00</button>
+        <button class="key prox" onclick="proximo()">OK</button>
+      </div>
     </div>
 
-    <script>
-        let pesagens = [];
-        let pesoAtual = '';
-        let precoVendaKgLote = 0;
+    <!-- PARTE SCROLLÁVEL: tabela + botões -->
+    <div class="pes-scroll">
 
-        function iniciarPesagem() {
-            const vendedor = document.getElementById('vendedorInput').value || 'Não informado';
-            const precoCompra = parseFloat(document.getElementById('precoCompraInput').value) || 0;
-            const precoVenda = parseFloat(document.getElementById('precoVendaInput').value) || 0;
-            const unidadePreco = document.getElementById('unidadePrecoSelect').value;
-            const rendimento = parseFloat(document.getElementById('rendimentoInput').value) || 50;
+      <!-- TABELA PLANILHA -->
+      <div class="tabela-wrap" id="tabelaWrap">
+        <div class="tab-header">
+          <span>#</span><span>Qtd</span><span>Peso kg</span><span>Média/@</span><span>Valor R$</span><span></span>
+        </div>
+        <div id="tabelaBody">
+          <div class="tab-empty">Nenhuma pesagem ainda</div>
+        </div>
+        <div class="tab-total" id="tabelaTotal" style="display:none">
+          <span class="tlbl">TOTAL</span>
+          <span id="tTotQtd">0</span>
+          <span id="tTotPeso">0</span>
+          <span id="tTotMedia">—</span>
+          <span id="tTotValor">R$0</span>
+          <span></span>
+        </div>
+      </div>
 
-            window.vendedorLote = vendedor;
-            window.precoCompraLote = precoCompra;
-            window.rendimentoLote = rendimento;
-            window.unidadePrecLote = unidadePreco;
-            precoVendaKgLote = precoVenda;
+      <!-- BOTÕES -->
+      <button class="btn-exportar" onclick="exportarExcel()">📊 SALVAR PLANILHA (.xlsx)</button>
+      <button class="btn-finalizar" onclick="finalizar()">✓ FINALIZAR LOTE</button>
 
-            // Atualizar header
-            document.getElementById('headerVendedor').textContent = vendedor;
-            document.getElementById('headerCompra').textContent = `Compra: R$ ${precoCompra.toFixed(2)}`;
+    </div>
+  </div>
 
-            // Trocar telas
-            document.getElementById('cadastroScreen').classList.add('hidden');
-            document.getElementById('pesagemScreen').classList.remove('hidden');
+</div>
+<script>
+// ─── Estado ───────────────────────────────────────────────────────────────────
+let pesagens = [];
+let peso = '';
+let precoVenda = 0;
+let unidade = 'kg';
 
-            // Focar no display
-            setTimeout(() => digitarNumero('1'), 100);
-        }
+// ─── Cadastro ─────────────────────────────────────────────────────────────────
+function iniciar() {
+  const vendedor  = document.getElementById('iVendedor').value  || 'Não informado';
+  const compra    = parseFloat(document.getElementById('iCompra').value)    || 0;
+  const venda     = parseFloat(document.getElementById('iVenda').value)     || 0;
+  const rend      = parseFloat(document.getElementById('iRendimento').value)|| 50;
+  unidade         = document.getElementById('iUnidade').value;
+  precoVenda      = venda;
 
-        function digitarNumero(num) {
-            if (pesoAtual.length < 8) {
-                if (num === '.' && pesoAtual.includes('.')) return;
-                pesoAtual += num;
-                atualizarDisplay();
-            }
-        }
+  window._vendedor = vendedor;
+  window._compra   = compra;
+  window._rend     = rend;
 
-        function deletarDigito() {
-            pesoAtual = pesoAtual.slice(0, -1);
-            atualizarDisplay();
-        }
+  document.getElementById('h-vendedor').textContent = vendedor;
+  document.getElementById('h-preco').textContent =
+    compra > 0 ? `Compra: R$ ${compra.toFixed(2)}` : (venda > 0 ? `Venda: R$ ${venda.toFixed(2)}/${unidade === 'arroba' ? '@' : 'kg'}` : '—');
 
-        function limparDisplay() {
-            pesoAtual = '';
-            document.getElementById('confirmationBox').innerHTML = '';
-            atualizarDisplay();
-        }
+  document.getElementById('tCad').classList.add('off');
+  document.getElementById('tPes').classList.remove('off');
+}
 
-        function atualizarDisplay() {
-            const valor = pesoAtual || '0';
-            document.getElementById('displayValue').textContent = valor;
-        }
+// ─── Teclado ──────────────────────────────────────────────────────────────────
+function dig(v) {
+  if (peso.length >= 7) return;
+  if (v === '.' && peso.includes('.')) return;
+  if (v === '00' && peso === '') return;
+  peso += v;
+  atualizar();
+}
+function apagar() { peso = peso.slice(0,-1); atualizar(); }
+function limpar()  { peso = ''; document.getElementById('confBox').innerHTML = ''; atualizar(); }
+function proximo() { limpar(); resetQtd(); }
+function atualizar() { document.getElementById('dval').textContent = peso || '0'; }
 
-        function mudouQtd() {
-            // chamado pelo scroll picker
-        }
+// ─── Qty picker ───────────────────────────────────────────────────────────────
+(function initPicker() {
+  const track  = document.getElementById('qtdTrack');
+  const hidden = document.getElementById('iQtd');
+  const PAD = 3, MAX = 20;
 
-        function initQtdPicker() {
-            const track = document.getElementById('qtdTrack');
-            const hidden = document.getElementById('qtdInput');
-            const max = 20;
+  for (let i=0;i<PAD;i++) track.appendChild(Object.assign(document.createElement('div'),{className:'qtd-item'}));
+  for (let i=1;i<=MAX;i++) {
+    const el = Object.assign(document.createElement('div'),{className:'qtd-item'+(i===1?' sel':''),textContent:i});
+    el.dataset.v = i;
+    track.appendChild(el);
+  }
+  for (let i=0;i<PAD;i++) track.appendChild(Object.assign(document.createElement('div'),{className:'qtd-item'}));
 
-            // Padding items so first/last can center
-            const pad = 3;
-            for (let i = 0; i < pad; i++) {
-                const el = document.createElement('div');
-                el.className = 'qtd-item';
-                track.appendChild(el);
-            }
-            for (let i = 1; i <= max; i++) {
-                const el = document.createElement('div');
-                el.className = 'qtd-item' + (i === 1 ? ' selected' : '');
-                el.textContent = i;
-                el.dataset.val = i;
-                track.appendChild(el);
-            }
-            for (let i = 0; i < pad; i++) {
-                const el = document.createElement('div');
-                el.className = 'qtd-item';
-                track.appendChild(el);
-            }
+  function snapTo(el) {
+    track.querySelectorAll('.sel').forEach(e=>e.classList.remove('sel'));
+    el.classList.add('sel');
+    hidden.value = el.dataset.v;
+    track.scrollTo({left: el.offsetLeft - track.offsetWidth/2 + el.offsetWidth/2, behavior:'smooth'});
+  }
 
-            // Scroll to 1
-            const firstReal = track.querySelector('[data-val="1"]');
-            if (firstReal) {
-                track.scrollLeft = firstReal.offsetLeft - track.offsetWidth / 2 + firstReal.offsetWidth / 2;
-            }
+  // scroll to 1 on init (after paint)
+  requestAnimationFrame(()=>{
+    const first = track.querySelector('[data-v="1"]');
+    if (first) snapTo(first);
+  });
 
-            let scrollTimer;
-            track.addEventListener('scroll', () => {
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(() => {
-                    const center = track.scrollLeft + track.offsetWidth / 2;
-                    let closest = null, minDist = Infinity;
-                    track.querySelectorAll('[data-val]').forEach(el => {
-                        const elCenter = el.offsetLeft + el.offsetWidth / 2;
-                        const dist = Math.abs(center - elCenter);
-                        if (dist < minDist) { minDist = dist; closest = el; }
-                    });
-                    if (closest) {
-                        track.querySelectorAll('.selected').forEach(e => e.classList.remove('selected'));
-                        closest.classList.add('selected');
-                        hidden.value = closest.dataset.val;
-                        // Snap
-                        track.scrollTo({ left: closest.offsetLeft - track.offsetWidth/2 + closest.offsetWidth/2, behavior: 'smooth' });
-                    }
-                }, 80);
-            });
+  let t;
+  track.addEventListener('scroll', ()=>{
+    clearTimeout(t);
+    t = setTimeout(()=>{
+      const center = track.scrollLeft + track.offsetWidth/2;
+      let best=null, min=Infinity;
+      track.querySelectorAll('[data-v]').forEach(el=>{
+        const d = Math.abs(el.offsetLeft + el.offsetWidth/2 - center);
+        if(d<min){min=d;best=el;}
+      });
+      if(best) snapTo(best);
+    }, 80);
+  });
+  track.addEventListener('click', e=>{
+    const el = e.target.closest('[data-v]');
+    if(el) snapTo(el);
+  });
+})();
 
-            // Tap to select
-            track.addEventListener('click', (e) => {
-                const item = e.target.closest('[data-val]');
-                if (!item) return;
-                track.querySelectorAll('.selected').forEach(e => e.classList.remove('selected'));
-                item.classList.add('selected');
-                hidden.value = item.dataset.val;
-                track.scrollTo({ left: item.offsetLeft - track.offsetWidth/2 + item.offsetWidth/2, behavior: 'smooth' });
-            });
-        }
+function resetQtd() {
+  const track = document.getElementById('qtdTrack');
+  const first = track.querySelector('[data-v="1"]');
+  if (first) {
+    track.querySelectorAll('.sel').forEach(e=>e.classList.remove('sel'));
+    first.classList.add('sel');
+    document.getElementById('iQtd').value = '1';
+    track.scrollTo({left: first.offsetLeft - track.offsetWidth/2 + first.offsetWidth/2, behavior:'smooth'});
+  }
+}
 
-        function salvarPesagem() {
-            const peso = parseFloat(pesoAtual);
-            if (!peso || peso <= 0) {
-                alert('Digite um peso válido');
-                return;
-            }
+// ─── Salvar pesagem ───────────────────────────────────────────────────────────
+function salvar() {
+  const p = parseFloat(peso);
+  if (!p || p <= 0) { alert('Digite um peso válido'); return; }
 
-            const qtd = parseInt(document.getElementById('qtdInput').value) || 1;
-            const media = (peso / qtd).toFixed(2);
+  const qtd  = parseInt(document.getElementById('iQtd').value) || 1;
+  const arr  = p / 15;                  // 1@ = 15 kg
+  const mediaPorBoi = p / qtd;          // kg/boi
 
-            // Calcular preço total baseado na unidade
-            let precoTotal = 0;
-            if (window.unidadePrecLote === 'arroba') {
-                // Arroba = Peso / 15 (1 arroba = 15kg)
-                const arrobaBruta = peso / 15;
-                precoTotal = arrobaBruta * precoVendaKgLote;
-            } else {
-                // Por kg
-                precoTotal = peso * precoVendaKgLote;
-            }
+  let valor = 0;
+  if (precoVenda > 0) {
+    valor = unidade === 'arroba' ? arr * precoVenda : p * precoVenda;
+  }
 
-            const pesagem = {
-                id: Date.now(),
-                numero: pesagens.length + 1,
-                quantidade: qtd,
-                peso: peso,
-                media: media,
-                precoTotal: precoTotal
-            };
+  const reg = {
+    id:    Date.now(),
+    num:   pesagens.length + 1,
+    qtd,
+    peso:  p,
+    arr:   arr.toFixed(2),
+    media: mediaPorBoi.toFixed(1),
+    valor
+  };
+  pesagens.unshift(reg);
 
-            pesagens.unshift(pesagem);
+  document.getElementById('confBox').innerHTML =
+    `<div class="conf-msg">✓ #${reg.num} salva: ${p} kg — ${qtd} boi${qtd>1?'s':''}</div>`;
 
-            // Mostrar confirmação
-            const confBox = document.getElementById('confirmationBox');
-            confBox.innerHTML = `
-                <div class="confirmation-message">
-                    ✓ Pesagem #${pesagem.numero} salva: ${peso}kg (${qtd} boi${qtd > 1 ? 's' : ''})
-                </div>
-            `;
+  renderTabela();
 
-            // Atualizar interface
-            renderizarPesagens();
-            atualizarTotalizador();
+  setTimeout(()=>{
+    peso = '';
+    atualizar();
+    resetQtd();
+    document.getElementById('confBox').innerHTML = '';
+  }, 1200);
+}
 
-            // Limpar após 1 segundo
-            setTimeout(() => {
-                pesoAtual = '';
-                atualizarDisplay();
-                document.getElementById('qtdInput').value = '1';
-                confBox.innerHTML = '';
-            }, 1200);
-        }
+// ─── Tabela ───────────────────────────────────────────────────────────────────
+function renderTabela() {
+  const body = document.getElementById('tabelaBody');
+  const tot  = document.getElementById('tabelaTotal');
 
-        function proximaPesagem() {
-            limparDisplay();
-            document.getElementById('qtdInput').value = '1';
-        }
+  if (pesagens.length === 0) {
+    body.innerHTML = '<div class="tab-empty">Nenhuma pesagem ainda</div>';
+    tot.style.display = 'none';
+    return;
+  }
 
-        function renderizarPesagens() {
-            const container = document.getElementById('pesagensContainer');
-            if (pesagens.length === 0) {
-                container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Nenhuma pesagem ainda</p>';
-                return;
-            }
+  // Exibe mais recente primeiro
+  body.innerHTML = pesagens.map(r => `
+    <div class="tab-row">
+      <span class="n">${r.num}</span>
+      <span>${r.qtd}</span>
+      <span>${r.peso}</span>
+      <span>${unidade === 'arroba' ? r.arr+'@' : r.media+'kg'}</span>
+      <span>${r.valor > 0 ? 'R$'+r.valor.toFixed(0) : '—'}</span>
+      <button class="del-btn" onclick="excluir(${r.id})">❌</button>
+    </div>`).join('');
 
-            container.innerHTML = pesagens.map(p => `
-                <div class="pesagem-item">
-                    <div class="pesagem-info">
-                        <div class="pesagem-number">#${p.numero}: ${p.quantidade} boi${p.quantidade > 1 ? 's' : ''}</div>
-                        <div class="pesagem-details">${p.peso}kg | Média: ${p.media}kg/boi | R$ ${p.precoTotal.toFixed(2)}</div>
-                    </div>
-                    <button class="pesagem-delete" onclick="deletarPesagem(${p.id})">❌</button>
-                </div>
-            `).join('');
-        }
+  // Totais
+  const totQtd   = pesagens.reduce((s,r)=>s+r.qtd, 0);
+  const totPeso  = pesagens.reduce((s,r)=>s+r.peso, 0);
+  const totArr   = totPeso / 15;
+  const totValor = pesagens.reduce((s,r)=>s+r.valor, 0);
 
-        function deletarPesagem(id) {
-            pesagens = pesagens.filter(p => p.id !== id);
-            pesagens = pesagens.map((p, idx) => ({...p, numero: idx + 1}));
-            renderizarPesagens();
-            atualizarTotalizador();
-        }
+  document.getElementById('tTotQtd').textContent   = totQtd;
+  document.getElementById('tTotPeso').textContent  = totPeso.toFixed(0)+'kg';
+  document.getElementById('tTotMedia').textContent = unidade==='arroba' ? totArr.toFixed(1)+'@' : (totPeso/totQtd).toFixed(1)+'kg';
+  document.getElementById('tTotValor').textContent = totValor>0 ? 'R$'+totValor.toFixed(0) : '—';
+  tot.style.display = 'grid';
+}
 
-        function atualizarTotalizador() {
-            if (pesagens.length === 0) {
-                document.getElementById('totalizador').style.display = 'none';
-                return;
-            }
+function excluir(id) {
+  pesagens = pesagens.filter(r=>r.id!==id).map((r,i)=>({...r,num:i+1}));
+  renderTabela();
+}
 
-            document.getElementById('totalizador').style.display = 'block';
+// ─── Exportar Excel ───────────────────────────────────────────────────────────
+function exportarExcel() {
+  if (pesagens.length === 0) { alert('Nenhuma pesagem para exportar!'); return; }
 
-            const totalPesagens = pesagens.length;
-            const totalBios = pesagens.reduce((sum, p) => sum + p.quantidade, 0);
-            const totalPeso = pesagens.reduce((sum, p) => sum + p.peso, 0);
-            const totalValor = pesagens.reduce((sum, p) => sum + p.precoTotal, 0);
+  const totQtd  = pesagens.reduce((s,r)=>s+r.qtd,0);
+  const totPeso = pesagens.reduce((s,r)=>s+r.peso,0);
+  const totVal  = pesagens.reduce((s,r)=>s+r.valor,0);
 
-            document.getElementById('totPesagens').textContent = totalPesagens;
-            document.getElementById('totBios').textContent = totalBios;
-            document.getElementById('totPeso').textContent = `${totalPeso.toFixed(0)} kg`;
-            document.getElementById('totValor').textContent = `R$ ${totalValor.toFixed(2)}`;
-        }
+  // Cabeçalho do lote
+  const info = [
+    ['RELATÓRIO DE PESAGEM DE GADO'],
+    ['Data:', new Date().toLocaleString('pt-BR')],
+    ['Vendedor:', window._vendedor || '—'],
+    ['Preço Compra (total lote):', window._compra > 0 ? `R$ ${window._compra.toFixed(2)}` : '—'],
+    ['Preço Venda:', precoVenda > 0 ? `R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}` : '—'],
+    ['Rendimento (%):', window._rend || '—'],
+    [],
+    ['#', 'Qtd Bois', 'Peso (kg)', unidade==='arroba'?'Arrobas (@)':'Média kg/boi', 'Valor (R$)']
+  ];
 
-        function finalizarPesagem() {
-            if (pesagens.length === 0) {
-                alert('Nenhuma pesagem registrada!');
-                return;
-            }
+  // Linhas de pesagem (ordem original = mais antiga primeiro)
+  const linhas = [...pesagens].reverse().map(r => [
+    r.num,
+    r.qtd,
+    r.peso,
+    parseFloat(unidade==='arroba' ? r.arr : r.media),
+    r.valor > 0 ? r.valor : ''
+  ]);
 
-            const totalBios = pesagens.reduce((sum, p) => sum + p.quantidade, 0);
-            const totalPeso = pesagens.reduce((sum, p) => sum + p.peso, 0);
-            const totalValor = pesagens.reduce((sum, p) => sum + p.precoTotal, 0);
-            const lucro = totalValor - window.precoCompraLote;
+  // Linha de totais
+  linhas.push([]);
+  linhas.push(['TOTAL', totQtd, totPeso.toFixed(1), (totPeso/15).toFixed(2), totVal>0 ? totVal.toFixed(2) : '']);
 
-            // Montar relatório dinâmico
-            let relatorioFinanceiro = '';
-            const unidadeTexto = window.unidadePrecLote === 'arroba' ? 'R$/@' : 'R$/kg';
+  if (window._compra > 0 && totVal > 0) {
+    const lucro = totVal - window._compra;
+    linhas.push([]);
+    linhas.push(['Lucro / Prejuízo (R$)', '', '', '', lucro.toFixed(2)]);
+  }
 
-            if (window.precoCompraLote > 0 || precoVendaKgLote > 0) {
-                relatorioFinanceiro = `
-═════════════════════════════════════════
-💰 FINANCEIRO
-═════════════════════════════════════════
-`;
-                if (window.precoCompraLote > 0) {
-                    relatorioFinanceiro += `\n💵 Preço Compra: R$ ${window.precoCompraLote.toFixed(2)}`;
-                }
-                if (precoVendaKgLote > 0) {
-                    const unidadeLabel = window.unidadePrecLote === 'arroba' ? 'Preço Venda/@' : 'Preço Venda/kg';
-                    relatorioFinanceiro += `\n💲 ${unidadeLabel}: R$ ${precoVendaKgLote.toFixed(2)}`;
-                    relatorioFinanceiro += `\n💲 Valor Total Venda: R$ ${totalValor.toFixed(2)}`;
-                }
-                if (window.precoCompraLote > 0 && precoVendaKgLote > 0) {
-                    relatorioFinanceiro += `\n📈 Lucro/Prejuízo: R$ ${lucro.toFixed(2)} ${lucro >= 0 ? '✅' : '❌'}`;
-                }
-                relatorioFinanceiro += '\n';
-            }
+  const dados = [...info, ...linhas];
+  const ws = XLSX.utils.aoa_to_sheet(dados);
 
-            const relatorio = `
-╔═════════════════════════════════════════╗
-║  🐄 RELATÓRIO DE PESAGEM                ║
-╚═════════════════════════════════════════╝
+  // Larguras de coluna
+  ws['!cols'] = [{wch:6},{wch:10},{wch:12},{wch:14},{wch:14}];
 
-📅 ${new Date().toLocaleString('pt-BR')}
-👤 Vendedor: ${window.vendedorLote}
-${window.precoCompraLote > 0 ? `💰 Preço Compra: R$ ${window.precoCompraLote.toFixed(2)}\n` : ''}
-═════════════════════════════════════════
-📊 RESUMO
-═════════════════════════════════════════
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Pesagem');
 
-🔢 Pesagens: ${pesagens.length}
-🐄 Total Bios: ${totalBios}
-⚖️ Peso Total: ${totalPeso.toFixed(2)} kg
-% Rendimento: ${window.rendimentoLote}%
-${precoVendaKgLote > 0 ? `💵 Preço Venda (${unidadeTexto}): R$ ${precoVendaKgLote.toFixed(2)}\n💲 Valor Total Venda: R$ ${totalValor.toFixed(2)}\n` : ''}
-${relatorioFinanceiro}
-═════════════════════════════════════════
-Gerado por Pesagem de Gado
-═════════════════════════════════════════
-            `;
+  const data = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb, `Pesagem_${window._vendedor||'Lote'}_${data}.xlsx`);
+}
 
-            // Download relatório
-            const blob = new Blob([relatorio], {type: 'text/plain'});
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `Relatorio_${new Date().toISOString().split('T')[0]}.txt`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+// ─── Finalizar ────────────────────────────────────────────────────────────────
+function finalizar() {
+  if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
 
-            alert(relatorio);
+  // Exporta Excel automaticamente ao finalizar
+  exportarExcel();
 
-            if (confirm('Deseja começar um novo lote?')) {
-                location.reload();
-            }
-        }
+  if (confirm('Planilha salva! Deseja começar um novo lote?')) {
+    location.reload();
+  }
+}
 
-        // Inicializar
-        atualizarDisplay();
-        initQtdPicker();
-
-        // Registrar Service Worker para PWA offline
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
-            });
-        }
-    </script>
+// ─── SW ───────────────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+</script>
 </body>
 </html>
