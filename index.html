@@ -197,15 +197,80 @@
             color: #654321;
             font-size: 14px;
             width: 50px;
+            flex-shrink: 0;
         }
 
-        .quantidade-selector input {
-            width: 80px;
-            padding: 8px;
+        /* Scroll picker de quantidade */
+        .qtd-scroll-wrap {
+            flex: 1;
+            position: relative;
+            height: 48px;
+            overflow: hidden;
             border: 2px solid #d4af37;
-            border-radius: 4px;
-            font-size: 16px;
-            text-align: center;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .qtd-scroll-wrap::before,
+        .qtd-scroll-wrap::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0;
+            height: 14px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .qtd-scroll-wrap::before { top: 0; background: linear-gradient(white, transparent); }
+        .qtd-scroll-wrap::after  { bottom: 0; background: linear-gradient(transparent, white); }
+
+        .qtd-scroll-track {
+            display: flex;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            height: 100%;
+            align-items: center;
+            gap: 0;
+        }
+
+        .qtd-scroll-track::-webkit-scrollbar { display: none; }
+
+        .qtd-item {
+            min-width: 48px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            scroll-snap-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #654321;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: color 0.1s;
+        }
+
+        .qtd-item.selected {
+            color: #8B4513;
+            background: #fef9ee;
+        }
+
+        /* Linha central indicadora */
+        .qtd-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 44px;
+            border: 2px solid #d4af37;
+            border-radius: 6px;
+            pointer-events: none;
+            z-index: 1;
+            background: rgba(212,175,55,0.08);
         }
 
         /* Teclado Numérico */
@@ -218,8 +283,8 @@
         }
 
         .key-btn {
-            aspect-ratio: 1;
-            padding: 12px;
+            height: 64px;
+            padding: 0;
             border: 2px solid #d4af37;
             border-radius: 8px;
             font-size: 24px;
@@ -263,7 +328,6 @@
             background: linear-gradient(135deg, #27ae60, #229954);
             color: white;
             font-size: 28px;
-            grid-column: 1 / 3;
         }
 
         .key-btn.confirm:active {
@@ -274,7 +338,6 @@
             background: linear-gradient(135deg, #8B4513, #654321);
             color: #d4af37;
             font-size: 16px;
-            grid-column: 3 / 5;
             font-weight: bold;
         }
 
@@ -477,7 +540,13 @@
                     <!-- Quantidade de Bios -->
                     <div class="quantidade-selector">
                         <label>Bois:</label>
-                        <input type="number" id="qtdInput" value="1" min="1" max="10" onchange="mudouQtd()">
+                        <div class="qtd-scroll-wrap">
+                            <div class="qtd-indicator"></div>
+                            <div class="qtd-scroll-track" id="qtdTrack">
+                                <!-- gerado por JS -->
+                            </div>
+                        </div>
+                        <input type="hidden" id="qtdInput" value="1">
                     </div>
 
                     <!-- Mensagem de Confirmação -->
@@ -500,9 +569,10 @@
                         <button class="key-btn" onclick="digitarNumero('3')">3</button>
                         <button class="key-btn" onclick="digitarNumero('.')">.</button>
 
-                        <button class="key-btn confirm" onclick="salvarPesagem()" style="grid-column: 1 / 3;">✓</button>
+                        <button class="key-btn confirm" onclick="salvarPesagem()">✓</button>
                         <button class="key-btn" onclick="digitarNumero('0')">0</button>
                         <button class="key-btn ok" onclick="proximaPesagem()">OK</button>
+                        <button class="key-btn delete" onclick="deletarDigito()">⌫</button>
                     </div>
                 </div>
 
@@ -599,7 +669,70 @@
         }
 
         function mudouQtd() {
-            // Apenas para atualizar a tela se necessário
+            // chamado pelo scroll picker
+        }
+
+        function initQtdPicker() {
+            const track = document.getElementById('qtdTrack');
+            const hidden = document.getElementById('qtdInput');
+            const max = 20;
+
+            // Padding items so first/last can center
+            const pad = 3;
+            for (let i = 0; i < pad; i++) {
+                const el = document.createElement('div');
+                el.className = 'qtd-item';
+                track.appendChild(el);
+            }
+            for (let i = 1; i <= max; i++) {
+                const el = document.createElement('div');
+                el.className = 'qtd-item' + (i === 1 ? ' selected' : '');
+                el.textContent = i;
+                el.dataset.val = i;
+                track.appendChild(el);
+            }
+            for (let i = 0; i < pad; i++) {
+                const el = document.createElement('div');
+                el.className = 'qtd-item';
+                track.appendChild(el);
+            }
+
+            // Scroll to 1
+            const firstReal = track.querySelector('[data-val="1"]');
+            if (firstReal) {
+                track.scrollLeft = firstReal.offsetLeft - track.offsetWidth / 2 + firstReal.offsetWidth / 2;
+            }
+
+            let scrollTimer;
+            track.addEventListener('scroll', () => {
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(() => {
+                    const center = track.scrollLeft + track.offsetWidth / 2;
+                    let closest = null, minDist = Infinity;
+                    track.querySelectorAll('[data-val]').forEach(el => {
+                        const elCenter = el.offsetLeft + el.offsetWidth / 2;
+                        const dist = Math.abs(center - elCenter);
+                        if (dist < minDist) { minDist = dist; closest = el; }
+                    });
+                    if (closest) {
+                        track.querySelectorAll('.selected').forEach(e => e.classList.remove('selected'));
+                        closest.classList.add('selected');
+                        hidden.value = closest.dataset.val;
+                        // Snap
+                        track.scrollTo({ left: closest.offsetLeft - track.offsetWidth/2 + closest.offsetWidth/2, behavior: 'smooth' });
+                    }
+                }, 80);
+            });
+
+            // Tap to select
+            track.addEventListener('click', (e) => {
+                const item = e.target.closest('[data-val]');
+                if (!item) return;
+                track.querySelectorAll('.selected').forEach(e => e.classList.remove('selected'));
+                item.classList.add('selected');
+                hidden.value = item.dataset.val;
+                track.scrollTo({ left: item.offsetLeft - track.offsetWidth/2 + item.offsetWidth/2, behavior: 'smooth' });
+            });
         }
 
         function salvarPesagem() {
@@ -782,6 +915,7 @@ Gerado por Pesagem de Gado
 
         // Inicializar
         atualizarDisplay();
+        initQtdPicker();
 
         // Registrar Service Worker para PWA offline
         if ('serviceWorker' in navigator) {
