@@ -523,11 +523,11 @@
         function iniciarPesagem() {
             const vendedor = document.getElementById('vendedorInput').value || 'Não informado';
             const precoCompra = parseFloat(document.getElementById('precoCompraInput').value) || 0;
-            const precoVendaKg = parseFloat(document.getElementById('precoVendaKgInput').value);
+            const precoVendaKg = parseFloat(document.getElementById('precoVendaKgInput').value) || 0;
 
-            if (!precoVendaKg || precoVendaKg <= 0) {
-                alert('Informe o preço de venda/kg');
-                return;
+            // Pelo menos um valor deve ser informado (compra OU venda)
+            if (precoCompra === 0 && precoVendaKg === 0) {
+                // Permitir continuar mesmo sem preços
             }
 
             window.vendedorLote = vendedor;
@@ -677,6 +677,27 @@
             const totalValor = pesagens.reduce((sum, p) => sum + p.precoTotal, 0);
             const lucro = totalValor - window.precoCompraLote;
 
+            // Montar relatório dinâmico
+            let relatorioFinanceiro = '';
+
+            if (window.precoCompraLote > 0 || precoVendaKgLote > 0) {
+                relatorioFinanceiro = `
+═════════════════════════════════════════
+💰 FINANCEIRO
+═════════════════════════════════════════
+`;
+                if (window.precoCompraLote > 0) {
+                    relatorioFinanceiro += `\n💵 Preço Compra: R$ ${window.precoCompraLote.toFixed(2)}`;
+                }
+                if (precoVendaKgLote > 0) {
+                    relatorioFinanceiro += `\n💲 Preço Venda: R$ ${totalValor.toFixed(2)}`;
+                }
+                if (window.precoCompraLote > 0 && precoVendaKgLote > 0) {
+                    relatorioFinanceiro += `\n📈 Lucro/Prejuízo: R$ ${lucro.toFixed(2)} ${lucro >= 0 ? '✅' : '❌'}`;
+                }
+                relatorioFinanceiro += '\n';
+            }
+
             const relatorio = `
 ╔═════════════════════════════════════════╗
 ║  🐄 RELATÓRIO DE PESAGEM                ║
@@ -684,8 +705,7 @@
 
 📅 ${new Date().toLocaleString('pt-BR')}
 👤 Vendedor: ${window.vendedorLote}
-💰 Preço Compra: R$ ${window.precoCompraLote.toFixed(2)}
-
+${window.precoCompraLote > 0 ? `💰 Preço Compra: R$ ${window.precoCompraLote.toFixed(2)}\n` : ''}
 ═════════════════════════════════════════
 📊 RESUMO
 ═════════════════════════════════════════
@@ -693,17 +713,8 @@
 🔢 Pesagens: ${pesagens.length}
 🐄 Total Bios: ${totalBios}
 ⚖️ Peso Total: ${totalPeso.toFixed(2)} kg
-💵 Preço Venda/kg: R$ ${precoVendaKgLote.toFixed(2)}
-💲 Valor Total Venda: R$ ${totalValor.toFixed(2)}
-
-═════════════════════════════════════════
-💰 FINANCEIRO
-═════════════════════════════════════════
-
-💵 Preço Compra: R$ ${window.precoCompraLote.toFixed(2)}
-💲 Preço Venda: R$ ${totalValor.toFixed(2)}
-📈 Lucro/Prejuízo: R$ ${lucro.toFixed(2)} ${lucro >= 0 ? '✅' : '❌'}
-
+${precoVendaKgLote > 0 ? `💵 Preço Venda/kg: R$ ${precoVendaKgLote.toFixed(2)}\n💲 Valor Total Venda: R$ ${totalValor.toFixed(2)}\n` : ''}
+${relatorioFinanceiro}
 ═════════════════════════════════════════
 Gerado por Pesagem de Gado
 ═════════════════════════════════════════
