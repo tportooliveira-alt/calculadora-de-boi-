@@ -142,8 +142,20 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .pesagem-top {
+            padding: 16px;
+            flex-shrink: 0;
+        }
+
+        .pesagem-scroll {
+            flex: 1;
             overflow-y: auto;
             padding: 16px;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Display da Calculadora */
@@ -454,73 +466,79 @@
         <!-- TELA PESAGEM -->
         <div class="pesagem-screen hidden" id="pesagemScreen">
             <div class="pesagem-content">
-                <!-- Display -->
-                <div class="calc-display">
-                    <span class="display-value" id="displayValue">0</span>
-                    <span class="display-unit">kg</span>
-                </div>
-
-                <!-- Quantidade de Bios -->
-                <div class="quantidade-selector">
-                    <label>Bois:</label>
-                    <input type="number" id="qtdInput" value="1" min="1" max="10" onchange="mudouQtd()">
-                </div>
-
-                <!-- Mensagem de Confirmação -->
-                <div id="confirmationBox"></div>
-
-                <!-- Lista de Pesagens -->
-                <div class="pesagens-list">
-                    <h3>Pesagens:</h3>
-                    <div id="pesagensContainer"></div>
-                </div>
-
-                <!-- Totalizador -->
-                <div class="totalizador" id="totalizador" style="display: none;">
-                    <h3>📊 TOTAL</h3>
-                    <div class="tot-item">
-                        <span>Pesagens:</span>
-                        <span id="totPesagens">0</span>
+                <!-- SEÇÃO SUPERIOR (Fixo) -->
+                <div class="pesagem-top">
+                    <!-- Display -->
+                    <div class="calc-display">
+                        <span class="display-value" id="displayValue">0</span>
+                        <span class="display-unit">kg</span>
                     </div>
-                    <div class="tot-item">
-                        <span>Total Bios:</span>
-                        <span id="totBios">0</span>
+
+                    <!-- Quantidade de Bios -->
+                    <div class="quantidade-selector">
+                        <label>Bois:</label>
+                        <input type="number" id="qtdInput" value="1" min="1" max="10" onchange="mudouQtd()">
                     </div>
-                    <div class="tot-item">
-                        <span>Peso Total:</span>
-                        <span id="totPeso">0 kg</span>
-                    </div>
-                    <div class="tot-item">
-                        <span>Valor Total:</span>
-                        <span id="totValor">R$ 0.00</span>
+
+                    <!-- Mensagem de Confirmação -->
+                    <div id="confirmationBox"></div>
+
+                    <!-- Teclado Numérico -->
+                    <div class="numeric-keypad">
+                        <button class="key-btn" onclick="digitarNumero('7')">7</button>
+                        <button class="key-btn" onclick="digitarNumero('8')">8</button>
+                        <button class="key-btn" onclick="digitarNumero('9')">9</button>
+                        <button class="key-btn delete" onclick="deletarDigito()">⌫</button>
+
+                        <button class="key-btn" onclick="digitarNumero('4')">4</button>
+                        <button class="key-btn" onclick="digitarNumero('5')">5</button>
+                        <button class="key-btn" onclick="digitarNumero('6')">6</button>
+                        <button class="key-btn clear" onclick="limparDisplay()">CLR</button>
+
+                        <button class="key-btn" onclick="digitarNumero('1')">1</button>
+                        <button class="key-btn" onclick="digitarNumero('2')">2</button>
+                        <button class="key-btn" onclick="digitarNumero('3')">3</button>
+                        <button class="key-btn" onclick="digitarNumero('0')" style="grid-column: 1 / 3;">0</button>
+                        <button class="key-btn" onclick="digitarNumero('.')">.</button>
+
+                        <button class="key-btn confirm" onclick="salvarPesagem()">✓</button>
+                        <button class="key-btn ok" onclick="proximaPesagem()">OK</button>
                     </div>
                 </div>
 
-                <!-- Botão Finalizar -->
-                <button class="btn-finalizar" onclick="finalizarPesagem()">
-                    ✓ FINALIZAR LOTE
-                </button>
+                <!-- SEÇÃO SCROLLÁVEL -->
+                <div class="pesagem-scroll">
+                    <!-- Lista de Pesagens -->
+                    <div class="pesagens-list">
+                        <h3>Pesagens:</h3>
+                        <div id="pesagensContainer"></div>
+                    </div>
 
-                <!-- Teclado Numérico -->
-                <div class="numeric-keypad">
-                    <button class="key-btn" onclick="digitarNumero('7')">7</button>
-                    <button class="key-btn" onclick="digitarNumero('8')">8</button>
-                    <button class="key-btn" onclick="digitarNumero('9')">9</button>
-                    <button class="key-btn delete" onclick="deletarDigito()">⌫</button>
+                    <!-- Totalizador -->
+                    <div class="totalizador" id="totalizador" style="display: none;">
+                        <h3>📊 TOTAL</h3>
+                        <div class="tot-item">
+                            <span>Pesagens:</span>
+                            <span id="totPesagens">0</span>
+                        </div>
+                        <div class="tot-item">
+                            <span>Total Bios:</span>
+                            <span id="totBios">0</span>
+                        </div>
+                        <div class="tot-item">
+                            <span>Peso Total:</span>
+                            <span id="totPeso">0 kg</span>
+                        </div>
+                        <div class="tot-item">
+                            <span>Valor Total:</span>
+                            <span id="totValor">R$ 0.00</span>
+                        </div>
+                    </div>
 
-                    <button class="key-btn" onclick="digitarNumero('4')">4</button>
-                    <button class="key-btn" onclick="digitarNumero('5')">5</button>
-                    <button class="key-btn" onclick="digitarNumero('6')">6</button>
-                    <button class="key-btn clear" onclick="limparDisplay()">CLR</button>
-
-                    <button class="key-btn" onclick="digitarNumero('1')">1</button>
-                    <button class="key-btn" onclick="digitarNumero('2')">2</button>
-                    <button class="key-btn" onclick="digitarNumero('3')">3</button>
-                    <button class="key-btn" onclick="digitarNumero('0')" style="grid-column: 1 / 3;">0</button>
-                    <button class="key-btn" onclick="digitarNumero('.')">.</button>
-
-                    <button class="key-btn confirm" onclick="salvarPesagem()">✓</button>
-                    <button class="key-btn ok" onclick="proximaPesagem()">OK</button>
+                    <!-- Botão Finalizar -->
+                    <button class="btn-finalizar" onclick="finalizarPesagem()">
+                        ✓ FINALIZAR LOTE
+                    </button>
                 </div>
             </div>
         </div>
