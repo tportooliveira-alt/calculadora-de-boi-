@@ -466,6 +466,16 @@
                     </div>
                 </div>
 
+                <div id="vendedorBox" class="section-box">
+                    <div class="section-label">💰 Compra da Boiada</div>
+                    <input type="text" id="nomeVendedor" class="input-field input-text" placeholder="Nome do vendedor/comprador">
+                    <input type="number" id="precoCompra" class="input-field" placeholder="Preço total de compra" step="0.01" min="0" inputmode="decimal">
+                    <div id="vendedorDisplay" class="hidden" style="margin-top: 16px; padding: 16px; background: #ede4d3; border-radius: 8px;">
+                        <div style="font-size: 18px; font-weight: 900; color: #8B4513; margin-bottom: 8px;">📝 <span id="vendedorNome"></span></div>
+                        <div style="font-size: 16px; font-weight: bold; color: #654321;">💵 R$ <span id="precoCompraDisplay">0.00</span></div>
+                    </div>
+                </div>
+
                 <div class="section-box" style="border: 3px solid #d4af37;">
                     <div class="section-label" style="text-align: center;">🐂 Cabeças na Balança</div>
                     <div class="cabecas-scroll">
@@ -482,6 +492,10 @@
                     <div id="mediaBox" class="media-box hidden">
                         <div class="media-label">Média por cabeça:</div>
                         <div class="media-value" id="mediaValue">0 kg</div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <div class="section-label" style="text-align: center; font-size: 14px;">💵 Preço/kg (R$)</div>
+                        <input type="number" id="precoKgInput" class="peso-input" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
                     </div>
                     <button class="btn-salvar" onclick="salvarPesagem()">
                         ✓ SALVAR <span id="btnCabecasText"></span>
@@ -550,6 +564,8 @@
                     if (salvos.rendimento) document.getElementById('rendimento').value = salvos.rendimento;
                     if (salvos.cliente) document.getElementById('nomeCliente').value = salvos.cliente;
                     if (salvos.meta) document.getElementById('qtdMeta').value = salvos.meta;
+                    if (salvos.vendedor) document.getElementById('nomeVendedor').value = salvos.vendedor;
+                    if (salvos.precoCompra) document.getElementById('precoCompra').value = salvos.precoCompra;
                 }
             } catch (e) {
                 console.error('Erro ao carregar:', e);
@@ -564,6 +580,8 @@
                     rendimento: document.getElementById('rendimento').value,
                     cliente: document.getElementById('nomeCliente').value,
                     meta: document.getElementById('qtdMeta').value,
+                    vendedor: document.getElementById('nomeVendedor').value,
+                    precoCompra: document.getElementById('precoCompra').value,
                     ultimaAtualizacao: new Date().toISOString()
                 };
                 localStorage.setItem('pecuaria_dados', JSON.stringify(dados));
@@ -634,16 +652,19 @@
             if (!peso || peso <= 0) return;
 
             const rendimento = parseFloat(document.getElementById('rendimento').value);
+            const precoKg = parseFloat(document.getElementById('precoKgInput').value) || 0;
             const pesoMedio = peso / qtdNaBalanca;
-            
+
             const pesagem = {
                 id: Date.now(),
-                brinco: qtdNaBalanca > 1 
+                brinco: qtdNaBalanca > 1
                     ? `#${String(brincoCounter).padStart(3, '0')}-#${String(brincoCounter + qtdNaBalanca - 1).padStart(3, '0')}`
                     : `#${String(brincoCounter).padStart(3, '0')}`,
                 peso: peso,
                 pesoMedio: pesoMedio,
                 quantidade: qtdNaBalanca,
+                precoKg: precoKg,
+                precoTotal: peso * precoKg,
                 arrobaBruta: (peso / 30).toFixed(2),
                 arrobaLiquida: ((peso * (rendimento / 100)) / 15).toFixed(2),
                 arrobaBrutaMedio: (pesoMedio / 30).toFixed(2),
@@ -653,6 +674,7 @@
             pesagens.unshift(pesagem);
             brincoCounter += qtdNaBalanca;
             document.getElementById('pesoInput').value = '';
+            document.getElementById('precoKgInput').value = '';
             selecionarCabecas(1);
             salvarDados();
             renderizar();
@@ -763,24 +785,30 @@
                 alert('❌ Nenhuma pesagem registrada!');
                 return;
             }
-            
+
             if (!confirm(`🐂 Finalizar o dia com ${pesagens.length} pesagens?`)) return;
-            
+
             const totalAnimais = pesagens.reduce((sum, p) => sum + p.quantidade, 0);
             const totalPeso = pesagens.reduce((sum, p) => sum + p.peso, 0);
             const totalBruta = pesagens.reduce((sum, p) => sum + parseFloat(p.arrobaBruta), 0);
             const totalLiquida = pesagens.reduce((sum, p) => sum + parseFloat(p.arrobaLiquida), 0);
+            const totalVenda = pesagens.reduce((sum, p) => sum + (p.precoTotal || 0), 0);
+
             const rendimento = document.getElementById('rendimento').value;
             const cliente = document.getElementById('nomeCliente').value || 'Não informado';
+            const vendedor = document.getElementById('nomeVendedor').value || 'Não informado';
+            const precoCompra = parseFloat(document.getElementById('precoCompra').value) || 0;
+            const lucro = totalVenda - precoCompra;
             const dataHora = new Date().toLocaleString('pt-BR');
-            
+
             let relatorio = `╔═══════════════════════════════════╗
 ║   🐂 PECUÁRIA PREMIUM             ║
 ║   RELATÓRIO DIÁRIO DE PESAGEM     ║
 ╚═══════════════════════════════════╝
 
 📅 ${dataHora}
-👤 Cliente: ${cliente}
+👤 Cliente/Comprador: ${cliente}
+📝 Vendedor: ${vendedor}
 ⚜️ Rendimento: ${rendimento}%
 
 ═══════════════════════════════════════
@@ -792,6 +820,14 @@
 ⚖️ Peso Total: ${totalPeso.toFixed(0)} kg
 📊 @ Bruta: ${totalBruta.toFixed(2)}
 📉 @ Líquida: ${totalLiquida.toFixed(2)}
+
+═══════════════════════════════════════
+💰 FINANCEIRO
+═══════════════════════════════════════
+
+💵 Preço de Compra: R$ ${precoCompra.toFixed(2)}
+💲 Preço de Venda: R$ ${totalVenda.toFixed(2)}
+📈 Lucro/Prejuízo: R$ ${lucro.toFixed(2)} ${lucro >= 0 ? '✅' : '❌'}
 
 ═══════════════════════════════════════
 Gerado por Pecuária Premium
@@ -823,6 +859,8 @@ Gerado por Pecuária Premium
         document.getElementById('rendimento').addEventListener('change', salvarDados);
         document.getElementById('qtdMeta').addEventListener('change', salvarDados);
         document.getElementById('nomeCliente').addEventListener('change', salvarDados);
+        document.getElementById('nomeVendedor').addEventListener('change', salvarDados);
+        document.getElementById('precoCompra').addEventListener('change', salvarDados);
 
         window.addEventListener('DOMContentLoaded', () => {
             initCabecas();
