@@ -498,10 +498,10 @@
                         <button class="key-btn" onclick="digitarNumero('1')">1</button>
                         <button class="key-btn" onclick="digitarNumero('2')">2</button>
                         <button class="key-btn" onclick="digitarNumero('3')">3</button>
-                        <button class="key-btn" onclick="digitarNumero('0')" style="grid-column: 1 / 3;">0</button>
                         <button class="key-btn" onclick="digitarNumero('.')">.</button>
 
-                        <button class="key-btn confirm" onclick="salvarPesagem()">✓</button>
+                        <button class="key-btn confirm" onclick="salvarPesagem()" style="grid-column: 1 / 3;">✓</button>
+                        <button class="key-btn" onclick="digitarNumero('0')">0</button>
                         <button class="key-btn ok" onclick="proximaPesagem()">OK</button>
                     </div>
                 </div>
@@ -615,8 +615,8 @@
             // Calcular preço total baseado na unidade
             let precoTotal = 0;
             if (window.unidadePrecLote === 'arroba') {
-                // Arroba Bruta = Peso / 30
-                const arrobaBruta = peso / 30;
+                // Arroba = Peso / 15 (1 arroba = 15kg)
+                const arrobaBruta = peso / 15;
                 precoTotal = arrobaBruta * precoVendaKgLote;
             } else {
                 // Por kg
@@ -782,6 +782,13 @@ Gerado por Pesagem de Gado
 
         // Inicializar
         atualizarDisplay();
+
+        // Registrar Service Worker para PWA offline
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
     </script>
 </body>
 </html>
