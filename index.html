@@ -215,6 +215,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <div class="resumo-label">Valor Total</div>
             <div class="resumo-val resumo-destaque" id="rValor">—</div>
           </div>
+          <div class="resumo-item resumo-full" style="background:rgba(212,175,55,.12)">
+            <div class="resumo-label">Base de cálculo</div>
+            <div class="resumo-val" style="font-size:13px;color:#f4e4c1" id="rRend">—</div>
+          </div>
         </div>
       </div>
 
@@ -329,9 +333,11 @@ function salvar() {
   const p = parseFloat(peso);
   if (!p || p <= 0) { alert('Digite um peso válido'); return; }
 
-  const qtd  = parseInt(document.getElementById('iQtd').value) || 1;
-  const arr  = p / 15;                  // 1@ = 15 kg
-  const mediaPorBoi = p / qtd;          // kg/boi
+  const qtd         = parseInt(document.getElementById('iQtd').value) || 1;
+  const rend        = (window._rend || 50) / 100;   // ex: 50% → 0.50
+  const carcaca     = p * rend;                      // kg de carcaça
+  const arr         = carcaca / 15;                  // arrobas = carcaça / 15
+  const mediaPorBoi = p / qtd;                       // kg vivo por boi
 
   let valor = 0;
   if (precoVenda > 0) {
@@ -387,9 +393,10 @@ function renderTabela() {
   // Cálculos
   const totBois  = pesagens.reduce((s,r) => s + r.qtd,  0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
-  const totArr   = totPeso / 15;              // total de arrobas do lote
-  const mediaArr = totArr / totBois;          // média de @ por boi
-  const mediaKg  = totPeso / totBois;         // média de kg por boi
+  const rend     = (window._rend || 50) / 100;
+  const totArr   = (totPeso * rend) / 15;     // arrobas totais com rendimento
+  const mediaArr = totArr / totBois;           // média de @ por boi
+  const mediaKg  = totPeso / totBois;          // média de kg vivo por boi
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
   document.getElementById('rBois').textContent  = totBois + ' bois';
@@ -397,6 +404,7 @@ function renderTabela() {
   document.getElementById('rArr').textContent   = mediaArr.toFixed(2) + ' @/boi';
   document.getElementById('rKg').textContent    = mediaKg.toFixed(1) + ' kg/boi';
   document.getElementById('rValor').textContent = totValor > 0 ? 'R$ ' + totValor.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—';
+  document.getElementById('rRend').textContent  = (window._rend || 50) + '% rendimento';
 
   card.style.display = 'block';
 }
@@ -413,6 +421,8 @@ function exportarExcel() {
   const totQtd  = pesagens.reduce((s,r)=>s+r.qtd,0);
   const totPeso = pesagens.reduce((s,r)=>s+r.peso,0);
   const totVal  = pesagens.reduce((s,r)=>s+r.valor,0);
+  const rend    = (window._rend || 50) / 100;
+  const totArr  = (totPeso * rend) / 15;
 
   // Cabeçalho do lote
   const info = [
@@ -437,7 +447,7 @@ function exportarExcel() {
 
   // Linha de totais
   linhas.push([]);
-  linhas.push(['TOTAL', totQtd, totPeso.toFixed(1), (totPeso/15).toFixed(2), totVal>0 ? totVal.toFixed(2) : '']);
+  linhas.push(['TOTAL', totQtd, totPeso.toFixed(1), totArr.toFixed(2), totVal>0 ? totVal.toFixed(2) : '']);
 
   if (window._compra > 0 && totVal > 0) {
     const lucro = totVal - window._compra;
