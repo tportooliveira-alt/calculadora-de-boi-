@@ -171,10 +171,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <button class="key" onclick="dig('3')">3</button>
         <button class="key" onclick="dig('.')">.</button>
 
-        <button class="key ok" onclick="salvar()">✓</button>
-        <button class="key" onclick="dig('0')">0</button>
-        <button class="key" onclick="dig('0')">00</button>
         <button class="key prox" onclick="proximo()">OK</button>
+        <button class="key" onclick="dig('0')">0</button>
+        <button class="key" onclick="dig('00')">00</button>
+        <button class="key ok" onclick="salvar()">✓</button>
       </div>
     </div>
 
@@ -222,10 +222,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
       </div>
 
-      <!-- BOTÕES -->
-      <button class="btn-exportar" onclick="exportarExcel()">📊 SALVAR PLANILHA (.xlsx)</button>
-      <button class="btn-finalizar" onclick="finalizar()">✓ FINALIZAR LOTE</button>
+      <!-- BOTÃO FINALIZAR -->
+      <button class="btn-finalizar" onclick="abrirModal()">✓ FINALIZAR LOTE</button>
 
+    </div>
+  </div>
+
+  <!-- MODAL FINALIZAR -->
+  <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:flex-end;justify-content:center">
+    <div style="background:#f5f1e8;border-radius:16px 16px 0 0;padding:24px;width:100%;max-width:500px;border-top:4px solid #d4af37">
+      <div style="text-align:center;margin-bottom:18px">
+        <div style="font-size:22px;font-weight:900;color:#8B4513">🐄 LOTE FINALIZADO</div>
+        <div style="font-size:12px;color:#888;margin-top:4px" id="modalResumo"></div>
+      </div>
+      <button onclick="salvarDispositivo()" style="width:100%;padding:15px;background:linear-gradient(135deg,#1a5c2e,#0f3d1e);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer">
+        📥 SALVAR NO DISPOSITIVO (.xlsx)
+      </button>
+      <button onclick="mandarWhatsApp()" style="width:100%;padding:15px;background:linear-gradient(135deg,#128C7E,#075E54);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer">
+        💬 MANDAR PRO WHATSAPP
+      </button>
+      <button onclick="novoLote()" style="width:100%;padding:13px;background:white;color:#8B4513;border:2px solid #d4af37;border-radius:10px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer">
+        🔄 NOVO LOTE
+      </button>
+      <button onclick="fecharModal()" style="width:100%;padding:10px;background:none;color:#999;border:none;font-size:13px;cursor:pointer">
+        Voltar
+      </button>
     </div>
   </div>
 
@@ -236,6 +257,35 @@ let pesagens = [];
 let peso = '';
 let precoVenda = 0;
 let unidade = 'kg';
+
+// ─── Persistência localStorage ────────────────────────────────────────────────
+const LS_KEY = 'boi_lote_v1';
+
+function salvarLocal() {
+  localStorage.setItem(LS_KEY, JSON.stringify({
+    pesagens,
+    precoVenda,
+    unidade,
+    vendedor:  window._vendedor || '',
+    compra:    window._compra   || 0,
+    rend:      window._rend     || 50,
+    ativo:     true
+  }));
+}
+
+function carregarLocal() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (!d.ativo || !d.pesagens || d.pesagens.length === 0) return false;
+    return d;
+  } catch(e) { return false; }
+}
+
+function limparLocal() {
+  localStorage.removeItem(LS_KEY);
+}
 
 // ─── Cadastro ─────────────────────────────────────────────────────────────────
 function iniciar() {
@@ -250,13 +300,51 @@ function iniciar() {
   window._compra   = compra;
   window._rend     = rend;
 
-  document.getElementById('h-vendedor').textContent = vendedor;
+  ativarTelaPesagem();
+  salvarLocal();
+}
+
+function ativarTelaPesagem() {
+  document.getElementById('h-vendedor').textContent = window._vendedor || '—';
   document.getElementById('h-preco').textContent =
-    compra > 0 ? `Compra: R$ ${compra.toFixed(2)}` : (venda > 0 ? `Venda: R$ ${venda.toFixed(2)}/${unidade === 'arroba' ? '@' : 'kg'}` : '—');
+    window._compra > 0
+      ? `Compra: R$ ${window._compra.toFixed(2)}`
+      : (precoVenda > 0 ? `Venda: R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}` : '—');
 
   document.getElementById('tCad').classList.add('off');
   document.getElementById('tPes').classList.remove('off');
+  renderTabela();
 }
+
+// ─── Restaurar lote salvo ao abrir o app ─────────────────────────────────────
+(function restaurar() {
+  const d = carregarLocal();
+  if (!d) return;
+
+  // Pergunta se quer continuar
+  const totBois = d.pesagens.reduce((s,r)=>s+r.qtd,0);
+  const totPeso = d.pesagens.reduce((s,r)=>s+r.peso,0);
+  if (!confirm(`📋 Lote em andamento encontrado!\n\n👤 ${d.vendedor}\n🐄 ${totBois} bois · ${totPeso.toFixed(0)} kg\n\nContinuar este lote?`)) {
+    limparLocal();
+    return;
+  }
+
+  pesagens      = d.pesagens;
+  precoVenda    = d.precoVenda;
+  unidade       = d.unidade;
+  window._vendedor = d.vendedor;
+  window._compra   = d.compra;
+  window._rend     = d.rend;
+
+  // Preencher cadastro
+  document.getElementById('iVendedor').value  = d.vendedor;
+  document.getElementById('iCompra').value    = d.compra || '';
+  document.getElementById('iVenda').value     = d.precoVenda || '';
+  document.getElementById('iRendimento').value= d.rend || 50;
+  document.getElementById('iUnidade').value   = d.unidade || 'kg';
+
+  ativarTelaPesagem();
+})();
 
 // ─── Teclado ──────────────────────────────────────────────────────────────────
 function dig(v) {
@@ -359,6 +447,7 @@ function salvar() {
     `<div class="conf-msg">✓ #${reg.num} salva: ${p} kg — ${qtd} boi${qtd>1?'s':''}</div>`;
 
   renderTabela();
+  salvarLocal();
 
   setTimeout(()=>{
     peso = '';
@@ -412,6 +501,7 @@ function renderTabela() {
 function excluir(id) {
   pesagens = pesagens.filter(r=>r.id!==id).map((r,i)=>({...r,num:i+1}));
   renderTabela();
+  salvarLocal();
 }
 
 // ─── Exportar Excel ───────────────────────────────────────────────────────────
@@ -468,14 +558,73 @@ function exportarExcel() {
   XLSX.writeFile(wb, `Pesagem_${window._vendedor||'Lote'}_${data}.xlsx`);
 }
 
-// ─── Finalizar ────────────────────────────────────────────────────────────────
-function finalizar() {
+// ─── Modal finalizar ─────────────────────────────────────────────────────────
+function abrirModal() {
   if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
 
-  // Exporta Excel automaticamente ao finalizar
-  exportarExcel();
+  const totBois  = pesagens.reduce((s,r) => s + r.qtd, 0);
+  const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
+  const rend     = (window._rend || 50) / 100;
+  const totArr   = (totPeso * rend) / 15;
+  const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
-  if (confirm('Planilha salva! Deseja começar um novo lote?')) {
+  document.getElementById('modalResumo').textContent =
+    `${totBois} bois · ${totPeso.toFixed(0)} kg · ${totArr.toFixed(1)}@ · ` +
+    (totValor > 0 ? `R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}` : 'sem valor');
+
+  const modal = document.getElementById('modal');
+  modal.style.display = 'flex';
+}
+
+function fecharModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+
+function salvarDispositivo() {
+  exportarExcel();
+}
+
+function mandarWhatsApp() {
+  const totBois  = pesagens.reduce((s,r) => s + r.qtd, 0);
+  const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
+  const rend     = (window._rend || 50) / 100;
+  const totArr   = (totPeso * rend) / 15;
+  const mediaArr = totArr / totBois;
+  const mediaKg  = totPeso / totBois;
+  const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
+
+  const linhasPes = [...pesagens].reverse().map(r =>
+    `  #${r.num}: ${r.qtd} boi${r.qtd>1?'s':''} — ${r.peso}kg — ${r.arr}@${r.valor>0?' — R$'+r.valor.toFixed(2):''}`
+  ).join('\n');
+
+  const msg =
+`🐄 *RELATÓRIO DE PESAGEM*
+📅 ${new Date().toLocaleString('pt-BR')}
+👤 ${window._vendedor || '—'}
+
+━━━━━━━━━━━━━━━━━━━
+*PESAGENS:*
+${linhasPes}
+
+━━━━━━━━━━━━━━━━━━━
+*RESUMO DO LOTE:*
+🐄 Total de bois: *${totBois}*
+⚖️ Peso total: *${totPeso.toFixed(0)} kg*
+📐 Total de @: *${totArr.toFixed(2)} @*
+📊 Média @/boi: *${mediaArr.toFixed(2)} @*
+📊 Média kg/boi: *${mediaKg.toFixed(1)} kg*
+${totValor > 0 ? `💰 Valor total: *R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}*` : ''}
+🔢 Rendimento: *${window._rend || 50}%*
+━━━━━━━━━━━━━━━━━━━
+_Gerado pela Calculadora de Gado_`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function novoLote() {
+  if (confirm('Tem certeza? Todos os dados do lote atual serão apagados.')) {
+    limparLocal();
     location.reload();
   }
 }
