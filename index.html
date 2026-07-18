@@ -124,15 +124,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="cad-box">
       <h2>📋 CADASTRO DO LOTE</h2>
       <div class="campo"><label>Vendedor / Comprador</label><input id="iVendedor" type="text" placeholder="Nome"></div>
-      <div class="campo"><label>Preço de Compra (R$ total do lote)</label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
       <div class="campo">
-        <label>Preço de Venda</label>
+        <label>💰 Valor do Gado</label>
         <div class="row">
-          <input id="iVenda" type="number" placeholder="0.00" step="0.01" min="0">
-          <select id="iUnidade"><option value="kg">R$/kg</option><option value="arroba">R$/@</option></select>
+          <input id="iVenda" type="number" placeholder="300.00" step="0.01" min="0">
+          <select id="iUnidade"><option value="arroba">R$/@</option><option value="kg">R$/kg</option></select>
         </div>
       </div>
       <div class="campo"><label>Rendimento (%)</label><input id="iRendimento" type="number" value="50" step="0.1" min="0" max="100"></div>
+      <div class="campo"><label>Preço de Compra do Lote (R$ total — opcional, só p/ calcular lucro)</label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
       <button class="btn-start" onclick="iniciar()">✓ COMEÇAR PESAGEM</button>
     </div>
   </div>
@@ -310,9 +310,9 @@ function iniciar() {
 function ativarTelaPesagem() {
   document.getElementById('h-vendedor').textContent = window._vendedor || '—';
   document.getElementById('h-preco').textContent =
-    window._compra > 0
-      ? `Compra: R$ ${window._compra.toFixed(2)}`
-      : (precoVenda > 0 ? `Venda: R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}` : '—');
+    precoVenda > 0
+      ? `R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}`
+      : (window._compra > 0 ? `Compra: R$ ${window._compra.toFixed(2)}` : '—');
 
   document.getElementById('tCad').classList.add('off');
   document.getElementById('tPes').classList.remove('off');
@@ -344,7 +344,7 @@ function ativarTelaPesagem() {
   document.getElementById('iCompra').value    = d.compra || '';
   document.getElementById('iVenda').value     = d.precoVenda || '';
   document.getElementById('iRendimento').value= d.rend || 50;
-  document.getElementById('iUnidade').value   = d.unidade || 'kg';
+  document.getElementById('iUnidade').value   = d.unidade || 'arroba';
 
   ativarTelaPesagem();
 })();
