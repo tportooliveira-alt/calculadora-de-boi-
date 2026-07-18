@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#8B4513">
 <title>Pesagem de Gado</title>
 <link rel="manifest" href="manifest.json">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1410;height:100vh;overflow:hidden}
@@ -505,6 +505,23 @@ function excluir(id) {
 }
 
 // ─── Exportar Excel ───────────────────────────────────────────────────────────
+// Estilos do relatório (mesmo visual da planilha do Drive)
+const XS = {
+  VERDE: '1F6E43', VERDE_MEDIO: '2E8B57', VERDE_CLARO: 'E8F5E9',
+  CINZA: 'F5F5F5', AMARELO: 'FFF9C4', INPUT: 'FFFDE7',
+  borda(cor, estilo) {
+    const s = { style: estilo || 'thin', color: { rgb: cor || 'BFBFBF' } };
+    return { top: s, bottom: s, left: s, right: s };
+  }
+};
+
+function xsCel(v, s, z) {
+  const c = { v, t: typeof v === 'number' ? 'n' : 's', s: s || {} };
+  if (z) c.z = z;
+  if (!c.s.font) c.s.font = { name: 'Arial', sz: 11 };
+  return c;
+}
+
 function exportarExcel() {
   if (pesagens.length === 0) { alert('Nenhuma pesagem para exportar!'); return; }
 
@@ -514,47 +531,136 @@ function exportarExcel() {
   const rend    = (window._rend || 50) / 100;
   const totArr  = (totPeso * rend) / 15;
 
-  // Cabeçalho do lote
-  const info = [
-    ['RELATÓRIO DE PESAGEM DE GADO'],
-    ['Data:', new Date().toLocaleString('pt-BR')],
-    ['Vendedor:', window._vendedor || '—'],
-    ['Preço Compra (total lote):', window._compra > 0 ? `R$ ${window._compra.toFixed(2)}` : '—'],
-    ['Preço Venda:', precoVenda > 0 ? `R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}` : '—'],
-    ['Rendimento (%):', window._rend || '—'],
-    [],
-    ['#', 'Qtd Bois', 'Peso (kg)', unidade==='arroba'?'Arrobas (@)':'Média kg/boi', 'Valor (R$)']
+  const KG = '#,##0 "kg"', KG1 = '#,##0.0 "kg"', ARR = '#,##0.00 "@"', RS = 'R$ #,##0.00';
+  const agora = new Date();
+
+  const sTitulo = { font:{name:'Arial',sz:16,bold:true,color:{rgb:'FFFFFF'}}, fill:{patternType:'solid',fgColor:{rgb:XS.VERDE}}, alignment:{horizontal:'center',vertical:'center'} };
+  const sSub    = { font:{name:'Arial',sz:10,color:{rgb:'FFFFFF'}}, fill:{patternType:'solid',fgColor:{rgb:XS.VERDE_MEDIO}}, alignment:{horizontal:'center',vertical:'center'} };
+  const sSecao  = { font:{name:'Arial',sz:12,bold:true,color:{rgb:'FFFFFF'}}, fill:{patternType:'solid',fgColor:{rgb:XS.VERDE_MEDIO}}, alignment:{horizontal:'left',vertical:'center'} };
+  const sRotulo = { font:{name:'Arial',sz:11,bold:true,color:{rgb:XS.VERDE}}, fill:{patternType:'solid',fgColor:{rgb:XS.VERDE_CLARO}}, border:XS.borda(), alignment:{horizontal:'left',vertical:'center'} };
+  const sValor  = { font:{name:'Arial',sz:11,bold:true,color:{rgb:'0000FF'}}, fill:{patternType:'solid',fgColor:{rgb:XS.INPUT}}, border:XS.borda(), alignment:{horizontal:'left',vertical:'center'} };
+  const sTabHdr = { font:{name:'Arial',sz:10,bold:true,color:{rgb:'FFFFFF'}}, fill:{patternType:'solid',fgColor:{rgb:XS.VERDE}}, border:XS.borda(), alignment:{horizontal:'center',vertical:'center',wrapText:true} };
+  const sCelula = { font:{name:'Arial',sz:11}, border:XS.borda(), alignment:{horizontal:'center',vertical:'center'} };
+  const sZebra  = Object.assign({}, sCelula, { fill:{patternType:'solid',fgColor:{rgb:XS.CINZA}} });
+  const sTotal  = Object.assign({}, sTabHdr, { font:{name:'Arial',sz:11,bold:true,color:{rgb:'FFFFFF'}} });
+  const sResRot = { font:{name:'Arial',sz:11,bold:true,color:{rgb:XS.VERDE}}, border:XS.borda(), alignment:{horizontal:'left',vertical:'center'} };
+  const sResVal = { font:{name:'Arial',sz:11}, border:XS.borda(), alignment:{horizontal:'right',vertical:'center'} };
+  const sDestaq = { font:{name:'Arial',sz:14,bold:true,color:{rgb:XS.VERDE}}, fill:{patternType:'solid',fgColor:{rgb:XS.AMARELO}}, border:XS.borda(XS.VERDE,'medium'), alignment:{horizontal:'left',vertical:'center'} };
+  const sDestVal= Object.assign({}, sDestaq, { alignment:{horizontal:'right',vertical:'center'} });
+
+  const A = []; // matriz de células
+  const merges = [];
+  const put = (r, c, cel) => { (A[r] = A[r] || [])[c] = cel; };
+  const mesclar = (r1,c1,r2,c2) => merges.push({ s:{r:r1,c:c1}, e:{r:r2,c:c2} });
+
+  // Título (linhas 0-2)
+  put(0,0,xsCel('🐂 RELATÓRIO DE PESAGEM DE GADO', sTitulo));
+  for (let c=1;c<6;c++) put(0,c,xsCel('', sTitulo));
+  mesclar(0,0,0,5);
+  put(1,0,xsCel(`${window._vendedor || 'Lote'} — ${agora.toLocaleString('pt-BR')}`, sSub));
+  for (let c=1;c<6;c++) put(1,c,xsCel('', sSub));
+  mesclar(1,0,1,5);
+
+  // Cadastro (linhas 3-6)
+  put(3,0,xsCel('📋  CADASTRO DO LOTE', sSecao));
+  for (let c=1;c<6;c++) put(3,c,xsCel('', sSecao));
+  mesclar(3,0,3,5);
+  const cad = [
+    ['Cliente', window._vendedor || '—', 'Data', agora.toLocaleDateString('pt-BR')],
+    ['Rendimento', (window._rend || 50) + '%', 'Hora', agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})],
+    ['Preço de Venda', precoVenda > 0 ? `R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}` : '—',
+     'Preço de Compra', window._compra > 0 ? `R$ ${window._compra.toFixed(2)}` : '—']
   ];
+  cad.forEach((l, i) => {
+    const r = 4 + i;
+    put(r,0,xsCel(l[0], sRotulo)); put(r,1,xsCel(l[1], sValor));
+    put(r,2,xsCel(l[2], sRotulo)); put(r,3,xsCel(l[3], sValor));
+    put(r,4,xsCel('', sValor));
+    mesclar(r,3,r,5); put(r,5,xsCel('', sValor));
+  });
 
-  // Linhas de pesagem (ordem original = mais antiga primeiro)
-  const linhas = [...pesagens].reverse().map(r => [
-    r.num,
-    r.qtd,
-    r.peso,
-    parseFloat(unidade==='arroba' ? r.arr : r.media),
-    r.valor > 0 ? r.valor : ''
-  ]);
+  // Pesagens (a partir da linha 8)
+  put(8,0,xsCel('⚖️  PESAGENS — PESO POR BALANÇADA', sSecao));
+  for (let c=1;c<6;c++) put(8,c,xsCel('', sSecao));
+  mesclar(8,0,8,5);
+  const cab = ['Nº','Qtd Bois','Peso (kg)','Média kg/boi','Arrobas (@)','Valor (R$)'];
+  cab.forEach((h,c)=>put(9,c,xsCel(h,sTabHdr)));
 
-  // Linha de totais
-  linhas.push([]);
-  linhas.push(['TOTAL', totQtd, totPeso.toFixed(1), totArr.toFixed(2), totVal>0 ? totVal.toFixed(2) : '']);
+  const linhas = [...pesagens].reverse();
+  linhas.forEach((p, i) => {
+    const r = 10 + i;
+    const st = i % 2 === 1 ? sZebra : sCelula;
+    put(r,0,xsCel(i+1, st));
+    put(r,1,xsCel(p.qtd, st));
+    put(r,2,xsCel(p.peso, st, KG));
+    put(r,3,xsCel(p.peso/p.qtd, st, KG1));
+    put(r,4,xsCel((p.peso*rend)/15, st, ARR));
+    put(r,5,xsCel(p.valor > 0 ? p.valor : 0, st, RS));
+  });
+
+  const rTot = 10 + linhas.length;
+  put(rTot,0,xsCel('TOTAL', sTotal));
+  put(rTot,1,xsCel(totQtd, sTotal));
+  put(rTot,2,xsCel(totPeso, sTotal, KG));
+  put(rTot,3,xsCel(totPeso/totQtd, sTotal, KG1));
+  put(rTot,4,xsCel(totArr, sTotal, ARR));
+  put(rTot,5,xsCel(totVal, sTotal, RS));
+
+  // Resumo
+  let r = rTot + 2;
+  put(r,0,xsCel('📊  RESUMO DO LOTE', sSecao));
+  for (let c=1;c<6;c++) put(r,c,xsCel('', sSecao));
+  mesclar(r,0,r,5);
+  const resumo = [
+    ['Total de Bois', totQtd, '#,##0 "bois"'],
+    ['Total de Balançadas', linhas.length, '#,##0'],
+    ['Peso Total', totPeso, KG],
+    ['Total de Arrobas', totArr, ARR],
+    ['Média de kg por Boi', totPeso/totQtd, KG1],
+    ['Média de @ por Boi', totArr/totQtd, ARR],
+    ['Rendimento Usado', (window._rend || 50)/100, '0.0%']
+  ];
+  resumo.forEach((l, i) => {
+    const rr = r + 1 + i;
+    put(rr,0,xsCel(l[0], sResRot));
+    for (let c=1;c<4;c++) put(rr,c,xsCel('', sResRot));
+    mesclar(rr,0,rr,3);
+    put(rr,4,xsCel(l[1], sResVal, l[2]));
+    put(rr,5,xsCel('', sResVal));
+    mesclar(rr,4,rr,5);
+  });
+  r = r + 1 + resumo.length;
+  put(r,0,xsCel('💰 VALOR TOTAL DO LOTE', sDestaq));
+  for (let c=1;c<4;c++) put(r,c,xsCel('', sDestaq));
+  mesclar(r,0,r,3);
+  put(r,4,xsCel(totVal, sDestVal, RS));
+  put(r,5,xsCel('', sDestVal));
+  mesclar(r,4,r,5);
 
   if (window._compra > 0 && totVal > 0) {
-    const lucro = totVal - window._compra;
-    linhas.push([]);
-    linhas.push(['Lucro / Prejuízo (R$)', '', '', '', lucro.toFixed(2)]);
+    r += 1;
+    put(r,0,xsCel('Lucro / Prejuízo', sResRot));
+    for (let c=1;c<4;c++) put(r,c,xsCel('', sResRot));
+    mesclar(r,0,r,3);
+    put(r,4,xsCel(totVal - window._compra, sResVal, RS));
+    put(r,5,xsCel('', sResVal));
+    mesclar(r,4,r,5);
   }
 
-  const dados = [...info, ...linhas];
-  const ws = XLSX.utils.aoa_to_sheet(dados);
-
-  // Larguras de coluna
-  ws['!cols'] = [{wch:6},{wch:10},{wch:12},{wch:14},{wch:14}];
+  // Monta a planilha
+  const ws = {};
+  A.forEach((linha, ri) => (linha || []).forEach((cel, ci) => {
+    if (cel) ws[XLSX.utils.encode_cell({ r: ri, c: ci })] = cel;
+  }));
+  ws['!ref'] = XLSX.utils.encode_range({ s:{r:0,c:0}, e:{r:r,c:5} });
+  ws['!merges'] = merges;
+  ws['!cols'] = [{wch:16},{wch:12},{wch:14},{wch:14},{wch:14},{wch:16}];
+  ws['!rows'] = [{hpt:28},{hpt:18}];
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Pesagem');
 
-  const data = new Date().toISOString().split('T')[0];
+  const data = agora.toISOString().split('T')[0];
   XLSX.writeFile(wb, `Pesagem_${window._vendedor||'Lote'}_${data}.xlsx`);
 }
 
