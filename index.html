@@ -562,8 +562,7 @@ function xsCel(v, s, z) {
   return c;
 }
 
-function exportarExcel() {
-  if (pesagens.length === 0) { alert('Nenhuma pesagem para exportar!'); return; }
+function montarRelatorioWb() {
 
   const totQtd  = pesagens.reduce((s,r)=>s+r.qtd,0);
   const totPeso = pesagens.reduce((s,r)=>s+r.peso,0);
@@ -703,7 +702,13 @@ function exportarExcel() {
   XLSX.utils.book_append_sheet(wb, ws, 'Pesagem');
 
   const data = agora.toISOString().split('T')[0];
-  XLSX.writeFile(wb, `Pesagem_${window._vendedor||'Lote'}_${data}.xlsx`);
+  return { wb, nome: `Pesagem_${window._vendedor||'Lote'}_${data}.xlsx` };
+}
+
+function exportarExcel() {
+  if (pesagens.length === 0) { alert('Nenhuma pesagem para exportar!'); return; }
+  const { wb, nome } = montarRelatorioWb();
+  XLSX.writeFile(wb, nome);
 }
 
 // ─── Modal finalizar ─────────────────────────────────────────────────────────
@@ -773,67 +778,23 @@ _Gerado pela Calculadora de Gado_`;
 }
 
 // ─── Mandar pro Google Planilhas ─────────────────────────────────────────────
-// Copia o relatório em formato de tabela e abre uma planilha nova no Google
-// Sheets — é só colar (segurar o dedo na célula A1 → Colar).
+// Gera a MESMA planilha formatada do Excel e abre a tela de compartilhar do
+// celular — é só escolher o app Google Planilhas (ou Drive) que ela chega
+// prontinha, sem precisar colar nada.
 function mandarGoogleSheets() {
   if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
 
-  const totQtd  = pesagens.reduce((s,r)=>s+r.qtd,0);
-  const totPeso = pesagens.reduce((s,r)=>s+r.peso,0);
-  const totVal  = pesagens.reduce((s,r)=>s+r.valor,0);
-  const rend    = (window._rend || 50) / 100;
-  const descTot = pesagens.reduce((s,r)=>s+r.qtd*(r.desc||0),0);
-  const totArr  = ((totPeso - descTot) * rend) / 15;
-  const agora   = new Date();
-  const num = (v, casas) => v.toLocaleString('pt-BR', { minimumFractionDigits: casas ?? 2, maximumFractionDigits: casas ?? 2 });
+  const { wb, nome } = montarRelatorioWb();
+  const dados = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const arquivo = new File([dados], nome,
+    { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-  const linhas = [
-    ['🐂 RELATÓRIO DE PESAGEM DE GADO'],
-    ['Cliente', window._vendedor || '—'],
-    ['Data', agora.toLocaleDateString('pt-BR'), 'Hora', agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})],
-    ['Rendimento', (window._rend || 50) + '%',
-     'Preço', precoVenda > 0 ? `R$ ${num(precoVenda)}/${unidade==='arroba'?'@':'kg'}` : '—'],
-    ['Desconto total', descTot + ' kg', 'Peso líquido', (totPeso - descTot) + ' kg'],
-    [],
-    ['Nº', 'Qtd Bois', 'Peso (kg)', 'Média kg/boi', 'Arrobas (@)', 'Valor (R$)'],
-    ...[...pesagens].reverse().map((p, i) => [
-      i + 1, p.qtd, p.peso, num(p.peso / p.qtd, 1), num(((p.peso - p.qtd * (p.desc || 0)) * rend) / 15), p.valor > 0 ? num(p.valor) : ''
-    ]),
-    ['TOTAL', totQtd, totPeso, num(totPeso / totQtd, 1), num(totArr), totVal > 0 ? num(totVal) : ''],
-    [],
-    ['RESUMO DO LOTE'],
-    ['Total de Bois', totQtd],
-    ['Total de Balançadas', pesagens.length],
-    ['Peso Total (kg)', totPeso],
-    ['Total de Arrobas (@)', num(totArr)],
-    ['Média de kg por Boi', num(totPeso / totQtd, 1)],
-    ['Média de @ por Boi', num(totArr / totQtd)],
-    ['💰 VALOR TOTAL (R$)', totVal > 0 ? num(totVal) : '—']
-  ];
-  const tsv = linhas.map(l => l.join('\t')).join('\n');
-
-  const abrir = () => {
-    alert('✅ Relatório copiado!\n\nVai abrir uma planilha nova do Google.\nSegure o dedo na primeira célula (A1) e escolha COLAR.');
-    window.open('https://sheets.new', '_blank');
-  };
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(tsv).then(abrir).catch(() => copiaFallback(tsv, abrir));
+  if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+    navigator.share({ files: [arquivo], title: nome }).catch(() => {});
   } else {
-    copiaFallback(tsv, abrir);
+    XLSX.writeFile(wb, nome);
+    alert('📊 Planilha baixada!\n\nAbra o arquivo baixado e escolha o app Google Planilhas (ou Drive) — ela já vem formatada, prontinha.');
   }
-}
-
-function copiaFallback(texto, depois) {
-  const ta = document.createElement('textarea');
-  ta.value = texto;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.focus(); ta.select();
-  try { document.execCommand('copy'); } catch(e) {}
-  document.body.removeChild(ta);
-  depois();
 }
 
 function novoLote() {
