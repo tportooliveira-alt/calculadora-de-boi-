@@ -465,7 +465,7 @@ function salvar() {
   const pesoLiq     = Math.max(p - qtd * desc, 0);   // peso vivo após desconto
   const carcaca     = pesoLiq * rend;                // kg de carcaça
   const arr         = carcaca / 15;                  // arrobas = carcaça / 15
-  const mediaPorBoi = p / qtd;                       // kg vivo por boi
+  const mediaPorBoi = pesoLiq / qtd;                 // kg por boi já com desconto
 
   let valor = 0;
   if (precoVenda > 0) {
@@ -527,7 +527,7 @@ function renderTabela() {
   const descTot  = pesagens.reduce((s,r) => s + r.qtd * (r.desc || 0), 0);
   const totArr   = ((totPeso - descTot) * rend) / 15;     // arrobas totais com rendimento
   const mediaArr = totArr / totBois;           // média de @ por boi
-  const mediaKg  = totPeso / totBois;          // média de kg vivo por boi
+  const mediaKg  = (totPeso - descTot) / totBois; // média de kg por boi (líquida)
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
   document.getElementById('rBois').textContent  = totBois + ' bois';
@@ -636,7 +636,7 @@ function montarRelatorioWb() {
     put(r,0,xsCel(i+1, st));
     put(r,1,xsCel(p.qtd, st));
     put(r,2,xsCel(p.peso, st, KG));
-    put(r,3,xsCel(p.peso/p.qtd, st, KG1));
+    put(r,3,xsCel((p.peso - p.qtd*(p.desc||0))/p.qtd, st, KG1));
     put(r,4,xsCel(((p.peso - p.qtd*(p.desc||0))*rend)/15, st, ARR));
     put(r,5,xsCel(p.valor > 0 ? p.valor : 0, st, RS));
   });
@@ -645,7 +645,7 @@ function montarRelatorioWb() {
   put(rTot,0,xsCel('TOTAL', sTotal));
   put(rTot,1,xsCel(totQtd, sTotal));
   put(rTot,2,xsCel(totPeso, sTotal, KG));
-  put(rTot,3,xsCel(totPeso/totQtd, sTotal, KG1));
+  put(rTot,3,xsCel((totPeso - descTot)/totQtd, sTotal, KG1));
   put(rTot,4,xsCel(totArr, sTotal, ARR));
   put(rTot,5,xsCel(totVal, sTotal, RS));
 
@@ -659,7 +659,7 @@ function montarRelatorioWb() {
     ['Total de Balançadas', linhas.length, '#,##0'],
     ['Peso Total', totPeso, KG],
     ['Total de Arrobas', totArr, ARR],
-    ['Média de kg por Boi', totPeso/totQtd, KG1],
+    ['Média de kg por Boi (c/ desconto)', (totPeso - descTot)/totQtd, KG1],
     ['Média de @ por Boi', totArr/totQtd, ARR],
     ['Rendimento Usado', (window._rend || 50)/100, '0.0%']
   ];
@@ -747,7 +747,7 @@ function mandarWhatsApp() {
   const descTot  = pesagens.reduce((s,r) => s + r.qtd * (r.desc || 0), 0);
   const totArr   = ((totPeso - descTot) * rend) / 15;
   const mediaArr = totArr / totBois;
-  const mediaKg  = totPeso / totBois;
+  const mediaKg  = (totPeso - descTot) / totBois;
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
   const linhasPes = [...pesagens].reverse().map(r =>
@@ -807,7 +807,7 @@ function novoLote() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 6;
+const APP_VERSAO = 7;
 document.getElementById('vApp').textContent = APP_VERSAO;
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
