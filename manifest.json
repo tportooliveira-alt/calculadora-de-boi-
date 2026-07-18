@@ -1,6 +1,6 @@
 {
-  "name": "Calculadora de Pesagem de Gado",
-  "short_name": "Pesagem Gado",
+  "name": "Calculadora de Boi",
+  "short_name": "Calculadora de Boi",
   "description": "App profissional para controlar pesagem de gado. Funciona offline com dados salvos automaticamente.",
   "start_url": "/index.html",
   "display": "standalone",
