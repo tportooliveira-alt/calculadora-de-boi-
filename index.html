@@ -56,6 +56,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .qtd-track::-webkit-scrollbar{display:none}
 .qtd-item{min-width:44px;height:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:20px;font-weight:700;color:#654321;cursor:pointer;flex-shrink:0}
 .qtd-item.sel{color:#8B4513;background:#fef9ee}
+.desc-chip{flex:1;height:38px;border:2px solid #d4af37;border-radius:8px;background:white;color:#654321;font-weight:700;font-size:13px;cursor:pointer}
+.desc-chip.sel{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37}
 
 /* CONFIRMAÇÃO */
 .conf-box{min-height:0}
@@ -134,7 +136,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <select id="iUnidade"><option value="arroba">R$/@</option><option value="kg">R$/kg</option></select>
         </div>
       </div>
-      <div class="campo"><label>⚖️ Desconto por Cabeça (kg)</label><input id="iDesc" type="number" value="0" step="1" min="0" placeholder="10 ou 20"></div>
+      <div class="campo"><label>⚖️ Desconto por Cabeça (kg) — padrão, dá pra mudar em cada pesagem</label><input id="iDesc" type="number" value="0" step="1" min="0" placeholder="10 ou 20"></div>
       <div class="campo"><label>Rendimento (%)</label><input id="iRendimento" type="number" value="50" step="0.1" min="0" max="100"></div>
       <div class="campo"><label>Preço de Compra do Lote (R$ total — opcional, só p/ calcular lucro)</label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
       <button class="btn-start" onclick="iniciar()">✓ COMEÇAR PESAGEM</button>
@@ -157,6 +159,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <div class="qtd-track" id="qtdTrack"></div>
         </div>
         <input type="hidden" id="iQtd" value="1">
+      </div>
+      <div class="qtd-row">
+        <label>Desc:</label>
+        <div id="descChips" style="flex:1;display:flex;gap:6px"></div>
       </div>
       <div id="confBox" class="conf-box"></div>
       <div class="teclado">
@@ -309,9 +315,26 @@ function iniciar() {
   window._compra   = compra;
   window._rend     = rend;
   window._desc     = desconto;
+  window._descSel  = desconto;
 
   ativarTelaPesagem();
   salvarLocal();
+}
+
+function montarDescChips() {
+  const box = document.getElementById('descChips');
+  if (!box) return;
+  const padrao = window._desc || 0;
+  if (window._descSel === undefined) window._descSel = padrao;
+  const vals = [...new Set([0, 5, 10, 20, padrao])].sort((a, b) => a - b);
+  box.innerHTML = '';
+  vals.forEach(v => {
+    const b = document.createElement('button');
+    b.textContent = v === 0 ? 'Sem' : '-' + v + 'kg';
+    b.className = 'desc-chip' + (v === window._descSel ? ' sel' : '');
+    b.onclick = () => { window._descSel = v; montarDescChips(); };
+    box.appendChild(b);
+  });
 }
 
 function ativarTelaPesagem() {
@@ -323,6 +346,7 @@ function ativarTelaPesagem() {
 
   document.getElementById('tCad').classList.add('off');
   document.getElementById('tPes').classList.remove('off');
+  montarDescChips();
   renderTabela();
 }
 
@@ -435,7 +459,7 @@ function salvar() {
 
   const qtd         = parseInt(document.getElementById('iQtd').value) || 1;
   const rend        = (window._rend || 50) / 100;   // ex: 50% → 0.50
-  const desc        = window._desc || 0;             // kg descontados por cabeça
+  const desc        = window._descSel !== undefined ? window._descSel : (window._desc || 0); // kg/cab desta balançada
   const pesoLiq     = Math.max(p - qtd * desc, 0);   // peso vivo após desconto
   const carcaca     = pesoLiq * rend;                // kg de carcaça
   const arr         = carcaca / 15;                  // arrobas = carcaça / 15
@@ -450,6 +474,7 @@ function salvar() {
     id:    Date.now(),
     num:   pesagens.length + 1,
     qtd,
+    desc,
     peso:  p,
     arr:   arr.toFixed(2),
     media: mediaPorBoi.toFixed(1),
@@ -458,7 +483,7 @@ function salvar() {
   pesagens.unshift(reg);
 
   document.getElementById('confBox').innerHTML =
-    `<div class="conf-msg">✓ #${reg.num} salva: ${p} kg — ${qtd} boi${qtd>1?'s':''}</div>`;
+    `<div class="conf-msg">✓ #${reg.num} salva: ${p} kg — ${qtd} boi${qtd>1?'s':''}${desc>0?` — desc ${desc} kg/cab`:''}</div>`;
 
   renderTabela();
   salvarLocal();
@@ -486,7 +511,7 @@ function renderTabela() {
   body.innerHTML = pesagens.map(r => `
     <div class="tab-row">
       <span class="n">${r.num}</span>
-      <span>${r.qtd}</span>
+      <span>${r.qtd}${(r.desc||0)>0?`·-${r.desc}`:''}</span>
       <span>${r.peso}</span>
       <span>${r.arr}@</span>
       <span>${r.valor > 0 ? 'R$'+r.valor.toFixed(0) : '—'}</span>
@@ -497,7 +522,7 @@ function renderTabela() {
   const totBois  = pesagens.reduce((s,r) => s + r.qtd,  0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
   const rend     = (window._rend || 50) / 100;
-  const descTot  = totBois * (window._desc || 0);
+  const descTot  = pesagens.reduce((s,r) => s + r.qtd * (r.desc || 0), 0);
   const totArr   = ((totPeso - descTot) * rend) / 15;     // arrobas totais com rendimento
   const mediaArr = totArr / totBois;           // média de @ por boi
   const mediaKg  = totPeso / totBois;          // média de kg vivo por boi
@@ -508,7 +533,7 @@ function renderTabela() {
   document.getElementById('rArr').textContent   = mediaArr.toFixed(2) + ' @/boi';
   document.getElementById('rKg').textContent    = mediaKg.toFixed(1) + ' kg/boi';
   document.getElementById('rValor').textContent = totValor > 0 ? 'R$ ' + totValor.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—';
-  document.getElementById('rRend').textContent  = (window._rend || 50) + '% rendimento' + ((window._desc || 0) > 0 ? ' · desconto ' + window._desc + ' kg/cab' : '');
+  document.getElementById('rRend').textContent  = (window._rend || 50) + '% rendimento' + (descTot > 0 ? ' · desconto total ' + descTot + ' kg' : '');
 
   card.style.display = 'block';
 }
@@ -544,8 +569,7 @@ function exportarExcel() {
   const totPeso = pesagens.reduce((s,r)=>s+r.peso,0);
   const totVal  = pesagens.reduce((s,r)=>s+r.valor,0);
   const rend    = (window._rend || 50) / 100;
-  const totBoisD = pesagens.reduce((s,r)=>s+r.qtd,0);
-  const descTot = totBoisD * (window._desc || 0);
+  const descTot = pesagens.reduce((s,r)=>s+r.qtd*(r.desc||0),0);
   const totArr  = ((totPeso - descTot) * rend) / 15;
 
   const KG = '#,##0 "kg"', KG1 = '#,##0.0 "kg"', ARR = '#,##0.00 "@"', RS = 'R$ #,##0.00';
@@ -585,7 +609,7 @@ function exportarExcel() {
   const cad = [
     ['Cliente', window._vendedor || '—', 'Data', agora.toLocaleDateString('pt-BR')],
     ['Rendimento', (window._rend || 50) + '%', 'Hora', agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})],
-    ['Desconto/cabeça', (window._desc || 0) + ' kg', 'Desconto total', (totQtd * (window._desc || 0)) + ' kg'],
+    ['Desconto total', descTot + ' kg', 'Peso líquido', (totPeso - descTot) + ' kg'],
     ['Preço de Venda', precoVenda > 0 ? `R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}` : '—',
      'Preço de Compra', window._compra > 0 ? `R$ ${window._compra.toFixed(2)}` : '—']
   ];
@@ -612,7 +636,7 @@ function exportarExcel() {
     put(r,1,xsCel(p.qtd, st));
     put(r,2,xsCel(p.peso, st, KG));
     put(r,3,xsCel(p.peso/p.qtd, st, KG1));
-    put(r,4,xsCel(((p.peso - p.qtd*(window._desc||0))*rend)/15, st, ARR));
+    put(r,4,xsCel(((p.peso - p.qtd*(p.desc||0))*rend)/15, st, ARR));
     put(r,5,xsCel(p.valor > 0 ? p.valor : 0, st, RS));
   });
 
@@ -689,7 +713,7 @@ function abrirModal() {
   const totBois  = pesagens.reduce((s,r) => s + r.qtd, 0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
   const rend     = (window._rend || 50) / 100;
-  const descTot  = totBois * (window._desc || 0);
+  const descTot  = pesagens.reduce((s,r) => s + r.qtd * (r.desc || 0), 0);
   const totArr   = ((totPeso - descTot) * rend) / 15;
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
@@ -713,14 +737,14 @@ function mandarWhatsApp() {
   const totBois  = pesagens.reduce((s,r) => s + r.qtd, 0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
   const rend     = (window._rend || 50) / 100;
-  const descTot  = totBois * (window._desc || 0);
+  const descTot  = pesagens.reduce((s,r) => s + r.qtd * (r.desc || 0), 0);
   const totArr   = ((totPeso - descTot) * rend) / 15;
   const mediaArr = totArr / totBois;
   const mediaKg  = totPeso / totBois;
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
   const linhasPes = [...pesagens].reverse().map(r =>
-    `  #${r.num}: ${r.qtd} boi${r.qtd>1?'s':''} — ${r.peso}kg — ${r.arr}@${r.valor>0?' — R$'+r.valor.toFixed(2):''}`
+    `  #${r.num}: ${r.qtd} boi${r.qtd>1?'s':''} — ${r.peso}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$'+r.valor.toFixed(2):''}`
   ).join('\n');
 
   const msg =
@@ -740,7 +764,7 @@ ${linhasPes}
 📊 Média @/boi: *${mediaArr.toFixed(2)} @*
 📊 Média kg/boi: *${mediaKg.toFixed(1)} kg*
 ${totValor > 0 ? `💰 Valor total: *R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}*` : ''}
-🔢 Rendimento: *${window._rend || 50}%*${(window._desc||0) > 0 ? `\n⚖️ Desconto: *${window._desc} kg/cabeça (${descTot} kg no total)*` : ''}
+🔢 Rendimento: *${window._rend || 50}%*${descTot > 0 ? `\n⚖️ Desconto total: *${descTot} kg*` : ''}
 ━━━━━━━━━━━━━━━━━━━
 _Gerado pela Calculadora de Gado_`;
 
@@ -758,8 +782,7 @@ function mandarGoogleSheets() {
   const totPeso = pesagens.reduce((s,r)=>s+r.peso,0);
   const totVal  = pesagens.reduce((s,r)=>s+r.valor,0);
   const rend    = (window._rend || 50) / 100;
-  const totBoisD = pesagens.reduce((s,r)=>s+r.qtd,0);
-  const descTot = totBoisD * (window._desc || 0);
+  const descTot = pesagens.reduce((s,r)=>s+r.qtd*(r.desc||0),0);
   const totArr  = ((totPeso - descTot) * rend) / 15;
   const agora   = new Date();
   const num = (v, casas) => v.toLocaleString('pt-BR', { minimumFractionDigits: casas ?? 2, maximumFractionDigits: casas ?? 2 });
@@ -770,11 +793,11 @@ function mandarGoogleSheets() {
     ['Data', agora.toLocaleDateString('pt-BR'), 'Hora', agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})],
     ['Rendimento', (window._rend || 50) + '%',
      'Preço', precoVenda > 0 ? `R$ ${num(precoVenda)}/${unidade==='arroba'?'@':'kg'}` : '—'],
-    ['Desconto/cabeça', (window._desc || 0) + ' kg', 'Desconto total', descTot + ' kg'],
+    ['Desconto total', descTot + ' kg', 'Peso líquido', (totPeso - descTot) + ' kg'],
     [],
     ['Nº', 'Qtd Bois', 'Peso (kg)', 'Média kg/boi', 'Arrobas (@)', 'Valor (R$)'],
     ...[...pesagens].reverse().map((p, i) => [
-      i + 1, p.qtd, p.peso, num(p.peso / p.qtd, 1), num(((p.peso - p.qtd * (window._desc || 0)) * rend) / 15), p.valor > 0 ? num(p.valor) : ''
+      i + 1, p.qtd, p.peso, num(p.peso / p.qtd, 1), num(((p.peso - p.qtd * (p.desc || 0)) * rend) / 15), p.valor > 0 ? num(p.valor) : ''
     ]),
     ['TOTAL', totQtd, totPeso, num(totPeso / totQtd, 1), num(totArr), totVal > 0 ? num(totVal) : ''],
     [],
