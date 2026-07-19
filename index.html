@@ -20,6 +20,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .hdr{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));text-align:center;border-bottom:3px solid #d4af37;flex-shrink:0}
 .hdr h1{font-size:20px;font-weight:900}
 .hdr-sub{font-size:11px;color:#f4e4c1;display:flex;justify-content:space-around;margin-top:2px}
+.hdr-acoes{display:none;gap:8px;justify-content:center;margin-top:7px}
+.hdr-btn{flex:1;max-width:170px;padding:8px 6px;border:2px solid #d4af37;border-radius:8px;background:rgba(0,0,0,.25);color:#d4af37;font-size:13px;font-weight:900;cursor:pointer}
+.hdr-btn:active{background:#d4af37;color:#654321}
 
 /* TELA CADASTRO */
 .t-cad{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;overflow-y:auto}
@@ -122,6 +125,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="hdr-sub">
       <span id="h-vendedor">—</span>
       <span id="h-preco">—</span>
+    </div>
+    <div class="hdr-acoes" id="hdrAcoes">
+      <button class="hdr-btn" onclick="abrirModal()">✓ FINALIZAR</button>
+      <button class="hdr-btn" onclick="novoLote()">🆕 NOVO LOTE</button>
     </div>
   </div>
 
@@ -348,6 +355,7 @@ function ativarTelaPesagem() {
 
   document.getElementById('tCad').classList.add('off');
   document.getElementById('tPes').classList.remove('off');
+  document.getElementById('hdrAcoes').style.display = 'flex';
   montarDescChips();
   renderTabela();
 }
@@ -807,7 +815,7 @@ function novoLote() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 7;
+const APP_VERSAO = 8;
 document.getElementById('vApp').textContent = APP_VERSAO;
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
