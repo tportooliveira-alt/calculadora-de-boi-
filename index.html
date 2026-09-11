@@ -124,6 +124,137 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-exportar:active{transform:scale(.98)}
 .btn-finalizar{width:100%;background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;border:3px solid #d4af37;padding:13px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px;transition:all .2s}
 .btn-finalizar:active{transform:scale(.98)}
+
+/* ═══ VISUAL PRO (v13) ═══════════════════════════════════════════════════════ */
+@keyframes boi-entra{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes boi-sobe{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes boi-flash{0%{box-shadow:0 0 0 0 rgba(212,175,55,.9)}100%{box-shadow:0 0 0 22px rgba(212,175,55,0)}}
+@keyframes boi-esvazia{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@keyframes boi-treme{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.boi-treme{animation:boi-treme .35s ease !important}
+.boi-desab{opacity:.4}
+
+/* a tela inteira rola, como no design Pro */
+.t-pes{overflow-y:auto;-webkit-overflow-scrolling:touch;display:block}
+.pes-top{padding:10px 14px 0}
+.pes-scroll{flex:none;overflow:visible;padding-top:0}
+
+/* faixa de totais */
+.totais{display:flex;align-items:stretch;gap:1px;background:rgba(212,175,55,.55);border-bottom:2px solid #d4af37}
+.tot-cel{flex:1;background:#fffdf7;padding:7px 12px;display:flex;flex-direction:column;gap:1px}
+.tot-cel span:first-child{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8B4513}
+.tot-cel span:last-child{font-size:17px;font-weight:800;color:#2d1f13;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tot-cel.escuro{flex:1.3;background:linear-gradient(135deg,#2d1f13,#3d2b1f)}
+.tot-cel.escuro span:first-child{color:#f4e4c1}
+.tot-cel.escuro span:last-child{color:#f0d060}
+
+/* barra de meta */
+.meta-bar{display:flex;flex-direction:column;gap:5px;padding:7px 14px 8px;background:#fffdf7;border-bottom:2px solid rgba(212,175,55,.55);cursor:pointer}
+.meta-topo{display:flex;justify-content:space-between;align-items:center}
+.meta-topo span:first-child{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8B4513}
+.meta-topo span:last-child{font-size:13px;font-weight:800;color:#2d1f13;font-variant-numeric:tabular-nums}
+.meta-trilho{height:10px;border-radius:999px;background:rgba(139,69,19,.15);overflow:hidden}
+.meta-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#d4af37,#f0d060);transition:width .45s ease,background .3s ease}
+.meta-fill.batida{background:linear-gradient(90deg,#16a34a,#22c55e)}
+
+/* linha de prévia + botões redondos */
+.previa-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.previa-txt{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+.previa-txt b{font-size:13px;font-weight:800;color:#8B4513;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.previa-txt small{font-size:11px;font-weight:700;color:#6b533c}
+.pill-modo{min-height:42px;padding:0 12px;border:2px solid #d4af37;background:#fffdf7;color:#2d1f13;font-weight:800;font-size:11px;letter-spacing:.06em;border-radius:999px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 0 rgba(45,31,19,.18)}
+.btn-redondo{width:42px;height:42px;border:2px solid #d4af37;background:#fffdf7;font-size:17px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;box-shadow:0 2px 0 rgba(45,31,19,.18)}
+.pill-modo:active,.btn-redondo:active{transform:translateY(2px) scale(.97)}
+
+/* moldura escura do teclado */
+.teclado-moldura{margin:0 -4px;padding:10px 10px 12px;border-radius:24px;background:linear-gradient(165deg,#3d2b1f,#20150e);border:2px solid rgba(212,175,55,.55);box-shadow:inset 0 1px 0 rgba(244,228,193,.14),0 16px 30px -20px rgba(0,0,0,.9)}
+.teclado-titulo{display:flex;align-items:center;gap:8px;padding:0 6px 8px}
+.teclado-titulo span:first-child{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#d4af37}
+.teclado-titulo i{flex:1;height:1px;background:rgba(212,175,55,.35)}
+.teclado-titulo span:last-child{font-size:10px;font-weight:800;letter-spacing:.1em;color:rgba(244,228,193,.75)}
+
+/* teclas com relevo Pro */
+.key{border-radius:14px;box-shadow:0 3px 0 rgba(45,31,19,.28),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .06s ease,box-shadow .06s ease;touch-action:manipulation}
+.key:active{transform:translateY(3px) scale(.97);box-shadow:0 0 0 rgba(45,31,19,.28),inset 0 3px 8px rgba(45,31,19,.35)}
+.key.ok{box-shadow:0 4px 0 #0f3d20,0 10px 22px -10px rgba(22,101,52,.8),inset 0 1px 0 rgba(255,255,255,.25);border-color:#2f8a52}
+.key.ok:active{box-shadow:0 0 0 #0f3d20,inset 0 3px 10px rgba(0,0,0,.45)}
+.display{border-radius:14px;box-shadow:0 10px 26px -14px rgba(0,0,0,.8),inset 0 1px 0 rgba(244,228,193,.18)}
+.desc-chip,.qtd-wrap{box-shadow:0 2px 0 rgba(45,31,19,.18)}
+.desc-chip{border-radius:12px;transition:transform .06s ease}
+.desc-chip:active{transform:translateY(2px) scale(.97)}
+
+/* rodapé FINALIZAR + NOVO LOTE perto do polegão */
+.rodape-acoes{display:flex;gap:10px;margin:10px 0 12px}
+.rodape-acoes .rf{flex:1.3;min-height:56px;border:3px solid #d4af37;background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;font-weight:900;font-size:15px;letter-spacing:.06em;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+.rodape-acoes .rn{flex:1;min-height:56px;border:2px solid #d4af37;background:#fffdf7;color:#2d1f13;font-weight:900;font-size:15px;letter-spacing:.06em;border-radius:14px;cursor:pointer;box-shadow:0 3px 0 rgba(45,31,19,.2)}
+.rodape-acoes button:active{transform:translateY(2px)}
+
+/* alerta de peso estranho */
+.alerta-peso{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:14px;background:#fff3c4;border:3px solid #d97706;color:#4a2b05;box-shadow:0 8px 20px -12px rgba(0,0,0,.5);margin-bottom:10px;animation:boi-entra .22s ease}
+.alerta-cab{display:flex;align-items:center;gap:10px}
+.alerta-cab>span{font-size:24px;line-height:1}
+.alerta-cab b{font-size:15px;font-weight:900;display:block}
+.alerta-cab small{font-size:13px;font-weight:600}
+.alerta-botoes{display:flex;gap:8px}
+.alerta-botoes .ac{flex:1;min-height:48px;border:2px solid #4a2b05;background:#fffdf7;color:#4a2b05;font-weight:900;font-size:14px;border-radius:12px;cursor:pointer}
+.alerta-botoes .as{flex:1.2;min-height:48px;border:none;background:#166534;color:#fff;font-weight:900;font-size:14px;border-radius:12px;cursor:pointer;box-shadow:0 3px 0 #0f3d20}
+
+/* faixa de desfazer */
+.undo-bar{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);max-width:476px;margin:0 auto;z-index:70;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:#14532d;box-shadow:0 8px 20px -10px rgba(0,0,0,.6);animation:boi-entra .22s ease,boi-flash .6s ease-out}
+.undo-linha{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px}
+.undo-linha span{flex:1;color:#fff;font-size:14px;font-weight:800;line-height:1.3}
+.undo-linha button{min-height:52px;min-width:118px;border:2px solid rgba(255,255,255,.7);background:#fff;color:#14532d;font-weight:900;font-size:15px;letter-spacing:.04em;border-radius:12px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.undo-trilho{height:5px;background:rgba(255,255,255,.2)}
+.undo-trilho div{height:100%;background:#d4af37;transform-origin:left;animation:boi-esvazia 5s linear forwards}
+
+/* folha da meta */
+.folha-fundo{display:none;position:fixed;inset:0;background:rgba(20,12,6,.62);z-index:80;flex-direction:column;justify-content:flex-end}
+.folha-caixa{background:#f5f1e8;border-radius:24px 24px 0 0;border-top:4px solid #d4af37;padding:16px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;animation:boi-sobe .22s ease;max-width:500px;width:100%;margin:0 auto}
+.folha-caixa h3{font-size:17px;font-weight:900;color:#2d1f13}
+.folha-caixa input{width:100%;min-height:56px;padding:0 14px;border:2px solid #d4af37;border-radius:12px;background:#fffdf7;color:#2d1f13;font-size:20px;font-weight:700;outline:none}
+.folha-caixa small{font-size:12px;font-weight:700;color:#6b533c}
+.folha-caixa .pronto{min-height:58px;border:none;background:linear-gradient(135deg,#166534,#14532d);color:#fff;font-weight:900;font-size:17px;letter-spacing:.04em;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 #0f3d20}
+
+/* ═══ MODO SOL (v13) — tela preta com dourado forte pro sol do curral ═══════ */
+body.sol,body.sol .app{background:#000}
+body.sol .hdr{background:#000;border-color:#f5c518;color:#f5c518}
+body.sol .tot-cel,body.sol .meta-bar{background:#121212}
+body.sol .tot-cel span:first-child,body.sol .meta-topo span:first-child{color:#f5c518}
+body.sol .tot-cel span:last-child,body.sol .meta-topo span:last-child{color:#fff}
+body.sol .tot-cel.escuro{background:#000}
+body.sol .tot-cel.escuro span:last-child{color:#ffd84a}
+body.sol .meta-trilho{background:rgba(255,255,255,.14)}
+body.sol .display{background:linear-gradient(135deg,#000,#161616);border-color:#f5c518}
+body.sol .dval{color:#f5c518}
+body.sol .key,body.sol .desc-chip,body.sol .qtd-wrap,body.sol .pill-modo,body.sol .btn-redondo,body.sol .rodape-acoes .rn{background:#121212;color:#fff}
+body.sol .key{box-shadow:0 3px 0 #000,inset 0 1px 0 rgba(255,255,255,.1)}
+body.sol .key:active{background:#f5c518;color:#000}
+body.sol .key.del{background:#d11f1f;color:#fff}
+body.sol .key.clr{background:#c2410c;color:#fff}
+body.sol .key.ok{background:linear-gradient(135deg,#22a04f,#15803d);color:#fff}
+body.sol .key.prox{background:#000;color:#f5c518}
+body.sol .qtd-item{color:#fff}
+body.sol .qtd-item.sel{background:#000;color:#f5c518}
+body.sol .qtd-wrap::before{background:linear-gradient(to right,#121212,transparent)}
+body.sol .qtd-wrap::after{background:linear-gradient(to left,#121212,transparent)}
+body.sol .qtd-row label,body.sol .previa-txt small{color:#e8dcc8}
+body.sol .previa-txt b{color:#f5c518}
+body.sol .desc-chip.sel{background:#000;color:#f5c518}
+body.sol .tabela-wrap{background:#111;border-color:#f5c518}
+body.sol .tab-row{border-color:#2a2a2a}
+body.sol .tab-row:nth-child(even){background:#111}
+body.sol .tab-row span{color:#fff}
+body.sol .tab-row span.n{color:#f5c518}
+body.sol .tab-empty{color:#cfc3ad}
+body.sol .cad-box{background:#121212}
+body.sol .cad-box h2,body.sol .campo label{color:#f5c518}
+body.sol .campo input,body.sol .campo select,body.sol .row select,body.sol .modo-btn{background:#121212;color:#fff}
+body.sol .modo-btn small{color:#cfc3ad}
+body.sol .modo-btn.sel{background:#000;color:#f5c518}
+body.sol .rodape-acoes .rf{background:#000;color:#f5c518;border-color:#f5c518}
+body.sol .folha-caixa{background:#121212}
+body.sol .folha-caixa h3{color:#fff}
+body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
 </style>
 </head>
 <body>
@@ -135,10 +266,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="hdr-sub">
       <span id="h-vendedor">—</span>
       <span id="h-preco">—</span>
-    </div>
-    <div class="hdr-acoes" id="hdrAcoes">
-      <button class="hdr-btn" onclick="abrirModal()">✓ FINALIZAR</button>
-      <button class="hdr-btn" onclick="novoLote()">+ NOVO LOTE</button>
     </div>
   </div>
 
@@ -184,7 +311,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <!-- TELA PESAGEM -->
   <div class="t-pes off" id="tPes">
 
-    <!-- PARTE FIXA: display + qtd + confirmação + teclado -->
+    <!-- FAIXA DE TOTAIS -->
+    <div class="totais">
+      <div class="tot-cel"><span id="totCabLbl">Cabeças</span><span id="totCab">0</span></div>
+      <div class="tot-cel" style="flex:1.1"><span>Peso</span><span id="totPeso">0 kg</span></div>
+      <div class="tot-cel escuro"><span>Total</span><span id="totValor">—</span></div>
+    </div>
+
+    <!-- BARRA DE META -->
+    <div class="meta-bar" onclick="abrirMeta()">
+      <div class="meta-topo"><span>Meta do lote</span><span id="metaTxt">toque para pôr meta</span></div>
+      <div class="meta-trilho"><div class="meta-fill" id="metaFill"></div></div>
+    </div>
+
     <div class="pes-top">
       <div class="display" id="displayBox">
         <div class="dcampo" id="boiBox" style="display:none" onclick="setAlvo('boi')">
@@ -196,6 +335,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <span class="dunit">kg</span>
         </div>
       </div>
+
+      <!-- PRÉVIA + MODO + SOM + SOL -->
+      <div class="previa-row">
+        <div class="previa-txt"><b id="previaTxt">≈ 0.00@</b><small id="dicaModo">pesa a balançada e aperta ✓</small></div>
+        <button type="button" class="pill-modo" id="pillModo" onclick="alternarModoPes()">SEM Nº</button>
+        <button type="button" class="btn-redondo" id="btnSom" onclick="alternarSom()" aria-label="Som">🔊</button>
+        <button type="button" class="btn-redondo" onclick="alternarSol()" aria-label="Modo sol">☀️</button>
+      </div>
+
       <div class="qtd-row" id="qtdRow">
         <label id="lblQtd">Bois:</label>
         <div class="qtd-wrap">
@@ -209,6 +357,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div id="descChips" style="flex:1;display:flex;gap:6px"></div>
       </div>
       <div id="confBox" class="conf-box"></div>
+      <div class="teclado-moldura">
+      <div class="teclado-titulo"><span>Toca na caixinha</span><i></i><span>verde = entra no lote</span></div>
       <div class="teclado">
         <button class="key" onclick="dig('7')">7</button>
         <button class="key" onclick="dig('8')">8</button>
@@ -229,6 +379,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <button class="key" id="key0" onclick="dig('0')">0</button>
         <button class="key" onclick="dig('00')">00</button>
         <button class="key ok" onclick="salvar()">✓</button>
+      </div>
+      </div>
+
+      <!-- RODAPÉ: FINALIZAR + NOVO LOTE perto do polegar -->
+      <div class="rodape-acoes">
+        <button type="button" class="rf" onclick="abrirModal()">✓ FINALIZAR</button>
+        <button type="button" class="rn boi-desab" id="btnNovoLote" onclick="novoLoteGate()">+ NOVO LOTE</button>
       </div>
     </div>
 
@@ -276,9 +433,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
       </div>
 
-      <!-- BOTÃO FINALIZAR -->
-      <button class="btn-finalizar" onclick="abrirModal()">✓ FINALIZAR LOTE</button>
+    </div>
+  </div>
 
+  <!-- FAIXA DE DESFAZER (some em 5s) -->
+  <div id="undoBox"></div>
+
+  <!-- FOLHA: META DE CABEÇAS -->
+  <div class="folha-fundo" id="metaSheet">
+    <div style="flex:1" onclick="fecharMeta()"></div>
+    <div class="folha-caixa">
+      <h3>🎯 Meta de cabeças do lote</h3>
+      <input id="iMetaSheet" type="number" inputmode="numeric" min="0" step="1" placeholder="Ex: 50">
+      <small>Deixe vazio pra pesar sem meta. A barra enche conforme os animais entram.</small>
+      <button type="button" class="pronto" onclick="salvarMeta()">✓ PRONTO</button>
     </div>
   </div>
 
@@ -316,6 +484,62 @@ let precoVenda = 0;
 let unidade = 'kg';
 let boiNum = '';
 let alvo = 'peso'; // no modo identificado, alterna entre 'boi' e 'peso'
+
+// ─── Preferências (som / modo sol) ───────────────────────────────────────────
+const PREFS_KEY = 'boi_prefs_v1';
+window._prefs = (function(){
+  try { return Object.assign({ som:true, sol:false }, JSON.parse(localStorage.getItem(PREFS_KEY) || '{}')); }
+  catch(e) { return { som:true, sol:false }; }
+})();
+function salvarPrefs() { try { localStorage.setItem(PREFS_KEY, JSON.stringify(window._prefs)); } catch(e) {} }
+function aplicarPrefs() {
+  document.body.classList.toggle('sol', !!window._prefs.sol);
+  const b = document.getElementById('btnSom');
+  if (b) b.textContent = window._prefs.som ? '🔊' : '🔇';
+}
+
+// ─── Som e vibração (Web Audio) ───────────────────────────────────────────────
+function _ac() {
+  if (!window.__ac) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) window.__ac = new AC(); }
+  if (window.__ac && window.__ac.state === 'suspended') window.__ac.resume();
+  return window.__ac;
+}
+function tom(freqs, dur, tipo, vol) {
+  if (!window._prefs.som) return;
+  try {
+    const ac = _ac(); if (!ac) return;
+    freqs.forEach((f, i) => {
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i * dur * 0.75;
+      o.type = tipo; o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
+    });
+  } catch(e) {}
+}
+function vibrar(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch(e) {} }
+function somClique()   { tom([880], 0.05, 'square', 0.09); vibrar(8); }
+function somApagar()   { tom([260], 0.09, 'sine', 0.13); vibrar(14); }
+function somLimpar()   { tom([330,200], 0.09, 'sawtooth', 0.1); vibrar([12,40,12]); }
+function somTroca()    { tom([660], 0.05, 'square', 0.08); vibrar(8); }
+function somSalvo()    { tom([523,784,1046], 0.13, 'triangle', 0.14); vibrar([18,40,30]); }
+function somErro()     { tom([180,150], 0.12, 'sine', 0.12); vibrar([30,60,30]); }
+function somAlerta()   { tom([440,440], 0.18, 'square', 0.12); vibrar([60,80,60]); }
+function somMeta()     { tom([660,880,1320,1760], 0.16, 'triangle', 0.14); vibrar([40,60,40,60,120]); }
+function somDesfazer() { tom([600,400], 0.1, 'triangle', 0.12); vibrar([20,30,20]); }
+function somExcluir()  { tom([300,180], 0.1, 'sine', 0.12); }
+function somFinal()    { tom([523,659,784,1046], 0.14, 'triangle', 0.14); vibrar([20,40,20,40,60]); }
+
+function erroTreme() {
+  somErro();
+  const d = document.getElementById('displayBox');
+  if (!d) return;
+  d.classList.remove('boi-treme');
+  void d.offsetWidth;
+  d.classList.add('boi-treme');
+  setTimeout(() => d.classList.remove('boi-treme'), 400);
+}
 
 // ─── Tipo de gado ──────────────────────────────────────────────────────────────
 const ANIMAIS = {
@@ -387,6 +611,10 @@ function iniciar() {
   window._descSel  = desconto;
   window._totBois  = totBois;
 
+  window._finalizado = false;
+  const bn = document.getElementById('btnNovoLote');
+  if (bn) bn.classList.add('boi-desab');
+
   ativarTelaPesagem();
   salvarLocal();
 }
@@ -402,7 +630,7 @@ function montarDescChips() {
     const b = document.createElement('button');
     b.textContent = v === 0 ? 'Sem' : '-' + v + 'kg';
     b.className = 'desc-chip' + (v === window._descSel ? ' sel' : '');
-    b.onclick = () => { window._descSel = v; montarDescChips(); };
+    b.onclick = () => { somTroca(); window._descSel = v; montarDescChips(); atualizarPrevia(); };
     box.appendChild(b);
   });
 }
@@ -416,10 +644,10 @@ function ativarTelaPesagem() {
 
   document.getElementById('tCad').classList.add('off');
   document.getElementById('tPes').classList.remove('off');
-  document.getElementById('hdrAcoes').style.display = 'flex';
 
   // Modo identificado: esconde o picker de qtd, mostra o campo do nº do boi
   const ident = window._modo === 'ident';
+  document.getElementById('pillModo').textContent = ident ? '🔢 COM Nº' : 'SEM Nº';
   document.getElementById('qtdRow').style.display = ident ? 'none' : 'flex';
   document.getElementById('boiBox').style.display = ident ? 'flex' : 'none';
   document.getElementById('displayBox').classList.toggle('ident', ident);
@@ -438,7 +666,52 @@ function ativarTelaPesagem() {
   k0.classList.toggle('span2', !ident);
 
   montarDescChips();
+  aplicarPrefs();
   renderTabela();
+  atualizar();
+}
+
+// ─── Pill SEM Nº / COM Nº — troca o jeito de pesar no meio do lote ────────────
+function alternarModoPes() {
+  somTroca();
+  window._modo = window._modo === 'ident' ? 'normal' : 'ident';
+  setModo(window._modo);
+  peso = ''; boiNum = '';
+  ativarTelaPesagem();
+  salvarLocal();
+}
+
+function alternarSom() {
+  window._prefs.som = !window._prefs.som;
+  salvarPrefs(); aplicarPrefs();
+  somTroca();
+}
+
+function alternarSol() {
+  somTroca();
+  window._prefs.sol = !window._prefs.sol;
+  salvarPrefs(); aplicarPrefs();
+}
+
+// ─── Meta de cabeças (barra + folha) ─────────────────────────────────────────
+function abrirMeta() {
+  somClique();
+  const s = document.getElementById('metaSheet');
+  document.getElementById('iMetaSheet').value = window._totBois || '';
+  s.style.display = 'flex';
+  setTimeout(() => { try { document.getElementById('iMetaSheet').focus(); } catch(e){} }, 250);
+}
+function fecharMeta() { document.getElementById('metaSheet').style.display = 'none'; }
+function salvarMeta() {
+  const v = parseInt(document.getElementById('iMetaSheet').value) || 0;
+  window._totBois = v;
+  const iTot = document.getElementById('iTotBois');
+  if (iTot) iTot.value = v || '';
+  window._metaBatida = false;
+  fecharMeta();
+  somTroca();
+  renderTabela();
+  salvarLocal();
 }
 
 // ─── Restaurar lote salvo ao abrir o app ─────────────────────────────────────
@@ -485,11 +758,14 @@ function setAlvo(a) {
   alvo = a;
   document.getElementById('boiBox').classList.toggle('ativo', a === 'boi');
   document.getElementById('pesoBox').classList.toggle('ativo', a === 'peso');
+  atualizarPrevia();
 }
 
 function digitandoBoi() { return window._modo === 'ident' && alvo === 'boi'; }
 
 function dig(v) {
+  somClique();
+  fecharAlerta();
   if (digitandoBoi()) {
     if (v === '.') return;
     if (v === '00' && boiNum === '') return;
@@ -505,16 +781,20 @@ function dig(v) {
   atualizar();
 }
 function apagar() {
+  somApagar();
+  fecharAlerta();
   if (digitandoBoi()) { boiNum = boiNum.slice(0,-1); atualizar(); return; }
   peso = peso.slice(0,-1); atualizar();
 }
 function limpar()  {
+  somLimpar();
+  fecharAlerta();
   peso = '';
   if (window._modo === 'ident') { boiNum = ''; setAlvo('boi'); }
-  document.getElementById('confBox').innerHTML = '';
   atualizar();
 }
 function proximo() {
+  somTroca();
   if (window._modo === 'ident') { setAlvo(alvo === 'boi' ? 'peso' : 'boi'); return; }
   limpar(); resetQtd();
 }
@@ -522,6 +802,31 @@ function atualizar() {
   document.getElementById('dval').textContent = peso || '0';
   const dboi = document.getElementById('dboi');
   if (dboi) dboi.textContent = boiNum || '—';
+  atualizarPrevia();
+}
+
+// ─── Prévia: mostra quanto vale o que está no visor antes de salvar ──────────
+function atualizarPrevia() {
+  const elP = document.getElementById('previaTxt');
+  const elD = document.getElementById('dicaModo');
+  if (!elP) return;
+  const ident = window._modo === 'ident';
+  const p = parseFloat(peso) || 0;
+  const qtd = ident ? 1 : (parseInt(document.getElementById('iQtd').value) || 1);
+  const desc = window._descSel !== undefined ? window._descSel : (window._desc || 0);
+  const rend = (window._rend || 50) / 100;
+  const pesoLiq = Math.max(p - qtd * desc, 0);
+  const arr = (pesoLiq * rend) / 15;
+  let txt = '≈ ' + arr.toFixed(2) + '@';
+  if (precoVenda > 0 && p > 0) {
+    const valor = unidade === 'arroba' ? arr * precoVenda : pesoLiq * precoVenda;
+    txt += ' · R$ ' + valor.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  elP.textContent = txt;
+  const a = anim();
+  if (elD) elD.textContent = ident
+    ? (alvo === 'boi' ? 'digitando o número do brinco' : 'digitando o peso')
+    : qtd + ' ' + (qtd > 1 ? a.p : a.s).toLowerCase() + ' na balança';
 }
 
 // ─── Qty picker ───────────────────────────────────────────────────────────────
@@ -543,6 +848,7 @@ function atualizar() {
     el.classList.add('sel');
     hidden.value = el.dataset.v;
     track.scrollTo({left: el.offsetLeft - track.offsetWidth/2 + el.offsetWidth/2, behavior:'smooth'});
+    if (typeof atualizarPrevia === 'function') atualizarPrevia();
   }
 
   // scroll to 1 on init (after paint)
@@ -570,22 +876,67 @@ function atualizar() {
   });
 })();
 
-function resetQtd() {
+function setQtdVal(v) {
   const track = document.getElementById('qtdTrack');
-  const first = track.querySelector('[data-v="1"]');
-  if (first) {
+  const el = track.querySelector(`[data-v="${v}"]`);
+  if (el) {
     track.querySelectorAll('.sel').forEach(e=>e.classList.remove('sel'));
-    first.classList.add('sel');
-    document.getElementById('iQtd').value = '1';
-    track.scrollTo({left: first.offsetLeft - track.offsetWidth/2 + first.offsetWidth/2, behavior:'smooth'});
+    el.classList.add('sel');
+    document.getElementById('iQtd').value = String(v);
+    track.scrollTo({left: el.offsetLeft - track.offsetWidth/2 + el.offsetWidth/2, behavior:'smooth'});
   }
+  atualizarPrevia();
+}
+function resetQtd() { setQtdVal(1); }
+
+// ─── Alerta de peso estranho ─────────────────────────────────────────────────
+const PESO_MIN_CAB = 150, PESO_MAX_CAB = 900; // kg por cabeça considerados normais
+function fecharAlerta() {
+  const c = document.getElementById('confBox');
+  if (c && c.querySelector('.alerta-peso')) c.innerHTML = '';
+}
+function corrigirPeso() {
+  somApagar();
+  document.getElementById('confBox').innerHTML = '';
+  if (window._modo === 'ident') setAlvo('peso');
+}
+
+// ─── Faixa de desfazer (5 segundos) ──────────────────────────────────────────
+function mostrarDesfazer(texto) {
+  const box = document.getElementById('undoBox');
+  box.innerHTML = `
+    <div class="undo-bar">
+      <div class="undo-linha">
+        <span>${texto}</span>
+        <button type="button" onclick="desfazerAcao()">↶ DESFAZER</button>
+      </div>
+      <div class="undo-trilho"><div></div></div>
+    </div>`;
+  clearTimeout(window._undoTimer);
+  window._undoTimer = setTimeout(() => { box.innerHTML = ''; window._undoSnap = null; }, 5000);
+}
+function desfazerAcao() {
+  const s = window._undoSnap;
+  if (!s) return;
+  clearTimeout(window._undoTimer);
+  somDesfazer();
+  pesagens = s.lista;
+  peso = s.peso;
+  boiNum = s.boi;
+  document.getElementById('undoBox').innerHTML = '';
+  window._undoSnap = null;
+  window._metaBatida = false;
+  if (window._modo === 'ident') setAlvo('peso'); else if (s.qtd) setQtdVal(s.qtd);
+  atualizar();
+  renderTabela();
+  salvarLocal();
 }
 
 // ─── Salvar pesagem ───────────────────────────────────────────────────────────
-function salvar() {
+function salvar(forcar) {
   const ident = window._modo === 'ident';
   const p = parseFloat(peso);
-  if (!p || p <= 0) { alert('Digite um peso válido'); return; }
+  if (!p || p <= 0) { erroTreme(); return; }
   if (ident) {
     const an = anim();
     if (!boiNum) { alert(`Digite o número d${an.art} ${an.s.toLowerCase()}!\n\n(Toca na caixinha ${an.s.toUpperCase()} Nº e digita o número)`); setAlvo('boi'); return; }
@@ -596,6 +947,24 @@ function salvar() {
   }
 
   const qtd         = ident ? 1 : (parseInt(document.getElementById('iQtd').value) || 1);
+
+  // Peso por cabeça muito fora do normal? Avisa antes de salvar (design Pro)
+  const porCab = p / qtd;
+  if (!forcar && (porCab < PESO_MIN_CAB || porCab > PESO_MAX_CAB)) {
+    somAlerta();
+    const titulo = porCab < PESO_MIN_CAB ? 'Peso muito baixo' : 'Peso muito alto';
+    document.getElementById('confBox').innerHTML = `
+      <div class="alerta-peso">
+        <div class="alerta-cab"><span>⚠️</span><div><b>${titulo}</b><small>${Math.round(porCab)} kg por cabeça. O normal fica entre ${PESO_MIN_CAB} e ${PESO_MAX_CAB} kg. Confere na balança?</small></div></div>
+        <div class="alerta-botoes">
+          <button type="button" class="ac" onclick="corrigirPeso()">CORRIGIR</button>
+          <button type="button" class="as" onclick="salvar(true)">SALVAR ASSIM MESMO</button>
+        </div>
+      </div>`;
+    return;
+  }
+  document.getElementById('confBox').innerHTML = '';
+
   const rend        = (window._rend || 50) / 100;   // ex: 50% → 0.50
   const desc        = window._descSel !== undefined ? window._descSel : (window._desc || 0); // kg/cab desta balançada
   const pesoLiq     = Math.max(p - qtd * desc, 0);   // peso vivo após desconto
@@ -619,24 +988,27 @@ function salvar() {
     media: mediaPorBoi.toFixed(1),
     valor
   };
+  // Guarda o estado anterior pro DESFAZER
+  window._undoSnap = { lista: [...pesagens], peso, boi: boiNum, qtd };
+
   pesagens.unshift(reg);
+  somSalvo();
 
   const aC = anim();
-  document.getElementById('confBox').innerHTML = ident
-    ? `<div class="conf-msg">✓ ${aC.s} nº ${reg.boi}: ${p} kg salvo${desc>0?` — desc ${desc} kg`:''}</div>`
-    : `<div class="conf-msg">✓ #${reg.num} salva: ${p} kg — ${qtd} ${(qtd>1?aC.p:aC.s).toLowerCase()}${desc>0?` — desc ${desc} kg/cab`:''}</div>`;
+  const txtUndo = ident
+    ? `✓ ${aC.s} nº ${reg.boi}: ${p} kg salvo${desc>0?` — desc ${desc} kg`:''}`
+    : `✓ #${reg.num} salva: ${p} kg — ${qtd} ${(qtd>1?aC.p:aC.s).toLowerCase()}${desc>0?` — desc ${desc} kg/cab`:''}`;
 
   renderTabela();
   salvarLocal();
 
-  // Limpa na hora — pode digitar o próximo sem esperar (o aviso some sozinho)
+  // Limpa na hora — pode digitar o próximo sem esperar
   peso = '';
   boiNum = '';
   atualizar();
   if (ident) setAlvo('boi'); else resetQtd();
 
-  clearTimeout(window._confTimer);
-  window._confTimer = setTimeout(()=>{ document.getElementById('confBox').innerHTML = ''; }, 1600);
+  mostrarDesfazer(txtUndo);
 }
 
 // ─── Tabela ───────────────────────────────────────────────────────────────────
@@ -647,6 +1019,7 @@ function renderTabela() {
   if (pesagens.length === 0) {
     body.innerHTML = '<div class="tab-empty">Nenhuma pesagem ainda</div>';
     card.style.display = 'none';
+    atualizarFaixas(0, 0, 0);
     return;
   }
 
@@ -686,12 +1059,44 @@ function renderTabela() {
   document.getElementById('rRend').textContent  = (window._rend || 50) + '% rendimento' + (descTot > 0 ? ' · desconto total ' + descTot + ' kg' : '') + extra;
 
   card.style.display = 'block';
+  atualizarFaixas(totBois, totPeso, totValor);
+}
+
+// ─── Faixa de totais + barra de meta (topo da tela, design Pro) ──────────────
+function atualizarFaixas(cab, kg, valor) {
+  const elC = document.getElementById('totCab');
+  if (!elC) return;
+  const a = anim();
+  elC.textContent = cab + ' ' + (cab === 1 ? a.s : a.p).toLowerCase();
+  document.getElementById('totPeso').textContent = kg.toLocaleString('pt-BR') + ' kg';
+  document.getElementById('totValor').textContent = valor > 0 ? 'R$ ' + Math.round(valor).toLocaleString('pt-BR') : '—';
+
+  const meta = window._totBois || 0;
+  const fill = document.getElementById('metaFill');
+  const txt  = document.getElementById('metaTxt');
+  if (meta > 0) {
+    const pct = Math.min(100, Math.round(cab / meta * 100));
+    fill.style.width = pct + '%';
+    const bateu = cab >= meta;
+    fill.classList.toggle('batida', bateu);
+    txt.textContent = cab + ' de ' + meta + ' ' + a.p.toLowerCase() + (bateu ? ' · meta batida ✓' : '');
+    if (bateu && !window._metaBatida) {
+      window._metaBatida = true;
+      setTimeout(somMeta, 350);
+    }
+    if (!bateu) window._metaBatida = false;
+  } else {
+    fill.style.width = '0%';
+    fill.classList.remove('batida');
+    txt.textContent = cab > 0 ? cab + ' ' + a.p.toLowerCase() + ' · toque para pôr meta' : 'toque para pôr meta';
+  }
 }
 
 function excluir(id) {
   const r = pesagens.find(x => x.id === id);
   const desc = r ? (r.boi ? `${anim().s.toLowerCase()} nº ${r.boi} (${r.peso} kg)` : `#${r.num} — ${r.peso} kg`) : 'esta pesagem';
   if (!confirm(`Apagar ${desc}?`)) return;
+  somExcluir();
   pesagens = pesagens.filter(x=>x.id!==id).map((x,i)=>({...x,num:i+1}));
   renderTabela();
   salvarLocal();
@@ -878,7 +1283,11 @@ function exportarExcel() {
 
 // ─── Modal finalizar ─────────────────────────────────────────────────────────
 function abrirModal() {
-  if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
+  if (pesagens.length === 0) { erroTreme(); return; }
+  somFinal();
+  window._finalizado = true;
+  const bn = document.getElementById('btnNovoLote');
+  if (bn) bn.classList.remove('boi-desab');
 
   const totBois  = pesagens.reduce((s,r) => s + r.qtd, 0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
@@ -983,14 +1392,25 @@ function mandarGoogleSheets() {
 
 function novoLote() {
   if (confirm('Tem certeza? Todos os dados do lote atual serão apagados.')) {
+    somTroca();
     limparLocal();
     location.reload();
   }
 }
 
+// Botão + NOVO LOTE do rodapé: só libera depois de FINALIZAR (design Pro)
+function novoLoteGate() {
+  if (!window._finalizado) {
+    erroTreme();
+    return;
+  }
+  novoLote();
+}
+
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 12;
+const APP_VERSAO = 13;
 document.getElementById('vApp').textContent = APP_VERSAO;
+aplicarPrefs();
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
 async function atualizarApp() {
