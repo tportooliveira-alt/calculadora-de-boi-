@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<script src="/xlsx.bundle.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1410;height:100vh;overflow:hidden}
@@ -72,7 +72,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 /* CONFIRMAÇÃO */
 .conf-box{min-height:0}
-.conf-msg{background:#27ae60;color:white;padding:10px 14px;border-radius:6px;text-align:center;font-size:15px;font-weight:700;margin-bottom:10px;animation:sld .3s ease-out}
+.conf-msg{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 64px);max-width:468px;margin:0 auto;z-index:60;background:#14532d;color:white;padding:12px 14px;border-radius:8px;text-align:center;font-size:15px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.35);animation:sld .3s ease-out}
 @keyframes sld{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
 /* TECLADO */
@@ -87,15 +87,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .key.ok:active{background:#1e8449}
 .key.prox{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;font-size:13px;font-weight:900}
 .key.prox:active{background:#5a3a26}
+.span2{grid-column:span 2}
 
 /* SEÇÃO SCROLLÁVEL */
 .pes-scroll{flex:1;overflow-y:auto;padding:10px 14px;-webkit-overflow-scrolling:touch}
 
 /* TABELA */
 .tabela-wrap{background:white;border-radius:8px;overflow:hidden;margin-bottom:10px;border:2px solid #d4af37}
-.tab-header,.tab-row,.tab-total{display:grid;grid-template-columns:28px 40px 68px 72px 80px 30px;align-items:center;padding:7px 4px}
+.tab-header,.tab-row,.tab-total{display:grid;grid-template-columns:26px 42px 66px 70px 76px 38px;align-items:center;padding:7px 4px}
 .tab-header{background:linear-gradient(135deg,#8B4513,#654321)}
-.tab-header span{color:#d4af37;font-size:9px;font-weight:900;text-transform:uppercase;text-align:center}
+.tab-header span{color:#d4af37;font-size:10px;font-weight:900;text-transform:uppercase;text-align:center}
 .tab-row{border-bottom:1px solid #f0e8d8;animation:sld2 .2s ease-out}
 @keyframes sld2{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
 .tab-row:nth-child(even){background:#fdf9f3}
@@ -104,8 +105,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tab-total{background:linear-gradient(135deg,#2d1f13,#3d2b1f);padding:9px 4px}
 .tab-total span{color:#d4af37;font-size:11px;font-weight:900;text-align:center}
 .tab-total .tlbl{font-size:10px;grid-column:1/3;text-align:left;padding-left:4px}
-.del-btn{background:none;border:none;font-size:13px;cursor:pointer;padding:0;line-height:1}
-.tab-empty{color:#bbb;text-align:center;padding:18px;font-size:13px}
+.del-btn{background:none;border:none;font-size:16px;cursor:pointer;padding:9px 8px;line-height:1}
+.tab-empty{color:#8a8a8a;text-align:center;padding:18px;font-size:13px}
 
 /* CARD RESUMO */
 .resumo-card{background:linear-gradient(135deg,#2d1f13,#3d2b1f);border-radius:10px;padding:14px;margin-bottom:10px;border:2px solid #d4af37}
@@ -113,7 +114,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .resumo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .resumo-item{background:rgba(255,255,255,.07);border-radius:7px;padding:9px 10px;text-align:center}
 .resumo-full{grid-column:1/3}
-.resumo-label{color:#f4e4c1;font-size:10px;text-transform:uppercase;font-weight:700;margin-bottom:3px}
+.resumo-label{color:#f4e4c1;font-size:11px;text-transform:uppercase;font-weight:700;margin-bottom:3px}
 .resumo-val{color:#d4af37;font-size:18px;font-weight:900}
 .resumo-destaque{font-size:22px;color:#f0d060}
 /* BOTÕES FINAIS */
@@ -222,8 +223,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <button class="key" onclick="dig('3')">3</button>
         <button class="key" onclick="dig('.')">.</button>
 
-        <button class="key prox" onclick="proximo()">OK</button>
-        <button class="key" onclick="dig('0')">0</button>
+        <button class="key prox" id="keyProx" onclick="proximo()">OK</button>
+        <button class="key" id="key0" onclick="dig('0')">0</button>
         <button class="key" onclick="dig('00')">00</button>
         <button class="key ok" onclick="salvar()">✓</button>
       </div>
@@ -298,7 +299,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button onclick="novoLote()" style="width:100%;padding:13px;background:white;color:#8B4513;border:2px solid #d4af37;border-radius:10px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer">
         🔄 NOVO LOTE
       </button>
-      <button onclick="fecharModal()" style="width:100%;padding:10px;background:none;color:#999;border:none;font-size:13px;cursor:pointer">
+      <button onclick="fecharModal()" style="width:100%;padding:10px;background:none;color:#666;border:none;font-size:14px;cursor:pointer;text-decoration:underline">
         Voltar
       </button>
     </div>
@@ -426,6 +427,13 @@ function ativarTelaPesagem() {
   document.getElementById('lblBoiNum').textContent = a.s.toUpperCase() + ' Nº';
   document.getElementById('lblTotAnim').textContent = 'Total de ' + a.p;
   if (ident) { document.getElementById('iQtd').value = '1'; setAlvo('boi'); }
+
+  // Tecla OK: no modo identificado alterna Nº↔KG; no normal sai da frente
+  const kProx = document.getElementById('keyProx');
+  const k0 = document.getElementById('key0');
+  kProx.style.display = ident ? 'flex' : 'none';
+  kProx.textContent = 'Nº↔KG';
+  k0.classList.toggle('span2', !ident);
 
   montarDescChips();
   renderTabela();
@@ -579,7 +587,8 @@ function salvar() {
   if (ident) {
     const an = anim();
     if (!boiNum) { alert(`Digite o número d${an.art} ${an.s.toLowerCase()}!\n\n(Toca na caixinha ${an.s.toUpperCase()} Nº e digita o número)`); setAlvo('boi'); return; }
-    if (pesagens.some(r => r.boi === boiNum)) {
+    const chaveBoi = n => String(parseInt(n, 10) >= 0 ? parseInt(n, 10) : n);
+    if (pesagens.some(r => r.boi && chaveBoi(r.boi) === chaveBoi(boiNum))) {
       if (!confirm(`⚠️ ${an.art === 'a' ? 'A' : 'O'} ${an.s.toLowerCase()} nº ${boiNum} já foi pesad${an.art}!\n\nSalvar mesmo assim?`)) return;
     }
   }
@@ -618,13 +627,14 @@ function salvar() {
   renderTabela();
   salvarLocal();
 
-  setTimeout(()=>{
-    peso = '';
-    boiNum = '';
-    atualizar();
-    if (ident) setAlvo('boi'); else resetQtd();
-    document.getElementById('confBox').innerHTML = '';
-  }, 1200);
+  // Limpa na hora — pode digitar o próximo sem esperar (o aviso some sozinho)
+  peso = '';
+  boiNum = '';
+  atualizar();
+  if (ident) setAlvo('boi'); else resetQtd();
+
+  clearTimeout(window._confTimer);
+  window._confTimer = setTimeout(()=>{ document.getElementById('confBox').innerHTML = ''; }, 1600);
 }
 
 // ─── Tabela ───────────────────────────────────────────────────────────────────
@@ -642,7 +652,7 @@ function renderTabela() {
   body.innerHTML = pesagens.map(r => `
     <div class="tab-row">
       <span class="n">${r.num}</span>
-      <span>${r.boi ? r.boi : r.qtd}${(r.desc||0)>0?`·-${r.desc}`:''}</span>
+      <span>${r.boi ? r.boi : r.qtd}${(r.desc||0)>0?`<small style="display:block;font-size:9px;color:#b5651d;font-weight:700">-${r.desc}kg</small>`:''}</span>
       <span>${r.peso}</span>
       <span>${r.arr}@</span>
       <span>${r.valor > 0 ? 'R$'+r.valor.toFixed(0) : '—'}</span>
@@ -653,7 +663,7 @@ function renderTabela() {
   const totBois  = pesagens.reduce((s,r) => s + r.qtd,  0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
   const rend     = (window._rend || 50) / 100;
-  const descTot  = pesagens.reduce((s,r) => s + r.qtd * (r.desc || 0), 0);
+  const descTot  = pesagens.reduce((s,r) => s + Math.min(r.qtd * (r.desc || 0), r.peso), 0);
   const totArr   = ((totPeso - descTot) * rend) / 15;     // arrobas totais com rendimento
   const mediaArr = totArr / totBois;           // média de @ por boi
   const mediaKg  = (totPeso - descTot) / totBois; // média de kg por boi (líquida)
@@ -661,7 +671,7 @@ function renderTabela() {
 
   const meta = window._totBois || 0;
   const aR = anim();
-  document.getElementById('rBois').textContent  = meta > 0 ? `${totBois} de ${meta}` : `${totBois} ${aR.p.toLowerCase()}`;
+  document.getElementById('rBois').textContent  = meta > 0 ? `${totBois} de ${meta}` : `${totBois} ${(totBois === 1 ? aR.s : aR.p).toLowerCase()}`;
   document.getElementById('rPeso').textContent  = totPeso.toFixed(0) + ' kg';
   document.getElementById('rArr').textContent   = mediaArr.toFixed(2) + ' @/cab';
   document.getElementById('rKg').textContent    = mediaKg.toFixed(1) + ' kg/cab';
@@ -677,7 +687,10 @@ function renderTabela() {
 }
 
 function excluir(id) {
-  pesagens = pesagens.filter(r=>r.id!==id).map((r,i)=>({...r,num:i+1}));
+  const r = pesagens.find(x => x.id === id);
+  const desc = r ? (r.boi ? `${anim().s.toLowerCase()} nº ${r.boi} (${r.peso} kg)` : `#${r.num} — ${r.peso} kg`) : 'esta pesagem';
+  if (!confirm(`Apagar ${desc}?`)) return;
+  pesagens = pesagens.filter(x=>x.id!==id).map((x,i)=>({...x,num:i+1}));
   renderTabela();
   salvarLocal();
 }
@@ -706,7 +719,7 @@ function montarRelatorioWb() {
   const totPeso = pesagens.reduce((s,r)=>s+r.peso,0);
   const totVal  = pesagens.reduce((s,r)=>s+r.valor,0);
   const rend    = (window._rend || 50) / 100;
-  const descTot = pesagens.reduce((s,r)=>s+r.qtd*(r.desc||0),0);
+  const descTot = pesagens.reduce((s,r)=>s+Math.min(r.qtd*(r.desc||0), r.peso),0);
   const totArr  = ((totPeso - descTot) * rend) / 15;
 
   const KG = '#,##0 "kg"', KG1 = '#,##0.0 "kg"', ARR = '#,##0.00 "@"', RS = 'R$ #,##0.00';
@@ -774,8 +787,8 @@ function montarRelatorioWb() {
     put(r,0,xsCel(i+1, st));
     put(r,1,xsCel(identWb && p.boi ? p.boi : p.qtd, st));
     put(r,2,xsCel(p.peso, st, KG));
-    put(r,3,xsCel((p.peso - p.qtd*(p.desc||0))/p.qtd, st, KG1));
-    put(r,4,xsCel(((p.peso - p.qtd*(p.desc||0))*rend)/15, st, ARR));
+    put(r,3,xsCel(Math.max(p.peso - p.qtd*(p.desc||0), 0)/p.qtd, st, KG1));
+    put(r,4,xsCel((Math.max(p.peso - p.qtd*(p.desc||0), 0)*rend)/15, st, ARR));
     put(r,5,xsCel(p.valor > 0 ? p.valor : 0, st, RS));
   });
 
@@ -842,13 +855,23 @@ function montarRelatorioWb() {
   XLSX.utils.book_append_sheet(wb, ws, 'Pesagem');
 
   const data = agora.toISOString().split('T')[0];
-  return { wb, nome: `Pesagem_${window._vendedor||'Lote'}_${data}.xlsx` };
+  const nomeLimpo = (window._vendedor || 'Lote').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9_-]+/g,'_').replace(/^_+|_+$/g,'') || 'Lote';
+  return { wb, nome: `Pesagem_${nomeLimpo}_${data}.xlsx` };
+}
+
+function xlsxDisponivel() {
+  if (typeof XLSX !== 'undefined') return true;
+  alert('📵 Não deu pra montar a planilha agora (faltou carregar uma parte do app).\n\nManda pelo WhatsApp por enquanto — e abre o app uma vez com internet que isso se resolve sozinho.');
+  return false;
 }
 
 function exportarExcel() {
   if (pesagens.length === 0) { alert('Nenhuma pesagem para exportar!'); return; }
-  const { wb, nome } = montarRelatorioWb();
-  XLSX.writeFile(wb, nome);
+  if (!xlsxDisponivel()) return;
+  try {
+    const { wb, nome } = montarRelatorioWb();
+    XLSX.writeFile(wb, nome);
+  } catch (e) { alert('Deu problema ao gerar a planilha: ' + e.message); }
 }
 
 // ─── Modal finalizar ─────────────────────────────────────────────────────────
@@ -858,7 +881,7 @@ function abrirModal() {
   const totBois  = pesagens.reduce((s,r) => s + r.qtd, 0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
   const rend     = (window._rend || 50) / 100;
-  const descTot  = pesagens.reduce((s,r) => s + r.qtd * (r.desc || 0), 0);
+  const descTot  = pesagens.reduce((s,r) => s + Math.min(r.qtd * (r.desc || 0), r.peso), 0);
   const totArr   = ((totPeso - descTot) * rend) / 15;
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
@@ -876,6 +899,8 @@ function fecharModal() {
 
 function salvarDispositivo() {
   if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
+  if (!xlsxDisponivel()) return;
+  try {
   const { wb, nome } = montarRelatorioWb();
   const dados = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   const arquivo = new File([dados], nome,
@@ -887,13 +912,14 @@ function salvarDispositivo() {
   } else {
     exportarExcel();
   }
+  } catch (e) { alert('Deu problema ao gerar a planilha: ' + e.message); }
 }
 
 function mandarWhatsApp() {
   const totBois  = pesagens.reduce((s,r) => s + r.qtd, 0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
   const rend     = (window._rend || 50) / 100;
-  const descTot  = pesagens.reduce((s,r) => s + r.qtd * (r.desc || 0), 0);
+  const descTot  = pesagens.reduce((s,r) => s + Math.min(r.qtd * (r.desc || 0), r.peso), 0);
   const totArr   = ((totPeso - descTot) * rend) / 15;
   const mediaArr = totArr / totBois;
   const mediaKg  = (totPeso - descTot) / totBois;
@@ -937,7 +963,8 @@ _Gerado pela Calculadora de Gado_`;
 // prontinha, sem precisar colar nada.
 function mandarGoogleSheets() {
   if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
-
+  if (!xlsxDisponivel()) return;
+  try {
   const { wb, nome } = montarRelatorioWb();
   const dados = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   const arquivo = new File([dados], nome,
@@ -949,6 +976,7 @@ function mandarGoogleSheets() {
     XLSX.writeFile(wb, nome);
     alert('📊 Planilha baixada!\n\nAbra o arquivo baixado e escolha o app Google Planilhas (ou Drive) — ela já vem formatada, prontinha.');
   }
+  } catch (e) { alert('Deu problema ao gerar a planilha: ' + e.message); }
 }
 
 function novoLote() {
@@ -959,7 +987,7 @@ function novoLote() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 10;
+const APP_VERSAO = 11;
 document.getElementById('vApp').textContent = APP_VERSAO;
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
