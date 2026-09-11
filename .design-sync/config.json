@@ -1,0 +1,8 @@
+{
+  "projectId": "729b960c-a574-4bd5-82d8-ebf4f4716deb",
+  "shape": "package",
+  "pkg": "calculadora-de-boi-ds",
+  "buildCmd": "cd design-system && npm run build",
+  "cssEntry": "src/styles.css",
+  "readmeHeader": ".design-sync/conventions.md"
+}

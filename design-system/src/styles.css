@@ -1,0 +1,127 @@
+/* ─── Tokens da Calculadora de Boi ─── */
+:root {
+  --boi-marrom: #8B4513;
+  --boi-marrom-escuro: #654321;
+  --boi-dourado: #d4af37;
+  --boi-creme: #f4e4c1;
+  --boi-fundo: #f5f1e8;
+  --boi-texto: #654321;
+  --boi-texto-suave: #6b6b6b;
+  --boi-placeholder: #8a7355;
+  --boi-display-1: #2d1f13;
+  --boi-display-2: #3d2b1f;
+  --boi-verde-1: #166534;
+  --boi-verde-2: #14532d;
+  --boi-vermelho: #b91c1c;
+  --boi-laranja: #9a3412;
+  --boi-dinheiro: #f0d060;
+  --boi-zap-1: #128C7E;
+  --boi-zap-2: #075E54;
+  --boi-planilha-1: #188038;
+  --boi-planilha-2: #0d652d;
+  --boi-zebra: #fdf9f3;
+  --boi-linha: #f0e8d8;
+}
+
+.boi-raiz {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--boi-fundo);
+  color: var(--boi-texto);
+}
+
+/* ─── Cabeçalho ─── */
+.boi-cabecalho { background: linear-gradient(135deg, var(--boi-marrom), var(--boi-marrom-escuro)); padding: 10px 16px; text-align: center; border-bottom: 3px solid var(--boi-dourado); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.boi-cabecalho-titulo { font-size: 20px; font-weight: 900; color: var(--boi-dourado); }
+.boi-cabecalho-sub { display: flex; justify-content: space-around; margin-top: 2px; font-size: 11px; color: var(--boi-creme); }
+.boi-cabecalho-acoes { display: flex; gap: 8px; justify-content: center; margin-top: 7px; }
+
+/* ─── Botões ─── */
+.boi-botao-principal { display: block; width: 100%; padding: 13px; background: linear-gradient(135deg, var(--boi-marrom), var(--boi-marrom-escuro)); color: var(--boi-dourado); border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; }
+.boi-botao-principal--contornado { border: 3px solid var(--boi-dourado); border-radius: 8px; }
+.boi-botao-cabecalho { flex: 1 1 0; max-width: 170px; padding: 12px 6px; border: 2px solid var(--boi-dourado); border-radius: 8px; background: rgba(0,0,0,.25); color: var(--boi-dourado); font-size: 13px; font-weight: 900; cursor: pointer; font-family: inherit; }
+.boi-botao-cabecalho:active { background: var(--boi-dourado); color: var(--boi-marrom-escuro); }
+.boi-botao-modal { display: block; width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; }
+.boi-botao-modal--casa { background: linear-gradient(135deg, var(--boi-marrom), var(--boi-marrom-escuro)); color: var(--boi-creme); }
+.boi-botao-modal--whatsapp { background: linear-gradient(135deg, var(--boi-zap-1), var(--boi-zap-2)); color: #ffffff; }
+.boi-botao-modal--planilha { background: linear-gradient(135deg, var(--boi-planilha-1), var(--boi-planilha-2)); color: #ffffff; }
+.boi-botao-modal--contorno { background: #ffffff; color: var(--boi-marrom); border: 2px solid var(--boi-dourado); padding: 13px; font-size: 14px; }
+.boi-botao-modal--discreto { background: none; color: #666666; font-size: 14px; padding: 14px; text-decoration: underline; }
+
+/* ─── Display de balança ─── */
+.boi-display { background: linear-gradient(135deg, var(--boi-display-1), var(--boi-display-2)); border: 3px solid var(--boi-dourado); border-radius: 8px; padding: 14px 18px; display: flex; align-items: center; justify-content: flex-end; min-height: 70px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.boi-display--identificado { justify-content: space-between; padding: 14px 12px; }
+.boi-display-valor { font-size: 46px; font-weight: 900; color: var(--boi-dourado); font-variant-numeric: tabular-nums; }
+.boi-display-unidade { font-size: 15px; color: var(--boi-creme); margin-left: 6px; }
+.boi-display-campo { display: flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 8px; border: 2px solid transparent; }
+.boi-display-campo--ativo { border-color: var(--boi-dourado); background: rgba(212,175,55,.15); }
+.boi-display-numero { font-size: 34px; font-weight: 900; color: var(--boi-dourado); font-variant-numeric: tabular-nums; }
+
+/* ─── Teclado ─── */
+.boi-teclado { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.boi-tecla { height: 60px; border: 2px solid var(--boi-dourado); border-radius: 8px; font-size: 22px; font-weight: 700; background: #ffffff; color: var(--boi-texto); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; font-family: inherit; }
+.boi-tecla:active { background: var(--boi-dourado); transform: scale(.95); }
+.boi-tecla--apagar { background: var(--boi-vermelho); color: #ffffff; font-size: 16px; }
+.boi-tecla--limpar { background: var(--boi-laranja); color: #ffffff; font-size: 13px; font-weight: 900; }
+.boi-tecla--confirmar { background: linear-gradient(135deg, var(--boi-verde-1), var(--boi-verde-2)); color: #ffffff; font-size: 26px; }
+.boi-tecla--alternar { background: linear-gradient(135deg, var(--boi-marrom), var(--boi-marrom-escuro)); color: var(--boi-dourado); font-size: 13px; font-weight: 900; }
+.boi-tecla--larga { grid-column: span 2; }
+
+/* ─── Chips de desconto ─── */
+.boi-chips { display: flex; gap: 6px; }
+.boi-chip { flex: 1 1 0; height: 44px; border: 2px solid var(--boi-dourado); border-radius: 8px; background: #ffffff; color: var(--boi-texto); font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+.boi-chip--selecionado { background: linear-gradient(135deg, var(--boi-marrom), var(--boi-marrom-escuro)); color: var(--boi-dourado); }
+
+/* ─── Régua de quantidade ─── */
+.boi-regua { display: flex; align-items: center; gap: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.boi-regua-rotulo { font-weight: 700; color: var(--boi-texto); font-size: 13px; width: 45px; flex-shrink: 0; }
+.boi-regua-trilho { flex: 1 1 0; height: 48px; border: 2px solid var(--boi-dourado); border-radius: 8px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.boi-regua-item { min-width: 48px; text-align: center; font-size: 20px; font-weight: 700; color: var(--boi-texto); }
+.boi-regua-item--longe { color: #b8a583; }
+.boi-regua-item--selecionado { color: var(--boi-marrom); background: #fef9ee; border: 3px solid var(--boi-dourado); border-radius: 6px; padding: 4px 0; }
+
+/* ─── Campos de formulário ─── */
+.boi-campo { display: flex; flex-direction: column; gap: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.boi-campo-rotulo { font-weight: 700; color: var(--boi-texto); font-size: 13px; }
+.boi-campo-explicacao { display: block; font-weight: 400; color: var(--boi-texto-suave); }
+.boi-campo-entrada { width: 100%; box-sizing: border-box; padding: 10px; border: 2px solid var(--boi-dourado); border-radius: 6px; font-size: 15px; color: var(--boi-texto); background: #ffffff; font-family: inherit; }
+.boi-campo-entrada::placeholder { color: var(--boi-placeholder); }
+.boi-campo-seleta { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 2px solid var(--boi-dourado); border-radius: 6px; font-size: 15px; color: var(--boi-texto); background: #ffffff; }
+
+/* ─── Botões de modo ─── */
+.boi-modos { display: flex; gap: 8px; }
+.boi-modo { flex: 1 1 0; padding: 10px 6px; border: 2px solid var(--boi-dourado); border-radius: 8px; background: #ffffff; color: var(--boi-texto); font-size: 14px; font-weight: 700; cursor: pointer; line-height: 1.3; text-align: center; font-family: inherit; }
+.boi-modo--selecionado { background: linear-gradient(135deg, var(--boi-marrom), var(--boi-marrom-escuro)); color: var(--boi-dourado); }
+.boi-modo-sub { font-weight: 400; font-size: 11px; color: var(--boi-texto-suave); display: block; }
+.boi-modo--selecionado .boi-modo-sub { color: var(--boi-creme); }
+
+/* ─── Tabela de pesagens ─── */
+.boi-tabela { background: #ffffff; border-radius: 8px; border: 2px solid var(--boi-dourado); overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.boi-tabela-linha { display: grid; grid-template-columns: 26px 42px 66px 70px 76px 38px; align-items: center; padding: 7px 4px; }
+.boi-tabela-cabecalho { background: linear-gradient(135deg, var(--boi-marrom), var(--boi-marrom-escuro)); }
+.boi-tabela-cabecalho span { color: var(--boi-creme); font-size: 11px; font-weight: 900; text-transform: uppercase; text-align: center; }
+.boi-tabela-corpo { border-bottom: 1px solid var(--boi-linha); }
+.boi-tabela-corpo:nth-child(odd) { background: var(--boi-zebra); }
+.boi-tabela-corpo span { font-size: 12px; color: var(--boi-texto); font-weight: 600; text-align: center; }
+.boi-tabela-num { color: var(--boi-marrom); font-weight: 900; }
+.boi-tabela-desconto { display: block; font-size: 10px; color: #8f4700; font-weight: 700; }
+.boi-tabela-excluir { background: none; border: none; font-size: 18px; font-weight: 900; color: var(--boi-vermelho); cursor: pointer; padding: 14px 10px; line-height: 1; }
+
+/* ─── Card resumo ─── */
+.boi-resumo { background: linear-gradient(135deg, var(--boi-display-1), var(--boi-display-2)); border-radius: 10px; padding: 14px; border: 2px solid var(--boi-dourado); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.boi-resumo-titulo { color: var(--boi-dourado); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; text-align: center; margin-bottom: 10px; }
+.boi-resumo-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.boi-resumo-item { background: rgba(255,255,255,.07); border-radius: 7px; padding: 9px 10px; text-align: center; }
+.boi-resumo-item--largo { grid-column: span 2; }
+.boi-resumo-item--base { background: rgba(212,175,55,.12); }
+.boi-resumo-rotulo { color: var(--boi-creme); font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 3px; }
+.boi-resumo-valor { color: var(--boi-dourado); font-size: 18px; font-weight: 900; }
+.boi-resumo-valor--dinheiro { color: var(--boi-dinheiro); font-size: 22px; }
+.boi-resumo-valor--texto { color: var(--boi-creme); font-size: 13px; }
+
+/* ─── Aviso (toast) ─── */
+.boi-aviso { background: var(--boi-verde-2); color: #ffffff; padding: 12px 14px; border-radius: 8px; text-align: center; font-size: 15px; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.35); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+/* ─── Folha de finalizar ─── */
+.boi-folha { background: var(--boi-fundo); border-radius: 16px 16px 0 0; padding: 24px; border-top: 4px solid var(--boi-dourado); display: flex; flex-direction: column; gap: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.boi-folha-titulo { font-size: 22px; font-weight: 900; color: var(--boi-marrom); text-align: center; }
+.boi-folha-resumo { font-size: 12px; color: #555555; text-align: center; margin-bottom: 8px; }
