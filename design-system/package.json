@@ -1,0 +1,26 @@
+{
+  "name": "calculadora-de-boi-ds",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Design system do app Calculadora de Boi — pesagem de gado, identidade marrom/dourado",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "esbuild src/index.tsx --bundle --format=esm --jsx=automatic --external:react --external:react-dom --outfile=dist/index.js && tsc"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4"
+  }
+}
