@@ -21,24 +21,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .hdr h1{font-size:20px;font-weight:900}
 .hdr-sub{font-size:11px;color:#f4e4c1;display:flex;justify-content:space-around;margin-top:2px}
 .hdr-acoes{display:none;gap:8px;justify-content:center;margin-top:7px}
-.hdr-btn{flex:1;max-width:170px;padding:8px 6px;border:2px solid #d4af37;border-radius:8px;background:rgba(0,0,0,.25);color:#d4af37;font-size:13px;font-weight:900;cursor:pointer}
+.hdr-btn{flex:1;max-width:170px;padding:12px 6px;border:2px solid #d4af37;border-radius:8px;background:rgba(0,0,0,.25);color:#d4af37;font-size:13px;font-weight:900;cursor:pointer}
 .hdr-btn:active{background:#d4af37;color:#654321}
 
 /* TELA CADASTRO */
-.t-cad{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;overflow-y:auto}
+.t-cad{flex:1;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding:20px 20px calc(20px + env(safe-area-inset-bottom));overflow-y:auto}
 .t-cad.off{display:none}
-.cad-box{background:white;padding:22px;border-radius:12px;width:100%;max-width:400px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.cad-box{margin:auto;background:white;padding:22px;border-radius:12px;width:100%;max-width:400px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .cad-box h2{color:#8B4513;margin-bottom:16px;font-size:18px;text-align:center}
 .campo{margin-bottom:12px}
 .campo label{display:block;font-weight:700;color:#654321;margin-bottom:4px;font-size:13px}
 .campo input,.campo select{width:100%;padding:10px;border:2px solid #d4af37;border-radius:6px;font-size:15px;color:#654321}
+.campo input::placeholder{color:#8a7355}
+.campo select,.row select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%238B4513' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center/14px;-webkit-appearance:none;appearance:none;padding-right:32px}
 .row{display:flex;gap:8px}
 .row input{flex:1}
 .row select{width:110px}
 .btn-start{width:100%;padding:13px;background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;border:none;border-radius:6px;font-size:16px;font-weight:700;margin-top:16px;cursor:pointer}
 .btn-atualizar{width:100%;padding:10px;background:none;border:none;color:#8B4513;font-size:13px;font-weight:700;margin-top:8px;cursor:pointer;text-decoration:underline}
 .modo-btn{flex:1;padding:10px 6px;border:2px solid #d4af37;border-radius:8px;background:white;color:#654321;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3}
-.modo-btn small{font-weight:400;font-size:11px;color:#999}
+.modo-btn small{font-weight:400;font-size:11px;color:#6b6b6b}
 .modo-btn.sel{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37}
 .modo-btn.sel small{color:#f4e4c1}
 
@@ -49,7 +51,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 /* DISPLAY */
 .display{background:linear-gradient(135deg,#2d1f13,#3d2b1f);border:3px solid #d4af37;border-radius:8px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:flex-end;min-height:70px}
-.dval{font-size:46px;font-weight:900;color:#d4af37;font-family:'Courier New',monospace}
+.dval{font-size:46px;font-weight:900;color:#d4af37;font-family:-apple-system,system-ui,monospace;font-variant-numeric:tabular-nums}
 .dunit{font-size:15px;color:#f4e4c1;margin-left:6px}
 .dcampo{display:flex;align-items:center;gap:4px;padding:2px 10px;border-radius:8px;border:2px solid transparent}
 .display.ident{justify-content:space-between}
@@ -58,45 +60,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 /* QUANTIDADE PICKER */
 .qtd-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .qtd-row label{font-weight:700;color:#654321;font-size:13px;width:45px;flex-shrink:0}
-.qtd-wrap{flex:1;position:relative;height:44px;overflow:hidden;border:2px solid #d4af37;border-radius:8px;background:white}
+.qtd-wrap{flex:1;position:relative;height:48px;overflow:hidden;border:2px solid #d4af37;border-radius:8px;background:white}
 .qtd-wrap::before,.qtd-wrap::after{content:'';position:absolute;top:0;bottom:0;width:30px;z-index:2;pointer-events:none}
 .qtd-wrap::before{left:0;background:linear-gradient(to right,white,transparent)}
 .qtd-wrap::after{right:0;background:linear-gradient(to left,white,transparent)}
-.qtd-ind{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:36px;border:2px solid #d4af37;border-radius:6px;z-index:1;pointer-events:none;background:rgba(212,175,55,.1)}
+.qtd-ind{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:40px;border:3px solid #d4af37;border-radius:6px;z-index:1;pointer-events:none;background:rgba(212,175,55,.1)}
 .qtd-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;height:100%;align-items:center}
 .qtd-track::-webkit-scrollbar{display:none}
-.qtd-item{min-width:44px;height:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:20px;font-weight:700;color:#654321;cursor:pointer;flex-shrink:0}
+.qtd-item{min-width:48px;height:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:20px;font-weight:700;color:#654321;cursor:pointer;flex-shrink:0}
 .qtd-item.sel{color:#8B4513;background:#fef9ee}
-.desc-chip{flex:1;height:38px;border:2px solid #d4af37;border-radius:8px;background:white;color:#654321;font-weight:700;font-size:13px;cursor:pointer}
+.desc-chip{flex:1;height:44px;border:2px solid #d4af37;border-radius:8px;background:white;color:#654321;font-weight:700;font-size:13px;cursor:pointer}
 .desc-chip.sel{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37}
 
 /* CONFIRMAÇÃO */
 .conf-box{min-height:0}
-.conf-msg{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 64px);max-width:468px;margin:0 auto;z-index:60;background:#14532d;color:white;padding:12px 14px;border-radius:8px;text-align:center;font-size:15px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.35);animation:sld .3s ease-out}
+.conf-msg{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 200px);max-width:468px;margin:0 auto;z-index:60;background:#14532d;color:white;padding:12px 14px;border-radius:8px;text-align:center;font-size:15px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.35);animation:sld .3s ease-out}
 @keyframes sld{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
 /* TECLADO */
 .teclado{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:0}
 .key{height:60px;border:2px solid #d4af37;border-radius:8px;font-size:22px;font-weight:700;background:white;color:#654321;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s}
 .key:active{background:#d4af37;transform:scale(.95)}
-.key.del{background:#e74c3c;color:white;font-size:16px}
-.key.del:active{background:#c0392b}
-.key.clr{background:#e67e22;color:white;font-size:13px;font-weight:900}
-.key.clr:active{background:#d35400}
-.key.ok{background:linear-gradient(135deg,#27ae60,#229954);color:white;font-size:26px}
-.key.ok:active{background:#1e8449}
+.key.del{background:#b91c1c;color:white;font-size:16px}
+.key.del:active{background:#991b1b}
+.key.clr{background:#9a3412;color:white;font-size:13px;font-weight:900}
+.key.clr:active{background:#7c2d12}
+.key.ok{background:linear-gradient(135deg,#166534,#14532d);color:white;font-size:26px}
+.key.ok:active{background:#14532d}
 .key.prox{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;font-size:13px;font-weight:900}
 .key.prox:active{background:#5a3a26}
 .span2{grid-column:span 2}
 
 /* SEÇÃO SCROLLÁVEL */
-.pes-scroll{flex:1;overflow-y:auto;padding:10px 14px;-webkit-overflow-scrolling:touch}
+.pes-scroll{flex:1;overflow-y:auto;padding:10px 14px calc(12px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
 
 /* TABELA */
 .tabela-wrap{background:white;border-radius:8px;overflow:hidden;margin-bottom:10px;border:2px solid #d4af37}
 .tab-header,.tab-row,.tab-total{display:grid;grid-template-columns:26px 42px 66px 70px 76px 38px;align-items:center;padding:7px 4px}
 .tab-header{background:linear-gradient(135deg,#8B4513,#654321)}
-.tab-header span{color:#d4af37;font-size:10px;font-weight:900;text-transform:uppercase;text-align:center}
+.tab-header span{color:#f4e4c1;font-size:11px;font-weight:900;text-transform:uppercase;text-align:center}
 .tab-row{border-bottom:1px solid #f0e8d8;animation:sld2 .2s ease-out}
 @keyframes sld2{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
 .tab-row:nth-child(even){background:#fdf9f3}
@@ -105,8 +107,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tab-total{background:linear-gradient(135deg,#2d1f13,#3d2b1f);padding:9px 4px}
 .tab-total span{color:#d4af37;font-size:11px;font-weight:900;text-align:center}
 .tab-total .tlbl{font-size:10px;grid-column:1/3;text-align:left;padding-left:4px}
-.del-btn{background:none;border:none;font-size:16px;cursor:pointer;padding:9px 8px;line-height:1}
-.tab-empty{color:#8a8a8a;text-align:center;padding:18px;font-size:13px}
+.del-btn{background:none;border:none;font-size:18px;font-weight:900;color:#b91c1c;cursor:pointer;padding:14px 10px;line-height:1}
+.tab-empty{color:#6b6b6b;text-align:center;padding:18px;font-size:13px}
 
 /* CARD RESUMO */
 .resumo-card{background:linear-gradient(135deg,#2d1f13,#3d2b1f);border-radius:10px;padding:14px;margin-bottom:10px;border:2px solid #d4af37}
@@ -136,7 +138,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div class="hdr-acoes" id="hdrAcoes">
       <button class="hdr-btn" onclick="abrirModal()">✓ FINALIZAR</button>
-      <button class="hdr-btn" onclick="novoLote()">🆕 NOVO LOTE</button>
+      <button class="hdr-btn" onclick="novoLote()">+ NOVO LOTE</button>
     </div>
   </div>
 
@@ -159,7 +161,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <label id="lblIdent">🏷️ Quer identificar os animais com número?</label>
         <div style="display:flex;gap:8px">
           <button type="button" class="modo-btn sel" id="btnModoNormal" onclick="setModo('normal')">🐂 Do nosso jeito<br><small>por balançada</small></button>
-          <button type="button" class="modo-btn" id="btnModoIdent" onclick="setModo('ident')">🔢 Identificar<br><small>nº do boi + peso</small></button>
+          <button type="button" class="modo-btn" id="btnModoIdent" onclick="setModo('ident')">Identificar<br><small>nº do boi + peso</small></button>
         </div>
       </div>
       <div class="campo"><label>Vendedor / Comprador</label><input id="iVendedor" type="text" placeholder="Nome"></div>
@@ -170,10 +172,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <select id="iUnidade"><option value="arroba">R$/@</option><option value="kg">R$/kg</option></select>
         </div>
       </div>
-      <div class="campo"><label>🔢 Quantas Cabeças tem o Lote? (opcional — mostra quantas faltam)</label><input id="iTotBois" type="number" step="1" min="0" placeholder="Ex: 50"></div>
-      <div class="campo"><label>⚖️ Desconto por Cabeça (kg) — padrão, dá pra mudar em cada pesagem</label><input id="iDesc" type="number" value="0" step="1" min="0" placeholder="10 ou 20"></div>
+      <div class="campo"><label>Quantas Cabeças tem o Lote?<small style="display:block;font-weight:400;color:#6b6b6b">opcional — mostra quantas faltam</small></label><input id="iTotBois" type="number" step="1" min="0" placeholder="Ex: 50"></div>
+      <div class="campo"><label>⚖️ Desconto por Cabeça (kg)<small style="display:block;font-weight:400;color:#6b6b6b">dá pra mudar em cada pesagem</small></label><input id="iDesc" type="number" value="0" step="1" min="0" placeholder="10 ou 20"></div>
       <div class="campo"><label>Rendimento (%)</label><input id="iRendimento" type="number" value="50" step="0.1" min="0" max="100"></div>
-      <div class="campo"><label>Preço de Compra do Lote (R$ total — opcional, só p/ calcular lucro)</label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="campo"><label>Preço de Compra do Lote (R$)<small style="display:block;font-weight:400;color:#6b6b6b">opcional — só pra calcular o lucro</small></label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
       <button class="btn-start" onclick="iniciar()">✓ COMEÇAR PESAGEM</button>
       <button class="btn-atualizar" onclick="atualizarApp()">🔄 Buscar atualização — versão <span id="vApp"></span></button>
     </div>
@@ -236,7 +238,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <!-- TABELA PLANILHA -->
       <div class="tabela-wrap" id="tabelaWrap">
         <div class="tab-header">
-          <span>#</span><span id="thQtd">Qtd</span><span>Peso kg</span><span>Média/@</span><span>Valor R$</span><span></span>
+          <span>#</span><span id="thQtd">Qtd</span><span>Peso kg</span><span>Arrobas</span><span>Valor R$</span><span></span>
         </div>
         <div id="tabelaBody">
           <div class="tab-empty">Nenhuma pesagem ainda</div>
@@ -285,9 +287,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div style="background:#f5f1e8;border-radius:16px 16px 0 0;padding:24px;width:100%;max-width:500px;border-top:4px solid #d4af37">
       <div style="text-align:center;margin-bottom:18px">
         <div style="font-size:22px;font-weight:900;color:#8B4513">🐄 LOTE FINALIZADO</div>
-        <div style="font-size:12px;color:#888;margin-top:4px" id="modalResumo"></div>
+        <div style="font-size:12px;color:#555;margin-top:4px" id="modalResumo"></div>
       </div>
-      <button onclick="salvarDispositivo()" style="width:100%;padding:15px;background:linear-gradient(135deg,#1a5c2e,#0f3d1e);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer">
+      <button onclick="salvarDispositivo()" style="width:100%;padding:15px;background:linear-gradient(135deg,#8B4513,#654321);color:#f4e4c1;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer">
         📥 SALVAR EM ARQUIVOS DO CELULAR
       </button>
       <button onclick="mandarWhatsApp()" style="width:100%;padding:15px;background:linear-gradient(135deg,#128C7E,#075E54);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer">
@@ -299,7 +301,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button onclick="novoLote()" style="width:100%;padding:13px;background:white;color:#8B4513;border:2px solid #d4af37;border-radius:10px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer">
         🔄 NOVO LOTE
       </button>
-      <button onclick="fecharModal()" style="width:100%;padding:10px;background:none;color:#666;border:none;font-size:14px;cursor:pointer;text-decoration:underline">
+      <button onclick="fecharModal()" style="width:100%;padding:14px;background:none;color:#666;border:none;font-size:14px;cursor:pointer;text-decoration:underline">
         Voltar
       </button>
     </div>
@@ -652,11 +654,11 @@ function renderTabela() {
   body.innerHTML = pesagens.map(r => `
     <div class="tab-row">
       <span class="n">${r.num}</span>
-      <span>${r.boi ? r.boi : r.qtd}${(r.desc||0)>0?`<small style="display:block;font-size:9px;color:#b5651d;font-weight:700">-${r.desc}kg</small>`:''}</span>
+      <span>${r.boi ? r.boi : r.qtd}${(r.desc||0)>0?`<small style="display:block;font-size:10px;color:#8f4700;font-weight:700">-${r.desc}kg</small>`:''}</span>
       <span>${r.peso}</span>
       <span>${r.arr}@</span>
       <span>${r.valor > 0 ? 'R$'+r.valor.toFixed(0) : '—'}</span>
-      <button class="del-btn" onclick="excluir(${r.id})">❌</button>
+      <button class="del-btn" onclick="excluir(${r.id})">✕</button>
     </div>`).join('');
 
   // Cálculos
@@ -675,7 +677,7 @@ function renderTabela() {
   document.getElementById('rPeso').textContent  = totPeso.toFixed(0) + ' kg';
   document.getElementById('rArr').textContent   = mediaArr.toFixed(2) + ' @/cab';
   document.getElementById('rKg').textContent    = mediaKg.toFixed(1) + ' kg/cab';
-  document.getElementById('rValor').textContent = totValor > 0 ? 'R$ ' + totValor.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—';
+  document.getElementById('rValor').textContent = totValor > 0 ? 'R$ ' + totValor.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
   let extra = '';
   if (meta > 0) {
     const faltam = meta - totBois;
@@ -887,7 +889,7 @@ function abrirModal() {
 
   document.getElementById('modalResumo').textContent =
     `${totBois} ${anim().p.toLowerCase()} · ${totPeso.toFixed(0)} kg · ${totArr.toFixed(1)}@ · ` +
-    (totValor > 0 ? `R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}` : 'sem valor');
+    (totValor > 0 ? `R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2})}` : 'sem valor');
 
   const modal = document.getElementById('modal');
   modal.style.display = 'flex';
@@ -948,7 +950,7 @@ ${linhasPes}
 📐 Total de @: *${totArr.toFixed(2)} @*
 📊 Média @/cab: *${mediaArr.toFixed(2)} @*
 📊 Média kg/cab: *${mediaKg.toFixed(1)} kg*
-${totValor > 0 ? `💰 Valor total: *R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}*` : ''}
+${totValor > 0 ? `💰 Valor total: *R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2})}*` : ''}
 🔢 Rendimento: *${window._rend || 50}%*${descTot > 0 ? `\n⚖️ Desconto total: *${descTot} kg*` : ''}
 ━━━━━━━━━━━━━━━━━━━
 _Gerado pela Calculadora de Gado_`;
@@ -987,7 +989,7 @@ function novoLote() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 11;
+const APP_VERSAO = 12;
 document.getElementById('vApp').textContent = APP_VERSAO;
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
