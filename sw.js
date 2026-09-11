@@ -1,7 +1,8 @@
-const CACHE_NAME = 'calculadora-boi-v10';
+const CACHE_NAME = 'calculadora-boi-v11';
 const urlsToCache = [
     '/',
-    '/index.html'
+    '/index.html',
+    '/xlsx.bundle.js'
 ];
 
 self.addEventListener('install', event => {
