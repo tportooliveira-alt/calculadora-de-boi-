@@ -37,6 +37,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .row select{width:110px}
 .btn-start{width:100%;padding:13px;background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;border:none;border-radius:6px;font-size:16px;font-weight:700;margin-top:16px;cursor:pointer}
 .btn-atualizar{width:100%;padding:10px;background:none;border:none;color:#8B4513;font-size:13px;font-weight:700;margin-top:8px;cursor:pointer;text-decoration:underline}
+.modo-btn{flex:1;padding:10px 6px;border:2px solid #d4af37;border-radius:8px;background:white;color:#654321;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3}
+.modo-btn small{font-weight:400;font-size:11px;color:#999}
+.modo-btn.sel{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37}
+.modo-btn.sel small{color:#f4e4c1}
 
 /* TELA PESAGEM */
 .t-pes{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -47,6 +51,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .display{background:linear-gradient(135deg,#2d1f13,#3d2b1f);border:3px solid #d4af37;border-radius:8px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:flex-end;min-height:70px}
 .dval{font-size:46px;font-weight:900;color:#d4af37;font-family:'Courier New',monospace}
 .dunit{font-size:15px;color:#f4e4c1;margin-left:6px}
+.dcampo{display:flex;align-items:center;gap:4px;padding:2px 10px;border-radius:8px;border:2px solid transparent}
+.display.ident{justify-content:space-between}
+.display.ident .dcampo.ativo{border-color:#d4af37;background:rgba(212,175,55,.15)}
 
 /* QUANTIDADE PICKER */
 .qtd-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
@@ -136,6 +143,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="t-cad" id="tCad">
     <div class="cad-box">
       <h2>📋 CADASTRO DO LOTE</h2>
+      <div class="campo">
+        <label>🏷️ Quer identificar os bois com número?</label>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="modo-btn sel" id="btnModoNormal" onclick="setModo('normal')">🐂 Do nosso jeito<br><small>por balançada</small></button>
+          <button type="button" class="modo-btn" id="btnModoIdent" onclick="setModo('ident')">🔢 Identificar<br><small>nº do boi + peso</small></button>
+        </div>
+      </div>
       <div class="campo"><label>Vendedor / Comprador</label><input id="iVendedor" type="text" placeholder="Nome"></div>
       <div class="campo">
         <label>💰 Valor do Gado</label>
@@ -144,6 +158,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <select id="iUnidade"><option value="arroba">R$/@</option><option value="kg">R$/kg</option></select>
         </div>
       </div>
+      <div class="campo"><label>🐂 Quantos Bois tem o Lote? (opcional — mostra quantos faltam)</label><input id="iTotBois" type="number" step="1" min="0" placeholder="Ex: 50"></div>
       <div class="campo"><label>⚖️ Desconto por Cabeça (kg) — padrão, dá pra mudar em cada pesagem</label><input id="iDesc" type="number" value="0" step="1" min="0" placeholder="10 ou 20"></div>
       <div class="campo"><label>Rendimento (%)</label><input id="iRendimento" type="number" value="50" step="0.1" min="0" max="100"></div>
       <div class="campo"><label>Preço de Compra do Lote (R$ total — opcional, só p/ calcular lucro)</label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
@@ -157,11 +172,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
     <!-- PARTE FIXA: display + qtd + confirmação + teclado -->
     <div class="pes-top">
-      <div class="display">
-        <span class="dval" id="dval">0</span>
-        <span class="dunit">kg</span>
+      <div class="display" id="displayBox">
+        <div class="dcampo" id="boiBox" style="display:none" onclick="setAlvo('boi')">
+          <span class="dunit">BOI Nº</span>
+          <span class="dval" id="dboi" style="font-size:34px">—</span>
+        </div>
+        <div class="dcampo ativo" id="pesoBox" onclick="setAlvo('peso')">
+          <span class="dval" id="dval">0</span>
+          <span class="dunit">kg</span>
+        </div>
       </div>
-      <div class="qtd-row">
+      <div class="qtd-row" id="qtdRow">
         <label>Bois:</label>
         <div class="qtd-wrap">
           <div class="qtd-ind"></div>
@@ -203,7 +224,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <!-- TABELA PLANILHA -->
       <div class="tabela-wrap" id="tabelaWrap">
         <div class="tab-header">
-          <span>#</span><span>Qtd</span><span>Peso kg</span><span>Média/@</span><span>Valor R$</span><span></span>
+          <span>#</span><span id="thQtd">Qtd</span><span>Peso kg</span><span>Média/@</span><span>Valor R$</span><span></span>
         </div>
         <div id="tabelaBody">
           <div class="tab-empty">Nenhuma pesagem ainda</div>
@@ -255,7 +276,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div style="font-size:12px;color:#888;margin-top:4px" id="modalResumo"></div>
       </div>
       <button onclick="salvarDispositivo()" style="width:100%;padding:15px;background:linear-gradient(135deg,#1a5c2e,#0f3d1e);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer">
-        📥 SALVAR NO DISPOSITIVO (.xlsx)
+        📥 SALVAR EM ARQUIVOS DO CELULAR
       </button>
       <button onclick="mandarWhatsApp()" style="width:100%;padding:15px;background:linear-gradient(135deg,#128C7E,#075E54);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer">
         💬 MANDAR PRO WHATSAPP
@@ -279,6 +300,8 @@ let pesagens = [];
 let peso = '';
 let precoVenda = 0;
 let unidade = 'kg';
+let boiNum = '';
+let alvo = 'peso'; // no modo identificado, alterna entre 'boi' e 'peso'
 
 // ─── Persistência localStorage ────────────────────────────────────────────────
 const LS_KEY = 'boi_lote_v1';
@@ -292,6 +315,8 @@ function salvarLocal() {
     compra:    window._compra   || 0,
     rend:      window._rend     || 50,
     desc:      window._desc     || 0,
+    totBois:   window._totBois  || 0,
+    modo:      window._modo     || 'normal',
     ativo:     true
   }));
 }
@@ -310,6 +335,13 @@ function limparLocal() {
   localStorage.removeItem(LS_KEY);
 }
 
+// ─── Tipo de lote (normal ou identificado por número) ────────────────────────
+function setModo(m) {
+  window._modo = m;
+  document.getElementById('btnModoNormal').classList.toggle('sel', m === 'normal');
+  document.getElementById('btnModoIdent').classList.toggle('sel', m === 'ident');
+}
+
 // ─── Cadastro ─────────────────────────────────────────────────────────────────
 function iniciar() {
   const vendedor  = document.getElementById('iVendedor').value  || 'Não informado';
@@ -317,6 +349,7 @@ function iniciar() {
   const venda     = parseFloat(document.getElementById('iVenda').value)     || 0;
   const rend      = parseFloat(document.getElementById('iRendimento').value)|| 50;
   const desconto  = parseFloat(document.getElementById('iDesc').value)      || 0;
+  const totBois   = parseInt(document.getElementById('iTotBois').value)     || 0;
   unidade         = document.getElementById('iUnidade').value;
   precoVenda      = venda;
 
@@ -325,6 +358,7 @@ function iniciar() {
   window._rend     = rend;
   window._desc     = desconto;
   window._descSel  = desconto;
+  window._totBois  = totBois;
 
   ativarTelaPesagem();
   salvarLocal();
@@ -356,6 +390,15 @@ function ativarTelaPesagem() {
   document.getElementById('tCad').classList.add('off');
   document.getElementById('tPes').classList.remove('off');
   document.getElementById('hdrAcoes').style.display = 'flex';
+
+  // Modo identificado: esconde o picker de qtd, mostra o campo do nº do boi
+  const ident = window._modo === 'ident';
+  document.getElementById('qtdRow').style.display = ident ? 'none' : 'flex';
+  document.getElementById('boiBox').style.display = ident ? 'flex' : 'none';
+  document.getElementById('displayBox').classList.toggle('ident', ident);
+  document.getElementById('thQtd').textContent = ident ? 'Boi Nº' : 'Qtd';
+  if (ident) { document.getElementById('iQtd').value = '1'; setAlvo('boi'); }
+
   montarDescChips();
   renderTabela();
 }
@@ -380,6 +423,8 @@ function ativarTelaPesagem() {
   window._compra   = d.compra;
   window._rend     = d.rend;
   window._desc     = d.desc || 0;
+  window._totBois  = d.totBois || 0;
+  setModo(d.modo || 'normal');
 
   // Preencher cadastro
   document.getElementById('iVendedor').value  = d.vendedor;
@@ -387,23 +432,56 @@ function ativarTelaPesagem() {
   document.getElementById('iVenda').value     = d.precoVenda || '';
   document.getElementById('iRendimento').value= d.rend || 50;
   document.getElementById('iDesc').value      = d.desc || 0;
+  document.getElementById('iTotBois').value   = d.totBois || '';
   document.getElementById('iUnidade').value   = d.unidade || 'arroba';
 
   ativarTelaPesagem();
 })();
 
 // ─── Teclado ──────────────────────────────────────────────────────────────────
+function setAlvo(a) {
+  if (window._modo !== 'ident') return;
+  alvo = a;
+  document.getElementById('boiBox').classList.toggle('ativo', a === 'boi');
+  document.getElementById('pesoBox').classList.toggle('ativo', a === 'peso');
+}
+
+function digitandoBoi() { return window._modo === 'ident' && alvo === 'boi'; }
+
 function dig(v) {
+  if (digitandoBoi()) {
+    if (v === '.') return;
+    if (v === '00' && boiNum === '') return;
+    if (boiNum.length >= 6) return;
+    boiNum += v;
+    atualizar();
+    return;
+  }
   if (peso.length >= 7) return;
   if (v === '.' && peso.includes('.')) return;
   if (v === '00' && peso === '') return;
   peso += v;
   atualizar();
 }
-function apagar() { peso = peso.slice(0,-1); atualizar(); }
-function limpar()  { peso = ''; document.getElementById('confBox').innerHTML = ''; atualizar(); }
-function proximo() { limpar(); resetQtd(); }
-function atualizar() { document.getElementById('dval').textContent = peso || '0'; }
+function apagar() {
+  if (digitandoBoi()) { boiNum = boiNum.slice(0,-1); atualizar(); return; }
+  peso = peso.slice(0,-1); atualizar();
+}
+function limpar()  {
+  peso = '';
+  if (window._modo === 'ident') { boiNum = ''; setAlvo('boi'); }
+  document.getElementById('confBox').innerHTML = '';
+  atualizar();
+}
+function proximo() {
+  if (window._modo === 'ident') { setAlvo(alvo === 'boi' ? 'peso' : 'boi'); return; }
+  limpar(); resetQtd();
+}
+function atualizar() {
+  document.getElementById('dval').textContent = peso || '0';
+  const dboi = document.getElementById('dboi');
+  if (dboi) dboi.textContent = boiNum || '—';
+}
 
 // ─── Qty picker ───────────────────────────────────────────────────────────────
 (function initPicker() {
@@ -464,10 +542,17 @@ function resetQtd() {
 
 // ─── Salvar pesagem ───────────────────────────────────────────────────────────
 function salvar() {
+  const ident = window._modo === 'ident';
   const p = parseFloat(peso);
   if (!p || p <= 0) { alert('Digite um peso válido'); return; }
+  if (ident) {
+    if (!boiNum) { alert('Digite o número do boi!\n\n(Toca na caixinha BOI Nº e digita o número dele)'); setAlvo('boi'); return; }
+    if (pesagens.some(r => r.boi === boiNum)) {
+      if (!confirm(`⚠️ O boi nº ${boiNum} já foi pesado!\n\nSalvar mesmo assim?`)) return;
+    }
+  }
 
-  const qtd         = parseInt(document.getElementById('iQtd').value) || 1;
+  const qtd         = ident ? 1 : (parseInt(document.getElementById('iQtd').value) || 1);
   const rend        = (window._rend || 50) / 100;   // ex: 50% → 0.50
   const desc        = window._descSel !== undefined ? window._descSel : (window._desc || 0); // kg/cab desta balançada
   const pesoLiq     = Math.max(p - qtd * desc, 0);   // peso vivo após desconto
@@ -484,6 +569,7 @@ function salvar() {
     id:    Date.now(),
     num:   pesagens.length + 1,
     qtd,
+    boi:   ident ? boiNum : '',
     desc,
     peso:  p,
     arr:   arr.toFixed(2),
@@ -492,16 +578,18 @@ function salvar() {
   };
   pesagens.unshift(reg);
 
-  document.getElementById('confBox').innerHTML =
-    `<div class="conf-msg">✓ #${reg.num} salva: ${p} kg — ${qtd} boi${qtd>1?'s':''}${desc>0?` — desc ${desc} kg/cab`:''}</div>`;
+  document.getElementById('confBox').innerHTML = ident
+    ? `<div class="conf-msg">✓ Boi nº ${reg.boi}: ${p} kg salvo${desc>0?` — desc ${desc} kg`:''}</div>`
+    : `<div class="conf-msg">✓ #${reg.num} salva: ${p} kg — ${qtd} boi${qtd>1?'s':''}${desc>0?` — desc ${desc} kg/cab`:''}</div>`;
 
   renderTabela();
   salvarLocal();
 
   setTimeout(()=>{
     peso = '';
+    boiNum = '';
     atualizar();
-    resetQtd();
+    if (ident) setAlvo('boi'); else resetQtd();
     document.getElementById('confBox').innerHTML = '';
   }, 1200);
 }
@@ -521,7 +609,7 @@ function renderTabela() {
   body.innerHTML = pesagens.map(r => `
     <div class="tab-row">
       <span class="n">${r.num}</span>
-      <span>${r.qtd}${(r.desc||0)>0?`·-${r.desc}`:''}</span>
+      <span>${r.boi ? r.boi : r.qtd}${(r.desc||0)>0?`·-${r.desc}`:''}</span>
       <span>${r.peso}</span>
       <span>${r.arr}@</span>
       <span>${r.valor > 0 ? 'R$'+r.valor.toFixed(0) : '—'}</span>
@@ -538,12 +626,18 @@ function renderTabela() {
   const mediaKg  = (totPeso - descTot) / totBois; // média de kg por boi (líquida)
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
-  document.getElementById('rBois').textContent  = totBois + ' bois';
+  const meta = window._totBois || 0;
+  document.getElementById('rBois').textContent  = meta > 0 ? `${totBois} de ${meta}` : totBois + ' bois';
   document.getElementById('rPeso').textContent  = totPeso.toFixed(0) + ' kg';
   document.getElementById('rArr').textContent   = mediaArr.toFixed(2) + ' @/boi';
   document.getElementById('rKg').textContent    = mediaKg.toFixed(1) + ' kg/boi';
   document.getElementById('rValor').textContent = totValor > 0 ? 'R$ ' + totValor.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—';
-  document.getElementById('rRend').textContent  = (window._rend || 50) + '% rendimento' + (descTot > 0 ? ' · desconto total ' + descTot + ' kg' : '');
+  let extra = '';
+  if (meta > 0) {
+    const faltam = meta - totBois;
+    extra = faltam > 0 ? ` · 🐂 faltam ${faltam} bois` : (faltam === 0 ? ' · ✅ lote completo!' : ` · ⚠️ ${-faltam} a mais que o lote`);
+  }
+  document.getElementById('rRend').textContent  = (window._rend || 50) + '% rendimento' + (descTot > 0 ? ' · desconto total ' + descTot + ' kg' : '') + extra;
 
   card.style.display = 'block';
 }
@@ -634,7 +728,8 @@ function montarRelatorioWb() {
   put(8,0,xsCel('⚖️  PESAGENS — PESO POR BALANÇADA', sSecao));
   for (let c=1;c<6;c++) put(8,c,xsCel('', sSecao));
   mesclar(8,0,8,5);
-  const cab = ['Nº','Qtd Bois','Peso (kg)','Média kg/boi','Arrobas (@)','Valor (R$)'];
+  const identWb = window._modo === 'ident';
+  const cab = ['Nº',identWb?'Nº do Boi':'Qtd Bois','Peso (kg)','Média kg/boi','Arrobas (@)','Valor (R$)'];
   cab.forEach((h,c)=>put(9,c,xsCel(h,sTabHdr)));
 
   const linhas = [...pesagens].reverse();
@@ -642,7 +737,7 @@ function montarRelatorioWb() {
     const r = 10 + i;
     const st = i % 2 === 1 ? sZebra : sCelula;
     put(r,0,xsCel(i+1, st));
-    put(r,1,xsCel(p.qtd, st));
+    put(r,1,xsCel(identWb && p.boi ? p.boi : p.qtd, st));
     put(r,2,xsCel(p.peso, st, KG));
     put(r,3,xsCel((p.peso - p.qtd*(p.desc||0))/p.qtd, st, KG1));
     put(r,4,xsCel(((p.peso - p.qtd*(p.desc||0))*rend)/15, st, ARR));
@@ -745,7 +840,18 @@ function fecharModal() {
 }
 
 function salvarDispositivo() {
-  exportarExcel();
+  if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
+  const { wb, nome } = montarRelatorioWb();
+  const dados = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const arquivo = new File([dados], nome,
+    { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+  // Abre a tela de compartilhar do celular — é só tocar em "Salvar em Arquivos"
+  if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+    navigator.share({ files: [arquivo], title: nome }).catch(() => {});
+  } else {
+    exportarExcel();
+  }
 }
 
 function mandarWhatsApp() {
@@ -759,7 +865,9 @@ function mandarWhatsApp() {
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
   const linhasPes = [...pesagens].reverse().map(r =>
-    `  #${r.num}: ${r.qtd} boi${r.qtd>1?'s':''} — ${r.peso}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$'+r.valor.toFixed(2):''}`
+    r.boi
+      ? `  Boi nº ${r.boi}: ${r.peso}kg${(r.desc||0)>0?` (desc ${r.desc}kg)`:''} — ${r.arr}@${r.valor>0?' — R$'+r.valor.toFixed(2):''}`
+      : `  #${r.num}: ${r.qtd} boi${r.qtd>1?'s':''} — ${r.peso}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$'+r.valor.toFixed(2):''}`
   ).join('\n');
 
   const msg =
@@ -815,7 +923,7 @@ function novoLote() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 8;
+const APP_VERSAO = 9;
 document.getElementById('vApp').textContent = APP_VERSAO;
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
