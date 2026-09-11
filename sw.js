@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calculadora-boi-v8';
+const CACHE_NAME = 'calculadora-boi-v9';
 const urlsToCache = [
     '/',
     '/index.html'
