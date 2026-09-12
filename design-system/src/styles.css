@@ -202,7 +202,7 @@
 .boi-tabela-total .boi-tabela-total-rotulo { font-size: 10px; text-align: left; padding-left: 2px; letter-spacing: -.02em; }
 
 /* ─── Modo Sol (tela preta pro sol do curral) ─── */
-.boi-sol { --boi-fundo: #000000; --boi-dourado: #f5c518; --boi-dinheiro: #ffd84a; --boi-texto: #f7ecd6; --boi-creme: #f7ecd6; --boi-texto-suave: #cfc3ad; --boi-display-1: #000000; --boi-display-2: #161616; --boi-zebra: #111111; --boi-linha: #2a2a2a; --boi-marrom: #1c1c1c; --boi-marrom-escuro: #000000; --boi-placeholder: #8a8070; --boi-superficie: #121212; --boi-tinta: #ffffff; --boi-secundario: #e8dcc8; --boi-borda-suave: rgba(245,197,24,.75); --boi-moldura-1: #101010; --boi-moldura-2: #000000; --boi-trilho: rgba(255,255,255,.14); }
+.boi-sol { --boi-fundo: #000000; --boi-dourado: #f5c518; --boi-dinheiro: #ffd84a; --boi-texto: #ffffff; --boi-creme: #f5c518; --boi-texto-suave: #cfc3ad; --boi-display-1: #000000; --boi-display-2: #161616; --boi-zebra: #111111; --boi-linha: #2a2a2a; --boi-marrom: #1c1c1c; --boi-marrom-escuro: #000000; --boi-linha: #2a2a2a; --boi-placeholder: #8a8070; --boi-superficie: #121212; --boi-tinta: #ffffff; --boi-secundario: #e8dcc8; --boi-borda-suave: rgba(245,197,24,.75); --boi-moldura-1: #101010; --boi-moldura-2: #000000; --boi-trilho: rgba(255,255,255,.14); }
 .boi-sol .boi-tecla, .boi-sol .boi-chip, .boi-sol .boi-regua-trilho, .boi-sol .boi-modo, .boi-sol .boi-tabela, .boi-sol .boi-campo-entrada, .boi-sol .boi-campo-seleta { background: #121212; color: #ffffff; }
 .boi-sol .boi-tecla { box-shadow: 0 3px 0 #000000, inset 0 1px 0 rgba(255,255,255,.1); }
 .boi-sol .boi-tecla--apagar { background: #d11f1f; color: #ffffff; }
@@ -217,3 +217,8 @@
 .boi-sol .boi-tabela-num { color: var(--boi-dourado); }
 .boi-sol .boi-modo-sub { color: #cfc3ad; }
 .boi-sol .boi-modo--selecionado { background: #000000; color: var(--boi-dourado); }
+
+.boi-sol .boi-tabela-cabecalho { background: #000000; }
+.boi-sol .boi-tabela-cabecalho span { color: var(--boi-dourado); }
+.boi-sol .boi-tabela-total { background: #000000; }
+.boi-sol .boi-tabela-total span { color: var(--boi-dinheiro); }

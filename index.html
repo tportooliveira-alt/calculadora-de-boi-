@@ -221,7 +221,12 @@ body.sol .folha-caixa small{color:#cfc3ad}
 
 /* ═══ MODO SOL (v13) — tela preta com dourado forte pro sol do curral ═══════ */
 body.sol,body.sol .app{background:#000}
-body.sol .hdr{background:#000;border-color:#f5c518;color:#f5c518}
+body.sol .hdr{background:linear-gradient(135deg,#1c1c1c,#000);border-color:#f5c518;color:#f5c518}
+body.sol .teclado-moldura{background:linear-gradient(165deg,#101010,#000);border-color:rgba(245,197,24,.75)}
+body.sol .teclado-titulo span:first-child{color:#f5c518}
+body.sol .tab-header,body.sol .tab-total{background:#000}
+body.sol .tab-header span{color:#f5c518}
+body.sol .tab-total span{color:#ffd84a}
 body.sol .tot-cel,body.sol .meta-bar{background:#121212}
 body.sol .tot-cel span:first-child,body.sol .meta-topo span:first-child{color:#f5c518}
 body.sol .tot-cel span:last-child,body.sol .meta-topo span:last-child{color:#fff}
@@ -1623,7 +1628,7 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 14;
+const APP_VERSAO = 15;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 
