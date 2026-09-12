@@ -592,6 +592,19 @@ function aplicarPrefs() {
   if (b) b.textContent = window._prefs.som ? '🔊' : '🔇';
 }
 
+// Num dia de pesagem o preço, o rendimento e o desconto são os mesmos lote após
+// lote — só o vendedor e a meta mudam. Devolve esses campos no cadastro pra não
+// ter que digitar tudo de novo a cada NOVO LOTE.
+function preencherCadastroComPrefs() {
+  const p = window._prefs;
+  const poe = (id, v) => { const e = document.getElementById(id); if (e && v) e.value = v; };
+  poe('iVenda', p.venda);
+  poe('iUnidade', p.unidade);
+  poe('iRendimento', p.rend);
+  poe('iDesc', p.desconto);
+  poe('iAnimal', p.animal);
+}
+
 // ─── Som e vibração (Web Audio) ───────────────────────────────────────────────
 function _ac() {
   if (!window.__ac) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) window.__ac = new AC(); }
@@ -724,6 +737,10 @@ function iniciar() {
   window._desc     = desconto;
   window._descSel  = desconto;
   window._totBois  = totBois;
+
+  // Guarda o que se repete entre lotes do mesmo dia (ver preencherCadastroComPrefs)
+  Object.assign(window._prefs, { venda, unidade, rend, desconto, animal: window._animal });
+  salvarPrefs();
 
   window._finalizado = false;
   const bn = document.getElementById('btnNovoLote');
@@ -1812,7 +1829,10 @@ async function entregarPlanilha(dicaDestino) {
       return;
     }
   } catch (e) {
-    if (e && (e.name === 'AbortError' || e.name === 'NotAllowedError')) return; // usuário fechou
+    // Só o AbortError é o usuário fechando a folha de propósito — aí é pra calar.
+    // Qualquer outro erro (NotAllowedError quando o iPhone bloqueia o compartilhar,
+    // por exemplo) tem que cair no plano B abaixo, senão o botão não faz nada.
+    if (e && e.name === 'AbortError') return;
   }
 
   // 2) Abrir o arquivo pra o celular cuidar dele (app instalado não baixa direto)
@@ -1954,9 +1974,10 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 17;
+const APP_VERSAO = 18;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
+preencherCadastroComPrefs();
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
 async function atualizarApp() {
