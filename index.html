@@ -40,6 +40,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .row select{width:110px}
 .btn-start{width:100%;padding:13px;background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37;border:none;border-radius:6px;font-size:16px;font-weight:700;margin-top:16px;cursor:pointer}
 .btn-atualizar{width:100%;padding:10px;background:none;border:none;color:#8B4513;font-size:13px;font-weight:700;margin-top:8px;cursor:pointer;text-decoration:underline}
+.marca-rodape{margin-top:14px;padding-top:12px;border-top:2px solid rgba(212,175,55,.55);text-align:center;line-height:1.5}
+.marca-rodape b{display:block;font-size:13px;font-weight:900;color:#8B4513;letter-spacing:.04em}
+.marca-rodape span{display:block;font-size:11px;font-weight:700;color:#6b533c}
+.marca-rodape a{display:inline-block;margin-top:6px;font-size:13px;font-weight:800;color:#14532d;text-decoration:none}
+body.sol .marca-rodape b{color:#f5c518}
+body.sol .marca-rodape span{color:#cfc3ad}
+body.sol .marca-rodape a{color:#22c55e}
 .modo-btn{flex:1;padding:10px 6px;border:2px solid #d4af37;border-radius:8px;background:white;color:#654321;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3}
 .modo-btn small{font-weight:400;font-size:11px;color:#6b6b6b}
 .modo-btn.sel{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37}
@@ -344,6 +351,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
       <button class="btn-start" onclick="iniciar()">✓ COMEÇAR PESAGEM</button>
       <button type="button" class="btn-ler" onclick="abrirLeitor()">📷 RECEBER LOTE DE OUTRO CELULAR</button>
       <button class="btn-atualizar" onclick="atualizarApp()">🔄 Buscar atualização — versão <span id="vApp"></span></button>
+      <div class="marca-rodape" id="marcaRodape"></div>
     </div>
   </div>
 
@@ -590,6 +598,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
       <button onclick="fecharModal()" style="width:100%;padding:14px;background:none;color:#666;border:none;font-size:14px;cursor:pointer;text-decoration:underline">
         Voltar
       </button>
+      <div class="marca-rodape" id="marcaModal"></div>
     </div>
   </div>
 
@@ -602,6 +611,18 @@ let precoVenda = 0;
 let unidade = 'kg';
 let boiNum = '';
 let alvo = 'peso'; // no modo identificado, alterna entre 'boi' e 'peso'
+
+// ─── Marca de quem entrega o app ─────────────────────────────────────────────
+// Fica junto do relatório e da planilha porque são eles que saem do celular e
+// chegam na mão do vendedor, do parceiro, do comprador. Trocar aqui muda em
+// todo lugar. Na tela de pesagem NÃO entra: ali é trabalho, sol na cara e uma
+// mão só.
+const MARCA = {
+  nome: 'THIAGO PORTO 704 AGRO',
+  ramo: 'Compra e venda de bovinos',
+  fone: '(77) 99922-6268',
+  zap: '5577999226268',
+};
 
 // ─── Preferências (som / modo sol) ───────────────────────────────────────────
 const PREFS_KEY = 'boi_prefs_v1';
@@ -619,6 +640,17 @@ function aplicarPrefs() {
 // Num dia de pesagem o preço, o rendimento e o desconto são os mesmos lote após
 // lote — só o vendedor e a meta mudam. Devolve esses campos no cadastro pra não
 // ter que digitar tudo de novo a cada NOVO LOTE.
+// Assinatura na tela de cadastro. Fica só aqui e na folha de finalizar — na
+// tela de pesagem não entra pra não roubar espaço do teclado.
+function pintarMarca() {
+  const html = '<b>' + MARCA.nome + '</b><span>' + MARCA.ramo + '</span>' +
+    '<a href="https://wa.me/' + MARCA.zap + '" target="_blank" rel="noopener">📱 ' + MARCA.fone + '</a>';
+  ['marcaRodape', 'marcaModal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
+}
+
 function preencherCadastroComPrefs() {
   const p = window._prefs;
   const poe = (id, v) => { const e = document.getElementById(id); if (e && v) e.value = v; };
@@ -1940,6 +1972,12 @@ function montarRelatorioWb() {
     mesclar(r,5,r,UC);
   }
 
+  // Assinatura de quem entregou — a planilha vai parar na mão do vendedor
+  r += 2;
+  put(r,0,xsCel(`${MARCA.nome} — ${MARCA.ramo} · ${MARCA.fone}`, sSub));
+  for (let c=1;c<=UC;c++) put(r,c,xsCel('', sSub));
+  mesclar(r,0,r,UC);
+
   // Monta a planilha
   const ws = {};
   A.forEach((linha, ri) => (linha || []).forEach((cel, ci) => {
@@ -2118,7 +2156,10 @@ ${linhasPes}
 ${totValor > 0 ? `💰 Valor total: *R$ ${fmtDin(totValor)}*` : ''}${lucro !== null ? `\n${lucro >= 0 ? '📈 Lucro' : '📉 Prejuízo'}: *R$ ${fmtDin(Math.abs(lucro))}*` : ''}
 🔢 Rendimento: *${window._rend || 50}%*${precoVenda > 0 ? ` · Preço: *R$ ${fmtDin(precoVenda)}/${unidade==='arroba'?'@':'kg'}*` : ''}
 ━━━━━━━━━━━━━━━━━━━
-_Gerado pela Calculadora de Gado_`;
+*${MARCA.nome}*
+${MARCA.ramo}
+📱 ${MARCA.fone}
+_Pesado na Calculadora de Boi_`;
 
   window._exportou = true;
 
@@ -2162,10 +2203,11 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 20;
+const APP_VERSAO = 21;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 preencherCadastroComPrefs();
+pintarMarca();
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
 async function atualizarApp() {
