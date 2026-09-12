@@ -1099,7 +1099,7 @@ async function procurarBalanca() {
       if (c.properties.notify || c.properties.indicate) {
         try {
           await c.startNotifications();
-          c.addEventListener('characteristicvaluechanged', ev => chegouDaBalanca(ev.target.value));
+          c.addEventListener('characteristicvaluechanged', ev => chegouDaBalanca(ev.target.value, c.uuid));
           escutando++;
         } catch (e) {}
       }
@@ -1115,8 +1115,34 @@ async function procurarBalanca() {
                    : 'As portas responderam mas nenhuma delas avisa sozinha. Precisaria perguntar peso a peso — dá, mas só sabendo o comando do fabricante.');
 }
 
+// COIMMA KM3-N (v3/v4) e KM3 PLUS v3 — quadro de 26 bytes do manual, seção 6.3
+// "Protocolo de comunicação Bluetooth LE" (serviço FFE0, avisa na FFE1):
+// STX · tamanho · id do produto · versão · 'P' · sinal · estável · save ·
+// reload · 7 dígitos de peso · NULL · soma · ETX.
+// Ler o quadro é melhor que catar número no texto: aqui a gente sabe qual é o
+// peso, se é negativo e — o que mais importa — se o boi parou de se mexer.
+function pesoDoQuadroCoimma(bytes) {
+  if (bytes.length < 26 || bytes[0] !== 0x02 || bytes[25] !== 0x03) return null;
+  const t = bytes.map(b => String.fromCharCode(b)).join('');
+  if (t[11] !== 'P') return null;
+  const dig = t.slice(16, 23);
+  if (!/^\d{7}$/.test(dig)) return null;
+  return { kg: (t[12] === '1' ? -1 : 1) * parseInt(dig, 10) / 10, estavel: t[13] === '1' };
+}
+
+// Serviço padrão de balança do Bluetooth (0x181D / característica 0x2A9D) —
+// é o que o Tru-Test S3 usa. Bit 0 das flags diz se veio em libra.
+function pesoDoPadraoBluetooth(dados) {
+  if (dados.byteLength < 3) return null;
+  const flags = dados.getUint8(0), bruto = dados.getUint16(1, true);
+  return {
+    kg: (flags & 0x01) ? bruto * 0.1 * 0.45359237 : bruto * 0.05,
+    estavel: dados.byteLength > 10 ? dados.getUint8(10) === 0x00 : true,
+  };
+}
+
 // Chegou um pedaço de dado da balança
-function chegouDaBalanca(dados) {
+function chegouDaBalanca(dados, uuid) {
   const bytes = [];
   for (let i = 0; i < dados.byteLength; i++) bytes.push(dados.getUint8(i));
   const hex = bytes.map(b => b.toString(16).padStart(2, '0')).join(' ');
@@ -1125,7 +1151,20 @@ function chegouDaBalanca(dados) {
   window._balLog = ((window._balLog || '') + texto).slice(-400);
   balMostra('balBruto', hex + '\n' + texto);
 
-  // Tenta achar um número solto no texto — é assim que a maioria manda o peso
+  // 1) Balança que a gente já conhece de nome: lê o quadro certo
+  const ehPadrao = String(uuid || '').indexOf('2a9d') > -1;
+  const lido = pesoDoQuadroCoimma(bytes) || (ehPadrao ? pesoDoPadraoBluetooth(dados) : null);
+  if (lido && lido.kg > 0) {
+    window._balPeso = lido.kg;
+    balMostra('balPeso', fmtKg(lido.kg) + (lido.estavel ? '' : ' — ainda mexendo'));
+    // O indicador só marca "estável" quando o bicho para; não adianta o app
+    // adivinhar antes disso.
+    if (lido.estavel) balMostra('balUsar');
+    return;
+  }
+
+  // 2) Balança desconhecida: cata um número solto no texto — é assim que a
+  // maioria manda o peso, porque é o mesmo texto que sairia pelo cabo
   const m = window._balLog.match(/(\d{1,5}(?:[.,]\d{1,2})?)\s*(?:kg|KG|Kg)?/g);
   const cru = m && m.length ? m[m.length - 1].replace(/[^\d.,]/g, '').replace(',', '.') : null;
   const n = cru ? parseFloat(cru) : NaN;
@@ -2123,7 +2162,7 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 19;
+const APP_VERSAO = 20;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 preencherCadastroComPrefs();
