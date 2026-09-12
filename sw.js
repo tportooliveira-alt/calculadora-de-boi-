@@ -1,8 +1,9 @@
-const CACHE_NAME = 'calculadora-boi-v15';
+const CACHE_NAME = 'calculadora-boi-v16';
 const urlsToCache = [
     '/',
     '/index.html',
     '/xlsx.bundle.js',
+    '/qr.bundle.js',
     '/manifest.json',
     '/favicon-32.png',
     '/apple-touch-icon.png'

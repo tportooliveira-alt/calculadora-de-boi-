@@ -11,6 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <script src="/xlsx.bundle.js"></script>
+<script src="/qr.bundle.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1410;height:100vh;overflow:hidden}
@@ -161,8 +162,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .previa-txt{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
 .previa-txt b{font-size:13px;font-weight:800;color:#8B4513;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .previa-txt small{font-size:11px;font-weight:700;color:#6b533c}
-.pill-modo{min-height:42px;padding:0 12px;border:2px solid #d4af37;background:#fffdf7;color:#2d1f13;font-weight:800;font-size:11px;letter-spacing:.06em;border-radius:999px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 0 rgba(45,31,19,.18)}
-.btn-redondo{width:42px;height:42px;border:2px solid #d4af37;background:#fffdf7;font-size:17px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;box-shadow:0 2px 0 rgba(45,31,19,.18)}
+.pill-modo{min-height:38px;padding:0 10px;border:2px solid #d4af37;background:#fffdf7;color:#2d1f13;font-weight:800;font-size:11px;letter-spacing:.06em;border-radius:999px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 0 rgba(45,31,19,.18)}
+.btn-redondo{width:38px;height:38px;border:2px solid #d4af37;background:#fffdf7;font-size:17px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;box-shadow:0 2px 0 rgba(45,31,19,.18)}
 .pill-modo:active,.btn-redondo:active{transform:translateY(2px) scale(.97)}
 
 /* moldura escura do teclado */
@@ -201,6 +202,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 /* pisca a faixa de totais quando entra uma pesagem */
 .totais.salvou{animation:boi-flash .6s ease-out}
+
+/* QR pra passar o lote */
+.qr-area{background:#fff;border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;border:3px solid #d4af37}
+.qr-area svg{width:100%;height:auto;max-width:300px;display:block}
+.qr-info{font-size:13px;font-weight:700;color:#654321;text-align:center;line-height:1.4}
+body.sol .qr-area{background:#fff;border-color:#f5c518}
+body.sol .qr-info{color:#e8dcc8}
+.btn-qr-modal{width:100%;padding:15px;background:linear-gradient(135deg,#3d2b1f,#20150e);color:#d4af37;border:2px solid #d4af37;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer;font-family:inherit}
+.recebido-linha{background:#fffdf7;border:2px solid #d4af37;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:700;color:#2d1f13;line-height:1.5}
+body.sol .recebido-linha{background:#121212;color:#fff}
 
 /* folhas (meta e ajustes do lote) */
 .folha-fundo{display:none;position:fixed;inset:0;background:rgba(20,12,6,.62);z-index:80;flex-direction:column;justify-content:flex-end}
@@ -351,6 +362,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
         <button type="button" class="pill-modo" id="pillModo" onclick="alternarModoPes()">SEM Nº</button>
         <button type="button" class="btn-redondo" id="btnSom" onclick="alternarSom()" aria-label="Som">🔊</button>
         <button type="button" class="btn-redondo" onclick="alternarSol()" aria-label="Modo sol">☀️</button>
+        <button type="button" class="btn-redondo" onclick="abrirQR()" aria-label="Passar pro outro celular">📷</button>
       </div>
 
       <div class="qtd-row" id="qtdRow">
@@ -476,6 +488,30 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
     </div>
   </div>
 
+  <!-- FOLHA: PASSAR O LOTE PRO OUTRO CELULAR -->
+  <div class="folha-fundo" id="qrSheet">
+    <div style="flex:1" onclick="fecharQR()"></div>
+    <div class="folha-caixa">
+      <h3>📷 Passar pro outro celular</h3>
+      <small>Peça pro vendedor apontar a câmera do celular dele pra esse código. O app abre lá com o lote inteiro — não precisa instalar nada nem digitar nada.</small>
+      <div class="qr-area" id="qrArea"></div>
+      <div class="qr-info" id="qrInfo"></div>
+      <button type="button" class="pronto" onclick="fecharQR()">✓ PRONTO</button>
+    </div>
+  </div>
+
+  <!-- FOLHA: LOTE CHEGOU PELO QR -->
+  <div class="folha-fundo" id="recebidoSheet">
+    <div style="flex:1"></div>
+    <div class="folha-caixa">
+      <h3>📥 Chegou um lote</h3>
+      <div class="recebido-linha" id="recebidoResumo"></div>
+      <small id="recebidoAviso"></small>
+      <button type="button" class="pronto" onclick="aceitarLoteRecebido()">✓ ABRIR ESTE LOTE</button>
+      <button type="button" class="discreto" onclick="recusarLoteRecebido()">Deixar como está</button>
+    </div>
+  </div>
+
   <!-- FOLHA: META DE CABEÇAS -->
   <div class="folha-fundo" id="metaSheet">
     <div style="flex:1" onclick="fecharMeta()"></div>
@@ -494,6 +530,9 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
         <div style="font-size:22px;font-weight:900;color:#8B4513">🐄 LOTE FINALIZADO</div>
         <div style="font-size:12px;color:#555;margin-top:4px" id="modalResumo"></div>
       </div>
+      <button class="btn-qr-modal" onclick="abrirQR()">
+        📷 PASSAR PRO CELULAR DO VENDEDOR
+      </button>
       <button onclick="salvarDispositivo()" style="width:100%;padding:15px;background:linear-gradient(135deg,#8B4513,#654321);color:#f4e4c1;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:10px;cursor:pointer">
         📥 SALVAR EM ARQUIVOS DO CELULAR
       </button>
@@ -830,8 +869,141 @@ function salvarMeta() {
   salvarLocal();
 }
 
+
+// ─── Passar o lote pro outro celular por QR ──────────────────────────────────
+// O QR guarda um LINK. O vendedor aponta a câmera do iPhone, toca no aviso e o
+// app abre já com o lote dentro — sem leitor, sem instalar nada, sem internet.
+const QR_LIMITE = 2700;   // acima disso o código fica denso demais pra ler no sol
+
+function montarLinkLote() {
+  const linhas = [...pesagens].reverse().map(r =>
+    [r.num, r.qtd, encodeURIComponent(r.boi || ''), r.desc || 0, r.peso].join('*')
+  ).join('!');
+  const partes = [
+    'L1',
+    encodeURIComponent(window._vendedor || ''),
+    window._animal || 'boi',
+    window._rend || 50,
+    precoVenda || 0,
+    unidade === 'arroba' ? 'a' : 'k',
+    window._totBois || 0,
+    window._desc || 0,
+    window._compra || 0,
+    linhas
+  ];
+  return location.origin + location.pathname + '#L=' + partes.join('~');
+}
+
+function lerLinkLote(hash) {
+  try {
+    const p = String(hash).replace(/^#?L=/, '').split('~');
+    if (p[0] !== 'L1') return null;
+    const rend = parseFloat(p[3]) || 50;
+    const preco = parseFloat(p[4]) || 0;
+    const uni = p[5] === 'k' ? 'kg' : 'arroba';
+    const base = Date.now();
+    const linhas = (p[9] || '').split('!').filter(Boolean).map((t, i) => {
+      const c = t.split('*');
+      const qtd = parseInt(c[1], 10) || 1;
+      const desc = parseFloat(c[3]) || 0;
+      const peso = parseFloat(c[4]) || 0;
+      const liq = Math.max(peso - qtd * desc, 0);
+      const arr = (liq * (rend / 100)) / 15;
+      return {
+        id: base + i, num: parseInt(c[0], 10) || (i + 1), qtd,
+        boi: decodeURIComponent(c[2] || ''), desc, peso,
+        arr: arr.toFixed(2),
+        valor: preco > 0 ? (uni === 'arroba' ? arr * preco : liq * preco) : 0
+      };
+    });
+    if (!linhas.length) return null;
+    return {
+      vendedor: decodeURIComponent(p[1] || '') || 'Não informado',
+      animal: ANIMAIS[p[2]] ? p[2] : 'boi',
+      rend, preco, unidade: uni,
+      totBois: parseInt(p[6], 10) || 0,
+      desc: parseFloat(p[7]) || 0,
+      compra: parseFloat(p[8]) || 0,
+      pesagens: linhas.reverse()      // volta pro formato do app: mais nova primeiro
+    };
+  } catch (e) { return null; }
+}
+
+function abrirQR() {
+  if (pesagens.length === 0) { erroTreme(); alert('Pese pelo menos um animal antes de passar o lote.'); return; }
+  somClique();
+  const link = montarLinkLote();
+  const area = document.getElementById('qrArea');
+  const info = document.getElementById('qrInfo');
+
+  if (typeof qrcode === 'undefined') {
+    area.innerHTML = '<div style="padding:20px;color:#8B4513;font-weight:700;text-align:center">Não deu pra montar o código agora.<br>Abra o app uma vez com internet.</div>';
+    info.textContent = '';
+  } else if (link.length > QR_LIMITE) {
+    area.innerHTML = '<div style="padding:20px;color:#8B4513;font-weight:700;text-align:center">Lote grande demais pro código de câmera.<br>Manda pelo WhatsApp que vai tudo.</div>';
+    info.textContent = pesagens.length + ' pesagens — o limite fica por volta de 90.';
+  } else {
+    try {
+      const q = qrcode(0, 'M');          // M aguenta código sujo/riscado
+      q.addData(link);
+      q.make();
+      area.innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+      const cab = pesagens.reduce((a, r) => a + r.qtd, 0);
+      const kg = pesagens.reduce((a, r) => a + r.peso, 0);
+      const an = anim();
+      info.textContent = cab + ' ' + (cab === 1 ? an.s : an.p).toLowerCase() + ' · ' + fmtKg(kg) + ' · ' + pesagens.length + ' pesagens';
+    } catch (e) {
+      area.innerHTML = '<div style="padding:20px;color:#8B4513;font-weight:700;text-align:center">Não deu pra montar o código: ' + e.message + '</div>';
+      info.textContent = '';
+    }
+  }
+  document.getElementById('qrSheet').style.display = 'flex';
+}
+function fecharQR() { document.getElementById('qrSheet').style.display = 'none'; }
+
+// ─── Recebendo um lote que chegou pelo QR ────────────────────────────────────
+function aceitarLoteRecebido() {
+  const d = window._linkLote;
+  if (!d) return;
+  somSalvo();
+  pesagens        = d.pesagens;
+  precoVenda      = d.preco;
+  unidade         = d.unidade;
+  window._vendedor= d.vendedor;
+  window._rend    = d.rend;
+  window._desc    = d.desc;
+  window._descSel = d.desc;
+  window._totBois = d.totBois;
+  window._compra  = d.compra;
+  window._animal  = d.animal;
+  window._metaBatida = false;
+  window._finalizado = false;
+  window._seq = Math.max(0, ...pesagens.map(r => r.num || 0));
+  setModo(pesagens.some(r => r.boi) ? 'ident' : 'normal');
+
+  document.getElementById('iVendedor').value   = d.vendedor;
+  document.getElementById('iVenda').value      = d.preco || '';
+  document.getElementById('iUnidade').value    = d.unidade;
+  document.getElementById('iRendimento').value = d.rend;
+  document.getElementById('iDesc').value       = d.desc;
+  document.getElementById('iTotBois').value    = d.totBois || '';
+  document.getElementById('iCompra').value     = d.compra || '';
+  document.getElementById('iAnimal').value     = d.animal;
+
+  window._linkLote = null;
+  document.getElementById('recebidoSheet').style.display = 'none';
+  ativarTelaPesagem();
+  salvarLocal();
+}
+
+function recusarLoteRecebido() {
+  window._linkLote = null;
+  document.getElementById('recebidoSheet').style.display = 'none';
+  restaurarLocal();
+}
+
 // ─── Restaurar lote salvo ao abrir o app ─────────────────────────────────────
-(function restaurar() {
+function restaurarLocal() {
   const d = carregarLocal();
   if (!d) return;
 
@@ -875,6 +1047,37 @@ function salvarMeta() {
   document.getElementById('iUnidade').value   = d.unidade || 'arroba';
 
   ativarTelaPesagem();
+}
+
+// Na abertura: se veio um lote por QR, ele tem a preferência — senão, restaura
+// o que estava no celular.
+(function abertura() {
+  const h = location.hash || '';
+  if (h.indexOf('#L=') === 0) {
+    const d = lerLinkLote(h);
+    history.replaceState(null, '', location.pathname);   // não repergunta ao recarregar
+    if (d) {
+      window._linkLote = d;
+      const cab = d.pesagens.reduce((a, r) => a + r.qtd, 0);
+      const kg  = d.pesagens.reduce((a, r) => a + r.peso, 0);
+      const an  = ANIMAIS[d.animal] || ANIMAIS.boi;
+      const dTot = d.pesagens.reduce((a, r) => a + Math.min(r.qtd * (r.desc || 0), r.peso), 0);
+      const arr = ((kg - dTot) * (d.rend / 100)) / 15;
+      const val = d.pesagens.reduce((a, r) => a + (r.valor || 0), 0);
+      document.getElementById('recebidoResumo').innerHTML =
+        '👤 ' + d.vendedor + '<br>🐄 ' + cab + ' ' + (cab === 1 ? an.s : an.p).toLowerCase() +
+        ' · ' + fmtKg(kg) + '<br>📐 ' + arr.toFixed(2) + '@' +
+        (val > 0 ? ' · R$ ' + fmtDin(val) : '');
+      const local = carregarLocal();
+      document.getElementById('recebidoAviso').textContent = local
+        ? '⚠️ Você tem um lote em andamento no celular. Se abrir este, o seu sai da tela (mas o relatório dele você ainda pode mandar antes).'
+        : 'Veio do celular de quem está pesando.';
+      document.getElementById('recebidoSheet').style.display = 'flex';
+      return;
+    }
+    alert('📷 O código lido não trouxe um lote válido.\n\nPeça pra ele mostrar o código de novo.');
+  }
+  restaurarLocal();
 })();
 
 // ─── Teclado ──────────────────────────────────────────────────────────────────
@@ -983,9 +1186,14 @@ function atualizarPrevia() {
   });
 
   let t;
+  window._dedoNaRegua = false;
+  ['pointerdown','touchstart','wheel'].forEach(ev =>
+    track.addEventListener(ev, () => { window._dedoNaRegua = true; }, { passive: true }));
+
   track.addEventListener('scroll', ()=>{
     clearTimeout(t);
     t = setTimeout(()=>{
+      if (!window._dedoNaRegua) return;   // foi o app que rolou; não mexe no valor
       const center = track.scrollLeft + track.offsetWidth/2;
       let best=null, min=Infinity;
       track.querySelectorAll('[data-v]').forEach(el=>{
@@ -1002,6 +1210,7 @@ function atualizarPrevia() {
 })();
 
 function setQtdVal(v) {
+  window._dedoNaRegua = false;            // a partir daqui quem manda é o app
   const track = document.getElementById('qtdTrack');
   const el = track.querySelector(`[data-v="${v}"]`);
   if (el) {
@@ -1628,7 +1837,7 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 15;
+const APP_VERSAO = 16;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 
