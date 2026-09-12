@@ -269,9 +269,11 @@ export interface LinhaPesagem {
   num: number;
   /** Quantidade de animais OU o número do animal no modo identificado. */
   qtd: string;
-  /** Desconto aplicado, ex.: "-20kg" (opcional). */
+  /** Desconto aplicado por cabeça, ex.: "-20/cab" (opcional). */
   desconto?: string;
   peso: string;
+  /** Peso já com o desconto abatido, ex.: "1.290" — é dele que sai a arroba. */
+  pesoLiquido?: string;
   arrobas: string;
   valor: string;
 }
@@ -281,18 +283,39 @@ export interface LinhaPesagem {
  * excluir em cada linha. A coluna do meio vira "VACA Nº" no modo
  * identificado.
  */
+export interface TotalTabela {
+  /** Total de cabeças do lote. */
+  cabecas: string;
+  /** Peso somado, como veio da balança. */
+  peso: string;
+  arrobas: string;
+  valor: string;
+}
+
 export interface TabelaPesagensProps {
   /** Título da 2ª coluna: "Qtd" no modo normal, "Vaca Nº" etc. no identificado. */
   colunaQtd?: string;
   linhas: LinhaPesagem[];
+  /** Linha escura de TOTAL, logo abaixo do cabeçalho — serve pra conferir somando a coluna na mão. */
+  total?: TotalTabela;
   aoExcluir?: (num: number) => void;
 }
-export function TabelaPesagens({ colunaQtd = 'Qtd', linhas, aoExcluir }: TabelaPesagensProps) {
+export function TabelaPesagens({ colunaQtd = 'Qtd', linhas, total, aoExcluir }: TabelaPesagensProps) {
   return (
     <div className="boi-tabela">
       <div className="boi-tabela-linha boi-tabela-cabecalho">
         <span>#</span><span>{colunaQtd}</span><span>Peso kg</span><span>Arrobas</span><span>Valor R$</span><span></span>
       </div>
+      {total ? (
+        <div className="boi-tabela-linha boi-tabela-total">
+          <span className="boi-tabela-total-rotulo">TOTAL</span>
+          <span>{total.cabecas}</span>
+          <span>{total.peso}</span>
+          <span>{total.arrobas}</span>
+          <span>{total.valor}</span>
+          <span></span>
+        </div>
+      ) : null}
       {linhas.map((l) => (
         <div key={l.num} className="boi-tabela-linha boi-tabela-corpo">
           <span className="boi-tabela-num">{l.num}</span>
@@ -300,7 +323,10 @@ export function TabelaPesagens({ colunaQtd = 'Qtd', linhas, aoExcluir }: TabelaP
             {l.qtd}
             {l.desconto ? <span className="boi-tabela-desconto">{l.desconto}</span> : null}
           </span>
-          <span>{l.peso}</span>
+          <span>
+            {l.peso}
+            {l.pesoLiquido ? <span className="boi-tabela-desconto">líq {l.pesoLiquido}</span> : null}
+          </span>
           <span>{l.arrobas}</span>
           <span>{l.valor}</span>
           <button className="boi-tabela-excluir" onClick={() => aoExcluir && aoExcluir(l.num)}>✕</button>
@@ -394,6 +420,203 @@ export function FolhaFinalizar({ titulo = '🐄 LOTE FINALIZADO', resumo, childr
         {resumo ? <div className="boi-folha-resumo">{resumo}</div> : null}
       </div>
       {children}
+    </div>
+  );
+}
+
+/* ═══ Peças da v14 ═════════════════════════════════════════════════════════ */
+
+/**
+ * Faixa fixa no topo da pesagem: quantas cabeças já entraram, quanto pesou e
+ * quanto isso dá em dinheiro. É o número que o comprador olha o dia inteiro.
+ */
+export interface FaixaTotaisProps {
+  /** Ex.: "8 bois" — já com o plural certo do bicho escolhido. */
+  cabecas: string;
+  /** Peso somado como veio da balança, ex.: "3.630 kg". */
+  peso: string;
+  /** Valor do lote até agora, ex.: "R$ 39.492,27". Use "—" quando não há preço. */
+  valor: string;
+}
+export function FaixaTotais({ cabecas, peso, valor }: FaixaTotaisProps) {
+  return (
+    <div className="boi-totais">
+      <div className="boi-total-cel">
+        <span className="boi-total-rotulo">Cabeças</span>
+        <span className="boi-total-valor">{cabecas}</span>
+      </div>
+      <div className="boi-total-cel" style={{ flex: '1.1 1 0' }}>
+        <span className="boi-total-rotulo">Peso</span>
+        <span className="boi-total-valor">{peso}</span>
+      </div>
+      <div className="boi-total-cel boi-total-cel--dinheiro">
+        <span className="boi-total-rotulo">Total</span>
+        <span className="boi-total-valor">{valor}</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Barra de meta do lote. Enche de dourado conforme os animais entram e fica
+ * verde quando bate a meta. A faixa inteira é tocável pra mudar a meta.
+ */
+export interface BarraMetaProps {
+  /** Ex.: "8 de 10 bois" ou "toque para pôr meta". */
+  progresso: string;
+  /** 0 a 100. */
+  porcento?: number;
+  /** Pinta de verde — a meta foi batida. */
+  batida?: boolean;
+  aoTocar?: () => void;
+}
+export function BarraMeta({ progresso, porcento = 0, batida = false, aoTocar }: BarraMetaProps) {
+  return (
+    <div className="boi-meta" onClick={aoTocar}>
+      <div className="boi-meta-topo">
+        <span className="boi-meta-rotulo">Meta do lote</span>
+        <span className="boi-meta-progresso">{progresso}</span>
+      </div>
+      <div className="boi-meta-trilho">
+        <div
+          className={'boi-meta-fill' + (batida ? ' boi-meta-fill--batida' : '')}
+          style={{ width: Math.max(0, Math.min(100, porcento)) + '%' }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Linha logo abaixo do visor: mostra quanto vale o peso que está digitado
+ * ANTES de salvar, e traz os botões de trocar o jeito de pesar, silenciar e
+ * ligar o Modo Sol.
+ */
+export interface LinhaPreviaProps {
+  /** Ex.: "≈ 48.19@ · R$ 15.419,73". */
+  conta: string;
+  /** Ex.: "4 bois na balança" ou "digitando o número do brinco". */
+  dica?: string;
+  /** Texto da pílula: "SEM Nº" ou "🔢 COM Nº". */
+  rotuloModo?: string;
+  som?: boolean;
+  aoTrocarModo?: () => void;
+  aoTrocarSom?: () => void;
+  aoTrocarSol?: () => void;
+}
+export function LinhaPrevia({ conta, dica, rotuloModo = 'SEM Nº', som = true, aoTrocarModo, aoTrocarSom, aoTrocarSol }: LinhaPreviaProps) {
+  return (
+    <div className="boi-previa">
+      <div className="boi-previa-texto">
+        <span className="boi-previa-conta">{conta}</span>
+        {dica ? <span className="boi-previa-dica">{dica}</span> : null}
+      </div>
+      <button className="boi-pilula" onClick={aoTrocarModo}>{rotuloModo}</button>
+      <button className="boi-redondo" aria-label="Som" onClick={aoTrocarSom}>{som ? '🔊' : '🔇'}</button>
+      <button className="boi-redondo" aria-label="Modo sol" onClick={aoTrocarSol}>☀️</button>
+    </div>
+  );
+}
+
+/**
+ * Moldura escura que envolve o teclado, separando a área de digitar do resto
+ * da tela. Coloque o `Teclado` dentro dela.
+ */
+export interface MolduraTecladoProps {
+  /** Canto esquerdo, ex.: "Toca na caixinha". */
+  esquerda?: string;
+  /** Canto direito, ex.: "verde = entra no lote". */
+  direita?: string;
+  children?: any;
+}
+export function MolduraTeclado({ esquerda = 'Toca na caixinha', direita = 'verde = entra no lote', children }: MolduraTecladoProps) {
+  return (
+    <div className="boi-moldura">
+      <div className="boi-moldura-titulo">
+        <span className="boi-moldura-titulo-esq">{esquerda}</span>
+        <span className="boi-moldura-traco" />
+        <span className="boi-moldura-titulo-dir">{direita}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Aviso âmbar que aparece por cima quando o peso por cabeça está fora do
+ * normal pro bicho escolhido. Não empurra o teclado: é sobreposto.
+ */
+export interface AvisoPesoProps {
+  /** "Peso muito baixo" ou "Peso muito alto". */
+  titulo: string;
+  /** Ex.: "1400 kg por cabeça. Boi costuma dar entre 250 e 900 kg. Confere na balança?" */
+  texto: string;
+  aoCorrigir?: () => void;
+  aoSalvarAssimMesmo?: () => void;
+}
+export function AvisoPeso({ titulo, texto, aoCorrigir, aoSalvarAssimMesmo }: AvisoPesoProps) {
+  return (
+    <div className="boi-aviso-peso">
+      <div className="boi-aviso-peso-cabeca">
+        <span className="boi-aviso-peso-icone">⚠️</span>
+        <div>
+          <span className="boi-aviso-peso-titulo">{titulo}</span>
+          <span className="boi-aviso-peso-texto">{texto}</span>
+        </div>
+      </div>
+      <div className="boi-aviso-peso-botoes">
+        <button className="boi-aviso-peso-corrigir" onClick={aoCorrigir}>CORRIGIR</button>
+        <button className="boi-aviso-peso-salvar" onClick={aoSalvarAssimMesmo}>SALVAR ASSIM MESMO</button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Os dois botões grandes logo abaixo do teclado, na altura do polegar.
+ * O "+ NOVO LOTE" fica apagado até o lote ser finalizado.
+ */
+export interface RodapeAcoesProps {
+  /** Libera o "+ NOVO LOTE". */
+  finalizado?: boolean;
+  aoFinalizar?: () => void;
+  aoNovoLote?: () => void;
+}
+export function RodapeAcoes({ finalizado = false, aoFinalizar, aoNovoLote }: RodapeAcoesProps) {
+  return (
+    <div className="boi-rodape">
+      <button className="boi-rodape-finalizar" onClick={aoFinalizar}>✓ FINALIZAR</button>
+      <button
+        className={'boi-rodape-novo' + (finalizado ? '' : ' boi-rodape-novo--travado')}
+        onClick={aoNovoLote}
+      >
+        + NOVO LOTE
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Folha que sobe de baixo pra corrigir alguma coisa do lote sem perder as
+ * pesagens (meta, preço da arroba, rendimento…).
+ */
+export interface FolhaAjusteProps {
+  /** Ex.: "✏️ Ajustar o lote" ou "🎯 Meta de cabeças do lote". */
+  titulo: string;
+  /** Linha pequena explicando o que acontece ao confirmar. */
+  nota?: string;
+  /** Texto do botão verde. */
+  rotuloPronto?: string;
+  children?: any;
+  aoConfirmar?: () => void;
+}
+export function FolhaAjuste({ titulo, nota, rotuloPronto = '✓ PRONTO', children, aoConfirmar }: FolhaAjusteProps) {
+  return (
+    <div className="boi-folha-ajuste">
+      <span className="boi-folha-ajuste-titulo">{titulo}</span>
+      {nota ? <span className="boi-folha-ajuste-nota">{nota}</span> : null}
+      {children}
+      <button className="boi-folha-ajuste-pronto" onClick={aoConfirmar}>{rotuloPronto}</button>
     </div>
   );
 }
