@@ -1,9 +1,10 @@
-const CACHE_NAME = 'calculadora-boi-v16';
+const CACHE_NAME = 'calculadora-boi-v17';
 const urlsToCache = [
     '/',
     '/index.html',
     '/xlsx.bundle.js',
     '/qr.bundle.js',
+    '/jsqr.bundle.js',
     '/manifest.json',
     '/favicon-32.png',
     '/apple-touch-icon.png'
@@ -57,7 +58,7 @@ self.addEventListener('fetch', event => {
         });
 
     event.respondWith(
-        caches.match(event.request).then(guardado => {
+        caches.match(event.request, { ignoreSearch: true }).then(guardado => {
             if (guardado) {
                 buscarRede().catch(() => {});   // atualiza por trás, sem segurar a tela
                 return guardado;
