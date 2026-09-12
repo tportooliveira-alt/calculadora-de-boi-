@@ -203,6 +203,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 /* pisca a faixa de totais quando entra uma pesagem */
 .totais.salvou{animation:boi-flash .6s ease-out}
 
+/* Leitor de código pela câmera (pra celular cuja câmera não lê QR sozinha) */
+.ler-fundo{display:none;position:fixed;inset:0;background:#000;z-index:95;flex-direction:column;align-items:center;justify-content:center}
+#lerVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ler-alvo{position:relative;width:74vw;max-width:320px;aspect-ratio:1;border:4px solid #d4af37;border-radius:20px;box-shadow:0 0 0 100vmax rgba(0,0,0,.55)}
+.ler-txt{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 104px);color:#fff;font-size:16px;font-weight:800;text-align:center;text-shadow:0 2px 8px #000;line-height:1.4}
+.ler-fechar{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 24px);min-height:60px;border:2px solid #d4af37;background:rgba(0,0,0,.75);color:#d4af37;font-family:inherit;font-weight:900;font-size:17px;border-radius:14px;cursor:pointer}
+.btn-ler{width:100%;padding:12px;margin-top:8px;background:#fffdf7;border:2px solid #d4af37;border-radius:8px;color:#654321;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
+body.sol .btn-ler{background:#121212;color:#f5c518}
+
 /* QR pra passar o lote */
 .qr-area{background:#fff;border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;border:3px solid #d4af37}
 .qr-area svg{width:100%;height:auto;max-width:300px;display:block}
@@ -324,6 +333,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
       <div class="campo"><label>Rendimento (%)<small style="display:block;font-weight:400;color:#6b6b6b">quanto o boi dá de carcaça — normal 50 a 54</small></label><input id="iRendimento" type="number" value="50" step="0.1" min="1" max="100"></div>
       <div class="campo"><label>Preço de Compra do Lote (R$)<small style="display:block;font-weight:400;color:#6b6b6b">opcional — o total que você pagou, pra calcular o lucro</small></label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
       <button class="btn-start" onclick="iniciar()">✓ COMEÇAR PESAGEM</button>
+      <button type="button" class="btn-ler" onclick="abrirLeitor()">📷 RECEBER LOTE DE OUTRO CELULAR</button>
       <button class="btn-atualizar" onclick="atualizarApp()">🔄 Buscar atualização — versão <span id="vApp"></span></button>
     </div>
   </div>
@@ -486,6 +496,14 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
       <button type="button" class="pronto" onclick="salvarAjustes()">✓ PRONTO</button>
       <button type="button" class="discreto" onclick="fecharAjustes()">Voltar sem mudar nada</button>
     </div>
+  </div>
+
+  <!-- LEITOR DE CÓDIGO PELA CÂMERA -->
+  <div class="ler-fundo" id="lerSheet">
+    <video id="lerVideo" playsinline muted autoplay></video>
+    <div class="ler-alvo"></div>
+    <div class="ler-txt" id="lerTxt">Abrindo a câmera…</div>
+    <button type="button" class="ler-fechar" onclick="fecharLeitor()">✕ FECHAR</button>
   </div>
 
   <!-- FOLHA: PASSAR O LOTE PRO OUTRO CELULAR -->
@@ -961,6 +979,123 @@ function abrirQR() {
 }
 function fecharQR() { document.getElementById('qrSheet').style.display = 'none'; }
 
+
+// ─── Leitor de código pela câmera ────────────────────────────────────────────
+// Nem toda câmera de celular lê QR sozinha (o iPhone lê, muito Android também,
+// mas os mais simples não). Então o app traz o leitor dele.
+function garantirJsQR() {
+  return new Promise(resolve => {
+    if (typeof jsQR !== 'undefined') return resolve(true);
+    const sc = document.createElement('script');
+    sc.src = '/jsqr.bundle.js';
+    sc.onload  = () => resolve(typeof jsQR !== 'undefined');
+    sc.onerror = () => resolve(false);
+    document.head.appendChild(sc);
+    setTimeout(() => resolve(typeof jsQR !== 'undefined'), 12000);
+  });
+}
+
+async function abrirLeitor() {
+  somClique();
+  const folha = document.getElementById('lerSheet');
+  const txt   = document.getElementById('lerTxt');
+  const video = document.getElementById('lerVideo');
+  folha.style.display = 'flex';
+  txt.textContent = 'Abrindo a câmera…';
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    txt.textContent = 'Este celular não deixa o app usar a câmera. Peça o link pelo WhatsApp que funciona igual.';
+    return;
+  }
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+  } catch (e) {
+    txt.textContent = 'Não deu pra abrir a câmera. Libere a câmera pro app nos ajustes do celular — ou peça o link pelo WhatsApp.';
+    return;
+  }
+  window._camStream = stream;
+  video.srcObject = stream;
+  try { await video.play(); } catch (e) {}
+
+  // O navegador que tem leitor próprio usa o dele (é mais rápido e gasta menos
+  // bateria); os outros usam o leitor que vem junto com o app.
+  let detector = null;
+  try { if ('BarcodeDetector' in window) detector = new window.BarcodeDetector({ formats: ['qr_code'] }); } catch (e) {}
+  if (!detector) {
+    txt.textContent = 'Preparando o leitor…';
+    if (!(await garantirJsQR())) {
+      txt.textContent = 'Não deu pra carregar o leitor. Conecte na internet uma vez — ou peça o link pelo WhatsApp.';
+      return;
+    }
+  }
+  txt.textContent = 'Aponte pro código na tela do outro celular';
+
+  const tela = document.createElement('canvas');
+  const ctx  = tela.getContext('2d', { willReadFrequently: true });
+  window._lendo = true;
+
+  const olhar = async () => {
+    if (!window._lendo) return;
+    if (video.readyState >= 2 && video.videoWidth) {
+      tela.width = video.videoWidth; tela.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, tela.width, tela.height);
+      let lido = null;
+      try {
+        if (detector) {
+          const achou = await detector.detect(tela);
+          if (achou && achou.length) lido = achou[0].rawValue;
+        } else {
+          const d = ctx.getImageData(0, 0, tela.width, tela.height);
+          const r = jsQR(d.data, d.width, d.height, { inversionAttempts: 'dontInvert' });
+          if (r) lido = r.data;
+        }
+      } catch (e) {}
+      if (lido) {
+        const i = String(lido).indexOf('#L=');
+        const d = i >= 0 ? lerLinkLote(String(lido).slice(i)) : null;
+        if (d) { somSalvo(); fecharLeitor(); mostrarRecebido(d); return; }
+        // Leu um QR qualquer (nota fiscal, propaganda). Avisa e segue olhando.
+        txt.textContent = 'Esse código não é de um lote. Peça pra ele tocar no 📷 no app dele.';
+        clearTimeout(window._lerAviso);
+        window._lerAviso = setTimeout(() => {
+          if (window._lendo) txt.textContent = 'Aponte pro código na tela do outro celular';
+        }, 2500);
+      }
+    }
+    requestAnimationFrame(olhar);
+  };
+  requestAnimationFrame(olhar);
+}
+
+function fecharLeitor() {
+  window._lendo = false;
+  try { (window._camStream ? window._camStream.getTracks() : []).forEach(t => t.stop()); } catch (e) {}
+  window._camStream = null;
+  const v = document.getElementById('lerVideo');
+  if (v) v.srcObject = null;
+  document.getElementById('lerSheet').style.display = 'none';
+}
+
+// ─── Folha "chegou um lote" (vem do link ou do leitor) ───────────────────────
+function mostrarRecebido(d) {
+  window._linkLote = d;
+  const cab = d.pesagens.reduce((a, r) => a + r.qtd, 0);
+  const kg  = d.pesagens.reduce((a, r) => a + r.peso, 0);
+  const an  = ANIMAIS[d.animal] || ANIMAIS.boi;
+  const dTot = d.pesagens.reduce((a, r) => a + Math.min(r.qtd * (r.desc || 0), r.peso), 0);
+  const arr = ((kg - dTot) * (d.rend / 100)) / 15;
+  const val = d.pesagens.reduce((a, r) => a + (r.valor || 0), 0);
+  document.getElementById('recebidoResumo').innerHTML =
+    '👤 ' + d.vendedor + '<br>🐄 ' + cab + ' ' + (cab === 1 ? an.s : an.p).toLowerCase() +
+    ' · ' + fmtKg(kg) + '<br>📐 ' + arr.toFixed(2) + '@' + (val > 0 ? ' · R$ ' + fmtDin(val) : '');
+  const local = carregarLocal();
+  document.getElementById('recebidoAviso').textContent = local
+    ? '⚠️ Você tem um lote em andamento no celular. Se abrir este, o seu sai da tela (mas o relatório dele você ainda pode mandar antes).'
+    : 'Veio do celular de quem está pesando.';
+  document.getElementById('recebidoSheet').style.display = 'flex';
+}
+
 // ─── Recebendo um lote que chegou pelo QR ────────────────────────────────────
 function aceitarLoteRecebido() {
   const d = window._linkLote;
@@ -1056,25 +1191,7 @@ function restaurarLocal() {
   if (h.indexOf('#L=') === 0) {
     const d = lerLinkLote(h);
     history.replaceState(null, '', location.pathname);   // não repergunta ao recarregar
-    if (d) {
-      window._linkLote = d;
-      const cab = d.pesagens.reduce((a, r) => a + r.qtd, 0);
-      const kg  = d.pesagens.reduce((a, r) => a + r.peso, 0);
-      const an  = ANIMAIS[d.animal] || ANIMAIS.boi;
-      const dTot = d.pesagens.reduce((a, r) => a + Math.min(r.qtd * (r.desc || 0), r.peso), 0);
-      const arr = ((kg - dTot) * (d.rend / 100)) / 15;
-      const val = d.pesagens.reduce((a, r) => a + (r.valor || 0), 0);
-      document.getElementById('recebidoResumo').innerHTML =
-        '👤 ' + d.vendedor + '<br>🐄 ' + cab + ' ' + (cab === 1 ? an.s : an.p).toLowerCase() +
-        ' · ' + fmtKg(kg) + '<br>📐 ' + arr.toFixed(2) + '@' +
-        (val > 0 ? ' · R$ ' + fmtDin(val) : '');
-      const local = carregarLocal();
-      document.getElementById('recebidoAviso').textContent = local
-        ? '⚠️ Você tem um lote em andamento no celular. Se abrir este, o seu sai da tela (mas o relatório dele você ainda pode mandar antes).'
-        : 'Veio do celular de quem está pesando.';
-      document.getElementById('recebidoSheet').style.display = 'flex';
-      return;
-    }
+    if (d) { mostrarRecebido(d); return; }
     alert('📷 O código lido não trouxe um lote válido.\n\nPeça pra ele mostrar o código de novo.');
   }
   restaurarLocal();
@@ -1648,7 +1765,7 @@ function garantirXlsx() {
   return new Promise(resolve => {
     if (typeof XLSX !== 'undefined') return resolve(true);
     const s = document.createElement('script');
-    s.src = '/xlsx.bundle.js?v=' + APP_VERSAO;
+    s.src = '/xlsx.bundle.js';
     s.onload  = () => resolve(typeof XLSX !== 'undefined');
     s.onerror = () => resolve(false);
     document.head.appendChild(s);
@@ -1837,7 +1954,7 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 16;
+const APP_VERSAO = 17;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 
