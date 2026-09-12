@@ -203,6 +203,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 /* pisca a faixa de totais quando entra uma pesagem */
 .totais.salvou{animation:boi-flash .6s ease-out}
 
+/* Procurar balança Bluetooth (só aparece onde o navegador tem Bluetooth) */
+.btn-balanca{width:100%;min-height:52px;margin-top:4px;background:#fffdf7;border:2px dashed #d4af37;border-radius:12px;color:#654321;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
+body.sol .btn-balanca{background:#121212;color:#f5c518}
+.bal-linha{background:#fffdf7;border:2px solid #d4af37;border-radius:10px;padding:10px 12px;font-size:13px;color:#2d1f13;line-height:1.5;word-break:break-all}
+body.sol .bal-linha{background:#121212;color:#fff}
+.bal-bruto{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:#2d1f13;color:#d4af37;border-radius:10px;padding:10px 12px;max-height:150px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+.bal-peso{font-size:34px;font-weight:900;color:#166534;text-align:center;font-variant-numeric:tabular-nums}
+body.sol .bal-peso{color:#63d894}
+
 /* Leitor de código pela câmera (pra celular cuja câmera não lê QR sozinha) */
 .ler-fundo{display:none;position:fixed;inset:0;background:#000;z-index:95;flex-direction:column;align-items:center;justify-content:center}
 #lerVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -493,8 +502,23 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
       </div>
       <div class="aj-campo"><label>Rendimento (%)</label><input id="aRendimento" type="number" inputmode="decimal" step="0.1" min="1" max="100"></div>
       <div class="aj-campo"><label>Preço de Compra do Lote (R$) — opcional</label><input id="aCompra" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
+      <button type="button" class="btn-balanca" id="btnBalanca" style="display:none" onclick="procurarBalanca()">🔌 PROCURAR BALANÇA BLUETOOTH</button>
       <button type="button" class="pronto" onclick="salvarAjustes()">✓ PRONTO</button>
       <button type="button" class="discreto" onclick="fecharAjustes()">Voltar sem mudar nada</button>
+    </div>
+  </div>
+
+  <!-- PROCURAR BALANÇA BLUETOOTH -->
+  <div class="folha-fundo" id="balSheet">
+    <div style="flex:1" onclick="fecharBalanca()"></div>
+    <div class="folha-caixa">
+      <h3>🔌 Balança Bluetooth</h3>
+      <small id="balAjuda">Ligue o indicador da balança e deixe ele à mostra. Vou procurar as portas conhecidas e mostrar o que ele estiver mandando.</small>
+      <div class="bal-linha" id="balInfo" style="display:none"></div>
+      <div class="bal-peso" id="balPeso" style="display:none"></div>
+      <div class="bal-bruto" id="balBruto" style="display:none"></div>
+      <button type="button" class="pronto" id="balUsar" style="display:none" onclick="usarPesoDaBalanca()">✓ USAR ESTE PESO</button>
+      <button type="button" class="discreto" onclick="fecharBalanca()">Fechar</button>
     </div>
   </div>
 
@@ -851,6 +875,7 @@ function abrirAjustes() {
   document.getElementById('aUnidade').value    = unidade || 'arroba';
   document.getElementById('aRendimento').value = window._rend || 50;
   document.getElementById('aCompra').value     = window._compra || '';
+  mostrarBotaoBalanca();
   document.getElementById('ajusteSheet').style.display = 'flex';
 }
 function fecharAjustes() { document.getElementById('ajusteSheet').style.display = 'none'; }
@@ -996,6 +1021,130 @@ function abrirQR() {
 }
 function fecharQR() { document.getElementById('qrSheet').style.display = 'none'; }
 
+
+
+// ─── Procurar balança Bluetooth ──────────────────────────────────────────────
+// Quase nenhum indicador de curral publica o protocolo dele. Mas a maioria não
+// escreve Bluetooth do zero: usa um módulo pronto, e esses módulos têm "portas"
+// (UUID) conhecidas. Aqui a gente bate em todas as portas conhecidas e mostra o
+// que sair. Se o indicador manda o peso em texto — que é o mais comum, porque é
+// o mesmo texto que ele mandaria pelo cabo — dá pra usar na hora.
+const PORTAS_BALANCA = [
+  0x181d,                                          // Weight Scale (padrão Bluetooth)
+  0x181b,                                          // Body Composition (padrão)
+  0xffe0, 0xfff0, 0xffe5, 0xfee7, 0xff00, 0xfff1,  // módulos chineses (HM-10 e parentes)
+  '6e400001-b5a3-f393-e0a9-e50e24dcca9e',          // Nordic UART — o mais usado
+  '49535343-fe7d-4ae5-8fa9-9fafd205e455',          // Microchip / ISSC transparente
+  '0783b03e-8535-b5a0-7140-a304d2495cb7',          // Telit
+  'e7810a71-73ae-499d-8c15-faa9aef0c3f2',          // módulo comum em indicadores
+  '0000abf0-0000-1000-8000-00805f9b34fb',
+  'f000c0e0-0451-4000-b000-000000000000'           // Texas Instruments
+];
+
+function bluetoothDisponivel() { return typeof navigator !== 'undefined' && !!navigator.bluetooth; }
+
+function mostrarBotaoBalanca() {
+  const b = document.getElementById('btnBalanca');
+  if (b) b.style.display = bluetoothDisponivel() ? 'block' : 'none';
+}
+
+function fecharBalanca() {
+  try { if (window._balDisp && window._balDisp.gatt.connected) window._balDisp.gatt.disconnect(); } catch (e) {}
+  document.getElementById('balSheet').style.display = 'none';
+}
+
+function balDiz(txt) { document.getElementById('balAjuda').textContent = txt; }
+function balMostra(id, conteudo) {
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  if (conteudo !== undefined) el.textContent = conteudo;
+}
+
+async function procurarBalanca() {
+  if (!bluetoothDisponivel()) {
+    alert('📵 Este celular não deixa o app usar Bluetooth.\n\nNo iPhone isso é bloqueio da Apple e não tem volta — o peso continua sendo digitado. Num Android funciona.');
+    return;
+  }
+  somClique();
+  document.getElementById('balSheet').style.display = 'flex';
+  ['balInfo','balPeso','balBruto','balUsar'].forEach(i => document.getElementById(i).style.display = 'none');
+  balDiz('Escolha o indicador na lista que o celular abrir…');
+
+  let disp;
+  try {
+    disp = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: PORTAS_BALANCA });
+  } catch (e) {
+    balDiz(e && e.name === 'NotFoundError'
+      ? 'Nenhum aparelho escolhido. Confira se o indicador está ligado e com o Bluetooth à mostra.'
+      : 'Não deu pra abrir a lista de aparelhos: ' + (e && e.message ? e.message : e));
+    return;
+  }
+  window._balDisp = disp;
+  balDiz('Conectando em "' + (disp.name || 'sem nome') + '"…');
+
+  let servidor;
+  try { servidor = await disp.gatt.connect(); }
+  catch (e) { balDiz('Achei o aparelho mas não consegui conectar: ' + (e && e.message ? e.message : e)); return; }
+
+  // Bate em todas as portas conhecidas e escuta tudo que der pra escutar
+  const achadas = [];
+  let escutando = 0;
+  for (const porta of PORTAS_BALANCA) {
+    let servico;
+    try { servico = await servidor.getPrimaryService(porta); } catch (e) { continue; }
+    let cars = [];
+    try { cars = await servico.getCharacteristics(); } catch (e) {}
+    for (const c of cars) {
+      achadas.push(String(porta) + ' → ' + c.uuid.slice(0, 8));
+      if (c.properties.notify || c.properties.indicate) {
+        try {
+          await c.startNotifications();
+          c.addEventListener('characteristicvaluechanged', ev => chegouDaBalanca(ev.target.value));
+          escutando++;
+        } catch (e) {}
+      }
+    }
+  }
+
+  if (!achadas.length) {
+    balMostra('balInfo', 'Conectou em "' + (disp.name || 'sem nome') + '", mas nenhuma das portas conhecidas respondeu.\n\nEsse indicador usa um caminho próprio. Aí só com a documentação do fabricante ou gravando a conversa do app dele.');
+    return;
+  }
+  balMostra('balInfo', 'Conectado: ' + (disp.name || 'sem nome') + '\nPortas que responderam: ' + achadas.join(' · ') + '\nEscutando ' + escutando + '.');
+  balDiz(escutando ? 'Ponha peso na balança. O que ela mandar aparece aqui embaixo.'
+                   : 'As portas responderam mas nenhuma delas avisa sozinha. Precisaria perguntar peso a peso — dá, mas só sabendo o comando do fabricante.');
+}
+
+// Chegou um pedaço de dado da balança
+function chegouDaBalanca(dados) {
+  const bytes = [];
+  for (let i = 0; i < dados.byteLength; i++) bytes.push(dados.getUint8(i));
+  const hex = bytes.map(b => b.toString(16).padStart(2, '0')).join(' ');
+  const texto = bytes.map(b => (b >= 32 && b < 127) ? String.fromCharCode(b) : '·').join('');
+
+  window._balLog = ((window._balLog || '') + texto).slice(-400);
+  balMostra('balBruto', hex + '\n' + texto);
+
+  // Tenta achar um número solto no texto — é assim que a maioria manda o peso
+  const m = window._balLog.match(/(\d{1,5}(?:[.,]\d{1,2})?)\s*(?:kg|KG|Kg)?/g);
+  const cru = m && m.length ? m[m.length - 1].replace(/[^\d.,]/g, '').replace(',', '.') : null;
+  const n = cru ? parseFloat(cru) : NaN;
+  if (!isNaN(n) && n > 0) {
+    window._balPeso = n;
+    balMostra('balPeso', fmtKg(n));
+    balMostra('balUsar');
+  }
+}
+
+function usarPesoDaBalanca() {
+  if (!window._balPeso) return;
+  peso = String(window._balPeso);
+  if (window._modo === 'ident') setAlvo('peso');
+  atualizar();
+  somSalvo();
+  fecharBalanca();
+  fecharAjustes();
+}
 
 // ─── Leitor de código pela câmera ────────────────────────────────────────────
 // Nem toda câmera de celular lê QR sozinha (o iPhone lê, muito Android também,
@@ -1974,7 +2123,7 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 18;
+const APP_VERSAO = 19;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 preencherCadastroComPrefs();
