@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#8B4513">
 <title>Calculadora de Boi</title>
@@ -72,9 +72,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .desc-chip{flex:1;height:44px;border:2px solid #d4af37;border-radius:8px;background:white;color:#654321;font-weight:700;font-size:13px;cursor:pointer}
 .desc-chip.sel{background:linear-gradient(135deg,#8B4513,#654321);color:#d4af37}
 
-/* CONFIRMAÇÃO */
-.conf-box{min-height:0}
-.conf-msg{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 200px);max-width:468px;margin:0 auto;z-index:60;background:#14532d;color:white;padding:12px 14px;border-radius:8px;text-align:center;font-size:15px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.35);animation:sld .3s ease-out}
 @keyframes sld{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
 /* TECLADO */
@@ -96,7 +93,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 /* TABELA */
 .tabela-wrap{background:white;border-radius:8px;overflow:hidden;margin-bottom:10px;border:2px solid #d4af37}
-.tab-header,.tab-row,.tab-total{display:grid;grid-template-columns:26px 42px 66px 70px 76px 38px;align-items:center;padding:7px 4px}
+.tab-header,.tab-row,.tab-total{display:grid;grid-template-columns:24px 46px 72px 58px 92px 34px;align-items:center;padding:7px 4px}
 .tab-header{background:linear-gradient(135deg,#8B4513,#654321)}
 .tab-header span{color:#f4e4c1;font-size:11px;font-weight:900;text-transform:uppercase;text-align:center}
 .tab-row{border-bottom:1px solid #f0e8d8;animation:sld2 .2s ease-out}
@@ -106,7 +103,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tab-row span.n{color:#8B4513;font-weight:900}
 .tab-total{background:linear-gradient(135deg,#2d1f13,#3d2b1f);padding:9px 4px}
 .tab-total span{color:#d4af37;font-size:11px;font-weight:900;text-align:center}
-.tab-total .tlbl{font-size:10px;grid-column:1/3;text-align:left;padding-left:4px}
+.tab-total .tlbl{font-size:10px;text-align:left;padding-left:2px;letter-spacing:-.02em}
 .del-btn{background:none;border:none;font-size:18px;font-weight:900;color:#b91c1c;cursor:pointer;padding:14px 10px;line-height:1}
 .tab-empty{color:#6b6b6b;text-align:center;padding:18px;font-size:13px}
 
@@ -144,7 +141,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tot-cel{flex:1;background:#fffdf7;padding:7px 12px;display:flex;flex-direction:column;gap:1px}
 .tot-cel span:first-child{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8B4513}
 .tot-cel span:last-child{font-size:17px;font-weight:800;color:#2d1f13;font-variant-numeric:tabular-nums;white-space:nowrap}
-.tot-cel.escuro{flex:1.3;background:linear-gradient(135deg,#2d1f13,#3d2b1f)}
+.tot-cel.escuro{flex:1.35;background:linear-gradient(135deg,#2d1f13,#3d2b1f)}
+.tot-cel.escuro span:last-child{font-size:15px}
+.tot-cel span:last-child{overflow:hidden;text-overflow:ellipsis}
 .tot-cel.escuro span:first-child{color:#f4e4c1}
 .tot-cel.escuro span:last-child{color:#f0d060}
 
@@ -189,8 +188,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rodape-acoes .rn{flex:1;min-height:56px;border:2px solid #d4af37;background:#fffdf7;color:#2d1f13;font-weight:900;font-size:15px;letter-spacing:.06em;border-radius:14px;cursor:pointer;box-shadow:0 3px 0 rgba(45,31,19,.2)}
 .rodape-acoes button:active{transform:translateY(2px)}
 
-/* alerta de peso estranho */
-.alerta-peso{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:14px;background:#fff3c4;border:3px solid #d97706;color:#4a2b05;box-shadow:0 8px 20px -12px rgba(0,0,0,.5);margin-bottom:10px;animation:boi-entra .22s ease}
+/* alerta de peso estranho — sobreposto, não empurra o teclado */
+.alerta-fundo{position:fixed;inset:0;background:rgba(20,12,6,.62);z-index:85;display:flex;align-items:center;justify-content:center;padding:20px}
+.alerta-peso{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:#fff3c4;border:3px solid #d97706;color:#4a2b05;box-shadow:0 18px 40px -16px rgba(0,0,0,.8);width:100%;max-width:440px;animation:boi-sobe .22s ease}
 .alerta-cab{display:flex;align-items:center;gap:10px}
 .alerta-cab>span{font-size:24px;line-height:1}
 .alerta-cab b{font-size:15px;font-weight:900;display:block}
@@ -199,21 +199,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .alerta-botoes .ac{flex:1;min-height:48px;border:2px solid #4a2b05;background:#fffdf7;color:#4a2b05;font-weight:900;font-size:14px;border-radius:12px;cursor:pointer}
 .alerta-botoes .as{flex:1.2;min-height:48px;border:none;background:#166534;color:#fff;font-weight:900;font-size:14px;border-radius:12px;cursor:pointer;box-shadow:0 3px 0 #0f3d20}
 
-/* faixa de desfazer */
-.undo-bar{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);max-width:476px;margin:0 auto;z-index:70;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:#14532d;box-shadow:0 8px 20px -10px rgba(0,0,0,.6);animation:boi-entra .22s ease,boi-flash .6s ease-out}
-.undo-linha{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px}
-.undo-linha span{flex:1;color:#fff;font-size:14px;font-weight:800;line-height:1.3}
-.undo-linha button{min-height:52px;min-width:118px;border:2px solid rgba(255,255,255,.7);background:#fff;color:#14532d;font-weight:900;font-size:15px;letter-spacing:.04em;border-radius:12px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.35)}
-.undo-trilho{height:5px;background:rgba(255,255,255,.2)}
-.undo-trilho div{height:100%;background:#d4af37;transform-origin:left;animation:boi-esvazia 5s linear forwards}
+/* pisca a faixa de totais quando entra uma pesagem */
+.totais.salvou{animation:boi-flash .6s ease-out}
 
-/* folha da meta */
+/* folhas (meta e ajustes do lote) */
 .folha-fundo{display:none;position:fixed;inset:0;background:rgba(20,12,6,.62);z-index:80;flex-direction:column;justify-content:flex-end}
 .folha-caixa{background:#f5f1e8;border-radius:24px 24px 0 0;border-top:4px solid #d4af37;padding:16px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;animation:boi-sobe .22s ease;max-width:500px;width:100%;margin:0 auto}
 .folha-caixa h3{font-size:17px;font-weight:900;color:#2d1f13}
 .folha-caixa input{width:100%;min-height:56px;padding:0 14px;border:2px solid #d4af37;border-radius:12px;background:#fffdf7;color:#2d1f13;font-size:20px;font-weight:700;outline:none}
 .folha-caixa small{font-size:12px;font-weight:700;color:#6b533c}
 .folha-caixa .pronto{min-height:58px;border:none;background:linear-gradient(135deg,#166534,#14532d);color:#fff;font-weight:900;font-size:17px;letter-spacing:.04em;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 #0f3d20}
+.folha-caixa .discreto{min-height:46px;background:none;border:none;color:#666;font-size:14px;text-decoration:underline;cursor:pointer;font-family:inherit}
+.folha-caixa{max-height:92vh;overflow-y:auto}
+.aj-campo{display:flex;flex-direction:column;gap:4px}
+.aj-campo label{font-size:13px;font-weight:800;color:#654321}
+.aj-campo select{min-height:56px;padding:0 10px;border:2px solid #d4af37;border-radius:12px;background:#fffdf7;color:#2d1f13;font-size:16px;font-weight:700;font-family:inherit}
+.hdr-sub{cursor:pointer}
+body.sol .folha-caixa .aj-campo label{color:#f5c518}
+body.sol .folha-caixa .aj-campo select{background:#000;color:#fff;border-color:#f5c518}
+body.sol .folha-caixa small{color:#cfc3ad}
 
 /* ═══ MODO SOL (v13) — tela preta com dourado forte pro sol do curral ═══════ */
 body.sol,body.sol .app{background:#000}
@@ -263,7 +267,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
   <!-- HEADER -->
   <div class="hdr">
     <h1>🐂 CALCULADORA DE BOI</h1>
-    <div class="hdr-sub">
+    <div class="hdr-sub" id="hdrSub" onclick="abrirAjustes()">
       <span id="h-vendedor">—</span>
       <span id="h-preco">—</span>
     </div>
@@ -301,8 +305,8 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
       </div>
       <div class="campo"><label>Quantas Cabeças tem o Lote?<small style="display:block;font-weight:400;color:#6b6b6b">opcional — mostra quantas faltam</small></label><input id="iTotBois" type="number" step="1" min="0" placeholder="Ex: 50"></div>
       <div class="campo"><label>⚖️ Desconto por Cabeça (kg)<small style="display:block;font-weight:400;color:#6b6b6b">dá pra mudar em cada pesagem</small></label><input id="iDesc" type="number" value="0" step="1" min="0" placeholder="10 ou 20"></div>
-      <div class="campo"><label>Rendimento (%)</label><input id="iRendimento" type="number" value="50" step="0.1" min="0" max="100"></div>
-      <div class="campo"><label>Preço de Compra do Lote (R$)<small style="display:block;font-weight:400;color:#6b6b6b">opcional — só pra calcular o lucro</small></label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="campo"><label>Rendimento (%)<small style="display:block;font-weight:400;color:#6b6b6b">quanto o boi dá de carcaça — normal 50 a 54</small></label><input id="iRendimento" type="number" value="50" step="0.1" min="1" max="100"></div>
+      <div class="campo"><label>Preço de Compra do Lote (R$)<small style="display:block;font-weight:400;color:#6b6b6b">opcional — o total que você pagou, pra calcular o lucro</small></label><input id="iCompra" type="number" placeholder="0.00" step="0.01" min="0"></div>
       <button class="btn-start" onclick="iniciar()">✓ COMEÇAR PESAGEM</button>
       <button class="btn-atualizar" onclick="atualizarApp()">🔄 Buscar atualização — versão <span id="vApp"></span></button>
     </div>
@@ -356,7 +360,6 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
         <label>Desc:</label>
         <div id="descChips" style="flex:1;display:flex;gap:6px"></div>
       </div>
-      <div id="confBox" class="conf-box"></div>
       <div class="teclado-moldura">
       <div class="teclado-titulo"><span>Toca na caixinha</span><i></i><span>verde = entra no lote</span></div>
       <div class="teclado">
@@ -397,6 +400,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
         <div class="tab-header">
           <span>#</span><span id="thQtd">Qtd</span><span>Peso kg</span><span>Arrobas</span><span>Valor R$</span><span></span>
         </div>
+        <div id="tabelaTotal"></div>
         <div id="tabelaBody">
           <div class="tab-empty">Nenhuma pesagem ainda</div>
         </div>
@@ -411,20 +415,28 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
             <div class="resumo-val" id="rBois">—</div>
           </div>
           <div class="resumo-item">
-            <div class="resumo-label">Peso Total</div>
+            <div class="resumo-label">Peso na Balança</div>
             <div class="resumo-val" id="rPeso">—</div>
+          </div>
+          <div class="resumo-item resumo-full" id="rLiqBox" style="display:none;background:rgba(212,175,55,.12)">
+            <div class="resumo-label">Peso Líquido — é esse que vale</div>
+            <div class="resumo-val" id="rLiq">—</div>
           </div>
           <div class="resumo-item">
             <div class="resumo-label">Média de @</div>
             <div class="resumo-val" id="rArr">—</div>
           </div>
           <div class="resumo-item">
-            <div class="resumo-label">Média de kg/boi</div>
+            <div class="resumo-label" id="lblMediaKg">Média de kg/cab</div>
             <div class="resumo-val" id="rKg">—</div>
           </div>
           <div class="resumo-item resumo-full">
             <div class="resumo-label">Valor Total</div>
             <div class="resumo-val resumo-destaque" id="rValor">—</div>
+          </div>
+          <div class="resumo-item resumo-full" id="rLucroBox" style="display:none">
+            <div class="resumo-label" id="lblLucro">Lucro</div>
+            <div class="resumo-val" id="rLucro">—</div>
           </div>
           <div class="resumo-item resumo-full" style="background:rgba(212,175,55,.12)">
             <div class="resumo-label">Base de cálculo</div>
@@ -436,8 +448,28 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
     </div>
   </div>
 
-  <!-- FAIXA DE DESFAZER (some em 5s) -->
-  <div id="undoBox"></div>
+  <!-- AVISO DE PESO ESTRANHO (sobreposto, não empurra o teclado) -->
+  <div id="alertaBox"></div>
+
+  <!-- FOLHA: AJUSTAR O LOTE (corrige preço/rendimento sem perder as pesagens) -->
+  <div class="folha-fundo" id="ajusteSheet">
+    <div style="flex:1" onclick="fecharAjustes()"></div>
+    <div class="folha-caixa">
+      <h3>✏️ Ajustar o lote</h3>
+      <small>Pode corrigir agora — as pesagens continuam e as contas são refeitas na hora.</small>
+      <div class="aj-campo"><label>Vendedor / Comprador</label><input id="aVendedor" type="text" placeholder="Nome"></div>
+      <div class="aj-campo"><label>💰 Valor do Gado</label>
+        <div style="display:flex;gap:8px">
+          <input id="aVenda" type="number" inputmode="decimal" step="0.01" min="0" placeholder="300.00" style="flex:1">
+          <select id="aUnidade" style="width:104px"><option value="arroba">R$/@</option><option value="kg">R$/kg</option></select>
+        </div>
+      </div>
+      <div class="aj-campo"><label>Rendimento (%)</label><input id="aRendimento" type="number" inputmode="decimal" step="0.1" min="1" max="100"></div>
+      <div class="aj-campo"><label>Preço de Compra do Lote (R$) — opcional</label><input id="aCompra" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
+      <button type="button" class="pronto" onclick="salvarAjustes()">✓ PRONTO</button>
+      <button type="button" class="discreto" onclick="fecharAjustes()">Voltar sem mudar nada</button>
+    </div>
+  </div>
 
   <!-- FOLHA: META DE CABEÇAS -->
   <div class="folha-fundo" id="metaSheet">
@@ -542,33 +574,53 @@ function erroTreme() {
 }
 
 // ─── Tipo de gado ──────────────────────────────────────────────────────────────
+// min/max: peso normal por cabeça (kg) — fora disso o app pergunta antes de salvar
 const ANIMAIS = {
-  boi:     { s: 'Boi',     p: 'Bois',     art: 'o' },
-  vaca:    { s: 'Vaca',    p: 'Vacas',    art: 'a' },
-  novilha: { s: 'Novilha', p: 'Novilhas', art: 'a' },
-  garrote: { s: 'Garrote', p: 'Garrotes', art: 'o' },
-  bezerro: { s: 'Bezerro', p: 'Bezerros', art: 'o' },
-  bezerra: { s: 'Bezerra', p: 'Bezerras', art: 'a' }
+  boi:     { s: 'Boi',     p: 'Bois',     art: 'o', min: 250, max: 900 },
+  vaca:    { s: 'Vaca',    p: 'Vacas',    art: 'a', min: 250, max: 850 },
+  novilha: { s: 'Novilha', p: 'Novilhas', art: 'a', min: 180, max: 650 },
+  garrote: { s: 'Garrote', p: 'Garrotes', art: 'o', min: 130, max: 500 },
+  bezerro: { s: 'Bezerro', p: 'Bezerros', art: 'o', min: 50,  max: 300 },
+  bezerra: { s: 'Bezerra', p: 'Bezerras', art: 'a', min: 50,  max: 300 }
 };
 function anim() { return ANIMAIS[window._animal] || ANIMAIS.boi; }
+
+// ─── Formatação (o mesmo número tem que aparecer igual em toda tela) ─────────
+const arred = (n, c) => Math.round((n + Number.EPSILON) * 10**c) / 10**c;   // mata o 3999.9999999
+function fmtNum(n) { return arred(n, 1).toLocaleString('pt-BR', { maximumFractionDigits: 1 }); }
+function fmtKg(n)  { return fmtNum(n) + ' kg'; }
+function fmtDin(n) { return arred(n, 2).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 // ─── Persistência localStorage ────────────────────────────────────────────────
 const LS_KEY = 'boi_lote_v1';
 
 function salvarLocal() {
-  localStorage.setItem(LS_KEY, JSON.stringify({
-    pesagens,
-    precoVenda,
-    unidade,
-    vendedor:  window._vendedor || '',
-    compra:    window._compra   || 0,
-    rend:      window._rend     || 50,
-    desc:      window._desc     || 0,
-    totBois:   window._totBois  || 0,
-    modo:      window._modo     || 'normal',
-    animal:    window._animal   || 'boi',
-    ativo:     true
-  }));
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      pesagens,
+      precoVenda,
+      unidade,
+      vendedor:  window._vendedor || '',
+      compra:    window._compra   || 0,
+      rend:      window._rend     || 50,
+      desc:      window._desc     || 0,
+      descSel:   window._descSel,
+      totBois:   window._totBois  || 0,
+      modo:      window._modo     || 'normal',
+      animal:    window._animal   || 'boi',
+      metaBatida: !!window._metaBatida,
+      finalizado: !!window._finalizado,
+      ativo:     true
+    }));
+    window._falhouSalvar = false;
+  } catch (e) {
+    // Não deu pra gravar no celular (memória cheia, aba privada…). O usuário
+    // PRECISA saber antes de continuar pesando — senão perde o lote inteiro.
+    if (!window._falhouSalvar) {
+      window._falhouSalvar = true;
+      alert('⚠️ ATENÇÃO: não deu pra guardar o lote na memória do celular.\n\nAs pesagens continuam na tela, mas se o app fechar elas se perdem.\n\nFinalize e mande pro WhatsApp ou salve a planilha agora, por garantia.');
+    }
+  }
 }
 
 function carregarLocal() {
@@ -638,9 +690,9 @@ function montarDescChips() {
 function ativarTelaPesagem() {
   document.getElementById('h-vendedor').textContent = window._vendedor || '—';
   document.getElementById('h-preco').textContent =
-    precoVenda > 0
-      ? `R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}`
-      : (window._compra > 0 ? `Compra: R$ ${window._compra.toFixed(2)}` : '—');
+    (precoVenda > 0
+      ? `R$ ${fmtDin(precoVenda)}/${unidade==='arroba'?'@':'kg'}`
+      : (window._compra > 0 ? `Compra: R$ ${fmtDin(window._compra)}` : 'sem preço')) + ' ✏️';
 
   document.getElementById('tCad').classList.add('off');
   document.getElementById('tPes').classList.remove('off');
@@ -656,7 +708,11 @@ function ativarTelaPesagem() {
   document.getElementById('lblQtd').textContent = a.p + ':';
   document.getElementById('lblBoiNum').textContent = a.s.toUpperCase() + ' Nº';
   document.getElementById('lblTotAnim').textContent = 'Total de ' + a.p;
+  document.getElementById('lblMediaKg').textContent = 'Média de kg/' + a.s.toLowerCase();
+  document.getElementById('totCabLbl').textContent = 'Cabeças';
+  // O seletor de quantidade e o campo escondido têm que contar a mesma história
   if (ident) { document.getElementById('iQtd').value = '1'; setAlvo('boi'); }
+  else { setQtdVal(parseInt(document.getElementById('iQtd').value) || 1); }
 
   // Tecla OK: no modo identificado alterna Nº↔KG; no normal sai da frente
   const kProx = document.getElementById('keyProx');
@@ -664,6 +720,9 @@ function ativarTelaPesagem() {
   kProx.style.display = ident ? 'flex' : 'none';
   kProx.textContent = 'Nº↔KG';
   k0.classList.toggle('span2', !ident);
+
+  const bnv = document.getElementById('btnNovoLote');
+  if (bnv) bnv.classList.toggle('boi-desab', !window._finalizado);
 
   montarDescChips();
   aplicarPrefs();
@@ -702,6 +761,58 @@ function abrirMeta() {
   setTimeout(() => { try { document.getElementById('iMetaSheet').focus(); } catch(e){} }, 250);
 }
 function fecharMeta() { document.getElementById('metaSheet').style.display = 'none'; }
+
+// ─── Ajustar o lote no meio do caminho (preço, rendimento, unidade…) ─────────
+// Sem isso, um preço digitado errado só se conserta apagando todas as pesagens.
+function abrirAjustes() {
+  if (document.getElementById('tPes').classList.contains('off')) return; // ainda no cadastro
+  somClique();
+  document.getElementById('aVendedor').value   = window._vendedor === 'Não informado' ? '' : (window._vendedor || '');
+  document.getElementById('aVenda').value      = precoVenda || '';
+  document.getElementById('aUnidade').value    = unidade || 'arroba';
+  document.getElementById('aRendimento').value = window._rend || 50;
+  document.getElementById('aCompra').value     = window._compra || '';
+  document.getElementById('ajusteSheet').style.display = 'flex';
+}
+function fecharAjustes() { document.getElementById('ajusteSheet').style.display = 'none'; }
+
+function salvarAjustes() {
+  const nome = document.getElementById('aVendedor').value.trim();
+  let rend   = parseFloat(document.getElementById('aRendimento').value);
+  const venda= parseFloat(document.getElementById('aVenda').value) || 0;
+  const compra=parseFloat(document.getElementById('aCompra').value) || 0;
+  if (!rend || rend <= 0 || rend > 100) rend = 50;   // rendimento só faz sentido de 1 a 100
+
+  window._vendedor = nome || 'Não informado';
+  window._rend     = rend;
+  window._compra   = compra;
+  precoVenda       = venda;
+  unidade          = document.getElementById('aUnidade').value;
+
+  document.getElementById('iVendedor').value   = nome;
+  document.getElementById('iVenda').value      = venda || '';
+  document.getElementById('iUnidade').value    = unidade;
+  document.getElementById('iRendimento').value = rend;
+  document.getElementById('iCompra').value     = compra || '';
+
+  recalcularTudo();
+  fecharAjustes();
+  somSalvo();
+  ativarTelaPesagem();
+  salvarLocal();
+}
+
+// Refaz arrobas e valor de TODAS as pesagens a partir do peso e do desconto
+// que já estão guardados — usado quando o preço ou o rendimento muda.
+function recalcularTudo() {
+  const rend = (window._rend || 50) / 100;
+  pesagens = pesagens.map(r => {
+    const pesoLiq = Math.max(r.peso - r.qtd * (r.desc || 0), 0);
+    const arr     = (pesoLiq * rend) / 15;
+    const valor   = precoVenda > 0 ? (unidade === 'arroba' ? arr * precoVenda : pesoLiq * precoVenda) : 0;
+    return { ...r, arr: arr.toFixed(2), valor };
+  });
+}
 function salvarMeta() {
   const v = parseInt(document.getElementById('iMetaSheet').value) || 0;
   window._totBois = v;
@@ -723,20 +834,29 @@ function salvarMeta() {
   const totBois = d.pesagens.reduce((s,r)=>s+r.qtd,0);
   const totPeso = d.pesagens.reduce((s,r)=>s+r.peso,0);
   const aRest = ANIMAIS[d.animal] || ANIMAIS.boi;
-  if (!confirm(`📋 Lote em andamento encontrado!\n\n👤 ${d.vendedor}\n🐄 ${totBois} ${aRest.p.toLowerCase()} · ${totPeso.toFixed(0)} kg\n\nContinuar este lote?`)) {
-    limparLocal();
-    return;
+  const resumoLote = `👤 ${d.vendedor}\n🐄 ${totBois} ${aRest.p.toLowerCase()} · ${totPeso.toFixed(0)} kg`;
+  if (!confirm(`📋 Lote em andamento encontrado!\n\n${resumoLote}\n\nContinuar este lote?`)) {
+    // Segunda pergunta: um toque errado não pode apagar o dia de trabalho
+    if (!confirm(`⚠️ TEM CERTEZA QUE QUER APAGAR?\n\n${resumoLote}\n\nIsso NÃO tem volta. Se foi sem querer, é só tocar em Cancelar que o lote continua guardado.`)) {
+      // Mudou de ideia: segue com o lote normalmente
+    } else {
+      limparLocal();
+      return;
+    }
   }
 
   pesagens      = d.pesagens;
   precoVenda    = d.precoVenda;
-  unidade       = d.unidade;
+  unidade       = d.unidade || 'arroba';
   window._vendedor = d.vendedor;
   window._compra   = d.compra;
   window._rend     = d.rend;
   window._desc     = d.desc || 0;
+  window._descSel  = d.descSel !== undefined ? d.descSel : (d.desc || 0);
   window._totBois  = d.totBois || 0;
   window._animal   = d.animal || 'boi';
+  window._metaBatida = !!d.metaBatida;
+  window._finalizado = !!d.finalizado;
   setModo(d.modo || 'normal');
 
   // Preencher cadastro
@@ -833,7 +953,7 @@ function atualizarPrevia() {
 (function initPicker() {
   const track  = document.getElementById('qtdTrack');
   const hidden = document.getElementById('iQtd');
-  const PAD = 3, MAX = 20;
+  const PAD = 3, MAX = 40;
 
   for (let i=0;i<PAD;i++) track.appendChild(Object.assign(document.createElement('div'),{className:'qtd-item'}));
   for (let i=1;i<=MAX;i++) {
@@ -890,46 +1010,15 @@ function setQtdVal(v) {
 function resetQtd() { setQtdVal(1); }
 
 // ─── Alerta de peso estranho ─────────────────────────────────────────────────
-const PESO_MIN_CAB = 150, PESO_MAX_CAB = 900; // kg por cabeça considerados normais
+// A faixa normal muda conforme o bicho: bezerra de 140 kg é normal, boi não.
 function fecharAlerta() {
-  const c = document.getElementById('confBox');
-  if (c && c.querySelector('.alerta-peso')) c.innerHTML = '';
+  const c = document.getElementById('alertaBox');
+  if (c) c.innerHTML = '';
 }
 function corrigirPeso() {
   somApagar();
-  document.getElementById('confBox').innerHTML = '';
+  fecharAlerta();
   if (window._modo === 'ident') setAlvo('peso');
-}
-
-// ─── Faixa de desfazer (5 segundos) ──────────────────────────────────────────
-function mostrarDesfazer(texto) {
-  const box = document.getElementById('undoBox');
-  box.innerHTML = `
-    <div class="undo-bar">
-      <div class="undo-linha">
-        <span>${texto}</span>
-        <button type="button" onclick="desfazerAcao()">↶ DESFAZER</button>
-      </div>
-      <div class="undo-trilho"><div></div></div>
-    </div>`;
-  clearTimeout(window._undoTimer);
-  window._undoTimer = setTimeout(() => { box.innerHTML = ''; window._undoSnap = null; }, 5000);
-}
-function desfazerAcao() {
-  const s = window._undoSnap;
-  if (!s) return;
-  clearTimeout(window._undoTimer);
-  somDesfazer();
-  pesagens = s.lista;
-  peso = s.peso;
-  boiNum = s.boi;
-  document.getElementById('undoBox').innerHTML = '';
-  window._undoSnap = null;
-  window._metaBatida = false;
-  if (window._modo === 'ident') setAlvo('peso'); else if (s.qtd) setQtdVal(s.qtd);
-  atualizar();
-  renderTabela();
-  salvarLocal();
 }
 
 // ─── Salvar pesagem ───────────────────────────────────────────────────────────
@@ -948,22 +1037,25 @@ function salvar(forcar) {
 
   const qtd         = ident ? 1 : (parseInt(document.getElementById('iQtd').value) || 1);
 
-  // Peso por cabeça muito fora do normal? Avisa antes de salvar (design Pro)
+  // Peso por cabeça muito fora do normal pra esse bicho? Pergunta antes de salvar.
+  const aL = anim();
   const porCab = p / qtd;
-  if (!forcar && (porCab < PESO_MIN_CAB || porCab > PESO_MAX_CAB)) {
+  if (!forcar && (porCab < aL.min || porCab > aL.max)) {
     somAlerta();
-    const titulo = porCab < PESO_MIN_CAB ? 'Peso muito baixo' : 'Peso muito alto';
-    document.getElementById('confBox').innerHTML = `
-      <div class="alerta-peso">
-        <div class="alerta-cab"><span>⚠️</span><div><b>${titulo}</b><small>${Math.round(porCab)} kg por cabeça. O normal fica entre ${PESO_MIN_CAB} e ${PESO_MAX_CAB} kg. Confere na balança?</small></div></div>
-        <div class="alerta-botoes">
-          <button type="button" class="ac" onclick="corrigirPeso()">CORRIGIR</button>
-          <button type="button" class="as" onclick="salvar(true)">SALVAR ASSIM MESMO</button>
+    const titulo = porCab < aL.min ? 'Peso muito baixo' : 'Peso muito alto';
+    document.getElementById('alertaBox').innerHTML = `
+      <div class="alerta-fundo">
+        <div class="alerta-peso">
+          <div class="alerta-cab"><span>⚠️</span><div><b>${titulo}</b><small>${Math.round(porCab)} kg por cabeça. ${aL.s} costuma dar entre ${aL.min} e ${aL.max} kg. Confere na balança?</small></div></div>
+          <div class="alerta-botoes">
+            <button type="button" class="ac" onclick="corrigirPeso()">CORRIGIR</button>
+            <button type="button" class="as" onclick="salvar(true)">SALVAR ASSIM MESMO</button>
+          </div>
         </div>
       </div>`;
     return;
   }
-  document.getElementById('confBox').innerHTML = '';
+  fecharAlerta();
 
   const rend        = (window._rend || 50) / 100;   // ex: 50% → 0.50
   const desc        = window._descSel !== undefined ? window._descSel : (window._desc || 0); // kg/cab desta balançada
@@ -977,38 +1069,45 @@ function salvar(forcar) {
     valor = unidade === 'arroba' ? arr * precoVenda : pesoLiq * precoVenda;
   }
 
+  // O número da pesagem é dado uma vez e nunca muda — mesmo apagando linhas.
+  // Assim a "balançada nº 3" é a mesma na tela, no WhatsApp e na planilha.
+  window._seq = Math.max(window._seq || 0, ...pesagens.map(r => r.num || 0), 0) + 1;
+
   const reg = {
     id:    Date.now(),
-    num:   pesagens.length + 1,
+    num:   window._seq,
     qtd,
     boi:   ident ? boiNum : '',
     desc,
     peso:  p,
     arr:   arr.toFixed(2),
-    media: mediaPorBoi.toFixed(1),
     valor
   };
-  // Guarda o estado anterior pro DESFAZER
-  window._undoSnap = { lista: [...pesagens], peso, boi: boiNum, qtd };
 
   pesagens.unshift(reg);
   somSalvo();
 
-  const aC = anim();
-  const txtUndo = ident
-    ? `✓ ${aC.s} nº ${reg.boi}: ${p} kg salvo${desc>0?` — desc ${desc} kg`:''}`
-    : `✓ #${reg.num} salva: ${p} kg — ${qtd} ${(qtd>1?aC.p:aC.s).toLowerCase()}${desc>0?` — desc ${desc} kg/cab`:''}`;
-
-  renderTabela();
-  salvarLocal();
-
-  // Limpa na hora — pode digitar o próximo sem esperar
+  // Limpa o visor ANTES de gravar: se a gravação falhar, o peso não fica na
+  // tela convidando um segundo toque no ✓ (que gravaria a mesma pesagem 2x).
   peso = '';
   boiNum = '';
+
+  renderTabela();
+  piscarTotais();
+  salvarLocal();
+
   atualizar();
   if (ident) setAlvo('boi'); else resetQtd();
+}
 
-  mostrarDesfazer(txtUndo);
+// Pisca a faixa de totais: confirma que a pesagem entrou, sem tapar botão nenhum
+function piscarTotais() {
+  const f = document.querySelector('.totais');
+  if (!f) return;
+  f.classList.remove('salvou');
+  void f.offsetWidth;
+  f.classList.add('salvou');
+  setTimeout(() => f.classList.remove('salvou'), 700);
 }
 
 // ─── Tabela ───────────────────────────────────────────────────────────────────
@@ -1018,21 +1117,26 @@ function renderTabela() {
 
   if (pesagens.length === 0) {
     body.innerHTML = '<div class="tab-empty">Nenhuma pesagem ainda</div>';
+    document.getElementById('tabelaTotal').innerHTML = '';
     card.style.display = 'none';
     atualizarFaixas(0, 0, 0);
     return;
   }
 
-  // Linhas da tabela (mais recente primeiro)
-  body.innerHTML = pesagens.map(r => `
+  // Linhas da tabela (mais recente primeiro). Cada linha mostra o desconto por
+  // cabeça e o peso líquido, pra dar pra conferir a conta na mão.
+  body.innerHTML = pesagens.map(r => {
+    const liq = Math.max(r.peso - r.qtd * (r.desc || 0), 0);
+    return `
     <div class="tab-row">
       <span class="n">${r.num}</span>
-      <span>${r.boi ? r.boi : r.qtd}${(r.desc||0)>0?`<small style="display:block;font-size:10px;color:#8f4700;font-weight:700">-${r.desc}kg</small>`:''}</span>
-      <span>${r.peso}</span>
+      <span>${r.boi ? r.boi : r.qtd}${(r.desc||0)>0?`<small style="display:block;font-size:10px;color:#8f4700;font-weight:700">-${r.desc}/cab</small>`:''}</span>
+      <span>${fmtNum(r.peso)}${(r.desc||0)>0?`<small style="display:block;font-size:10px;color:#8f4700;font-weight:700">líq ${fmtNum(liq)}</small>`:''}</span>
       <span>${r.arr}@</span>
-      <span>${r.valor > 0 ? 'R$'+r.valor.toFixed(0) : '—'}</span>
+      <span>${r.valor > 0 ? fmtDin(r.valor) : '—'}</span>
       <button class="del-btn" onclick="excluir(${r.id})">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   // Cálculos
   const totBois  = pesagens.reduce((s,r) => s + r.qtd,  0);
@@ -1044,19 +1148,55 @@ function renderTabela() {
   const mediaKg  = (totPeso - descTot) / totBois; // média de kg por boi (líquida)
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
+  // Linha de TOTAL no pé da tabela, pra conferir somando a coluna na mão
+  document.getElementById('tabelaTotal').innerHTML = `
+    <div class="tab-total">
+      <span class="tlbl">TOTAL</span>
+      <span>${totBois}</span>
+      <span>${fmtNum(totPeso)}</span>
+      <span>${totArr.toFixed(2)}@</span>
+      <span>${totValor > 0 ? fmtDin(totValor) : '—'}</span>
+      <span></span>
+    </div>`;
+
   const meta = window._totBois || 0;
   const aR = anim();
   document.getElementById('rBois').textContent  = meta > 0 ? `${totBois} de ${meta}` : `${totBois} ${(totBois === 1 ? aR.s : aR.p).toLowerCase()}`;
-  document.getElementById('rPeso').textContent  = totPeso.toFixed(0) + ' kg';
+  document.getElementById('rPeso').textContent  = fmtKg(totPeso);
   document.getElementById('rArr').textContent   = mediaArr.toFixed(2) + ' @/cab';
   document.getElementById('rKg').textContent    = mediaKg.toFixed(1) + ' kg/cab';
-  document.getElementById('rValor').textContent = totValor > 0 ? 'R$ ' + totValor.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+  document.getElementById('rValor').textContent = totValor > 0 ? 'R$ ' + fmtDin(totValor) : '—';
+
+  // Peso líquido: é em cima dele que sai a arroba e o dinheiro
+  const boxLiq = document.getElementById('rLiqBox');
+  if (descTot > 0) {
+    boxLiq.style.display = 'block';
+    document.getElementById('rLiq').textContent = fmtKg(totPeso - descTot) + `  (−${fmtNum(descTot)} kg de desconto)`;
+  } else {
+    boxLiq.style.display = 'none';
+  }
+
+  // Lucro / prejuízo, quando o preço de compra do lote foi informado
+  const boxLucro = document.getElementById('rLucroBox');
+  const compra = window._compra || 0;
+  if (compra > 0 && totValor > 0) {
+    const lucro = totValor - compra;
+    boxLucro.style.display = 'block';
+    boxLucro.style.background = lucro >= 0 ? 'rgba(34,197,94,.16)' : 'rgba(185,28,28,.2)';
+    document.getElementById('lblLucro').textContent = lucro >= 0 ? '📈 Lucro (venda − compra)' : '📉 Prejuízo (venda − compra)';
+    const elL = document.getElementById('rLucro');
+    elL.textContent = (lucro >= 0 ? 'R$ ' : '− R$ ') + fmtDin(Math.abs(lucro));
+    elL.style.color = lucro >= 0 ? '#7ef0a6' : '#ff9d9d';
+  } else {
+    boxLucro.style.display = 'none';
+  }
+
   let extra = '';
   if (meta > 0) {
     const faltam = meta - totBois;
     extra = faltam > 0 ? ` · 🐂 faltam ${faltam} ${aR.p.toLowerCase()}` : (faltam === 0 ? ' · ✅ lote completo!' : ` · ⚠️ ${-faltam} a mais que o lote`);
   }
-  document.getElementById('rRend').textContent  = (window._rend || 50) + '% rendimento' + (descTot > 0 ? ' · desconto total ' + descTot + ' kg' : '') + extra;
+  document.getElementById('rRend').textContent  = (window._rend || 50) + '% rendimento' + (precoVenda > 0 ? ` · R$ ${fmtDin(precoVenda)}/${unidade==='arroba'?'@':'kg'}` : '') + (descTot > 0 ? ' · desconto total ' + fmtNum(descTot) + ' kg' : '') + extra;
 
   card.style.display = 'block';
   atualizarFaixas(totBois, totPeso, totValor);
@@ -1068,8 +1208,8 @@ function atualizarFaixas(cab, kg, valor) {
   if (!elC) return;
   const a = anim();
   elC.textContent = cab + ' ' + (cab === 1 ? a.s : a.p).toLowerCase();
-  document.getElementById('totPeso').textContent = kg.toLocaleString('pt-BR') + ' kg';
-  document.getElementById('totValor').textContent = valor > 0 ? 'R$ ' + Math.round(valor).toLocaleString('pt-BR') : '—';
+  document.getElementById('totPeso').textContent = fmtKg(kg);
+  document.getElementById('totValor').textContent = valor > 0 ? 'R$ ' + fmtDin(valor) : '—';
 
   const meta = window._totBois || 0;
   const fill = document.getElementById('metaFill');
@@ -1097,7 +1237,9 @@ function excluir(id) {
   const desc = r ? (r.boi ? `${anim().s.toLowerCase()} nº ${r.boi} (${r.peso} kg)` : `#${r.num} — ${r.peso} kg`) : 'esta pesagem';
   if (!confirm(`Apagar ${desc}?`)) return;
   somExcluir();
-  pesagens = pesagens.filter(x=>x.id!==id).map((x,i)=>({...x,num:i+1}));
+  // Não renumera: o nº de cada pesagem é fixo desde que foi salva, senão a
+  // "balançada 2" da tela vira outra no WhatsApp e outra na planilha.
+  pesagens = pesagens.filter(x => x.id !== id);
   renderTabela();
   salvarLocal();
 }
@@ -1151,101 +1293,115 @@ function montarRelatorioWb() {
   const put = (r, c, cel) => { (A[r] = A[r] || [])[c] = cel; };
   const mesclar = (r1,c1,r2,c2) => merges.push({ s:{r:r1,c:c1}, e:{r:r2,c:c2} });
 
+  const UC = 7;            // última coluna (8 colunas: 0 a 7)
+  const aX = anim();
+  const PCT = '0.0"%"';
+
   // Título (linhas 0-2)
   put(0,0,xsCel('🐂 RELATÓRIO DE PESAGEM DE GADO', sTitulo));
-  for (let c=1;c<6;c++) put(0,c,xsCel('', sTitulo));
-  mesclar(0,0,0,5);
+  for (let c=1;c<=UC;c++) put(0,c,xsCel('', sTitulo));
+  mesclar(0,0,0,UC);
   put(1,0,xsCel(`${window._vendedor || 'Lote'} — ${agora.toLocaleString('pt-BR')}`, sSub));
-  for (let c=1;c<6;c++) put(1,c,xsCel('', sSub));
-  mesclar(1,0,1,5);
+  for (let c=1;c<=UC;c++) put(1,c,xsCel('', sSub));
+  mesclar(1,0,1,UC);
 
-  // Cadastro (linhas 3-6)
+  // Cadastro (linhas 3-6) — números entram como NÚMERO, pra dar pra usar em
+  // fórmula no Google Planilhas, não como texto "3.994 kg"
   put(3,0,xsCel('📋  CADASTRO DO LOTE', sSecao));
-  for (let c=1;c<6;c++) put(3,c,xsCel('', sSecao));
-  mesclar(3,0,3,5);
+  for (let c=1;c<=UC;c++) put(3,c,xsCel('', sSecao));
+  mesclar(3,0,3,UC);
   const cad = [
-    ['Cliente', window._vendedor || '—', 'Data', agora.toLocaleDateString('pt-BR')],
-    ['Rendimento', (window._rend || 50) + '%', 'Hora', agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})],
-    ['Desconto total', descTot + ' kg', 'Peso líquido', (totPeso - descTot) + ' kg'],
-    ['Preço de Venda', precoVenda > 0 ? `R$ ${precoVenda.toFixed(2)}/${unidade==='arroba'?'@':'kg'}` : '—',
-     'Preço de Compra', window._compra > 0 ? `R$ ${window._compra.toFixed(2)}` : '—']
+    ['Cliente', window._vendedor || '—', null, 'Data', agora.toLocaleDateString('pt-BR'), null],
+    ['Rendimento', (window._rend || 50), PCT, 'Hora', agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}), null],
+    ['Desconto total', arred(descTot, 1), KG1, 'Peso líquido', arred(totPeso - descTot, 1), KG1],
+    ['Preço de Venda', precoVenda > 0 ? precoVenda : '—', precoVenda > 0 ? (unidade==='arroba'?'R$ #,##0.00 "/@"':'R$ #,##0.00 "/kg"') : null,
+     'Compra do lote (total)', window._compra > 0 ? window._compra : '—', window._compra > 0 ? RS : null]
   ];
   cad.forEach((l, i) => {
     const r = 4 + i;
-    put(r,0,xsCel(l[0], sRotulo)); put(r,1,xsCel(l[1], sValor));
-    put(r,2,xsCel(l[2], sRotulo)); put(r,3,xsCel(l[3], sValor));
-    put(r,4,xsCel('', sValor));
-    mesclar(r,3,r,5); put(r,5,xsCel('', sValor));
+    put(r,0,xsCel(l[0], sRotulo)); for (let c=1;c<2;c++) put(r,c,xsCel('', sRotulo));
+    mesclar(r,0,r,1);
+    put(r,2,xsCel(l[1], sValor, l[2])); put(r,3,xsCel('', sValor)); mesclar(r,2,r,3);
+    put(r,4,xsCel(l[3], sRotulo)); put(r,5,xsCel('', sRotulo)); mesclar(r,4,r,5);
+    put(r,6,xsCel(l[4], sValor, l[5])); put(r,7,xsCel('', sValor)); mesclar(r,6,r,7);
   });
 
   // Pesagens (a partir da linha 8)
-  put(8,0,xsCel('⚖️  PESAGENS — PESO POR BALANÇADA', sSecao));
-  for (let c=1;c<6;c++) put(8,c,xsCel('', sSecao));
-  mesclar(8,0,8,5);
-  const identWb = window._modo === 'ident';
-  const aX = anim();
-  const cab = ['Nº',identWb?`Nº d${aX.art} ${aX.s}`:`Qtd ${aX.p}`,'Peso (kg)','Média kg/cab','Arrobas (@)','Valor (R$)'];
+  const temIdent  = pesagens.some(p => p.boi);
+  const temBalanc = pesagens.some(p => !p.boi);
+  put(8,0,xsCel(temIdent && !temBalanc ? `⚖️  PESAGENS — UM ${aX.s.toUpperCase()} POR LINHA` : '⚖️  PESAGENS — PESO POR BALANÇADA', sSecao));
+  for (let c=1;c<=UC;c++) put(8,c,xsCel('', sSecao));
+  mesclar(8,0,8,UC);
+  const cab = ['Nº', `Nº d${aX.art} ${aX.s}`, 'Cabeças', 'Peso bruto (kg)', 'Desc. (kg/cab)', 'Peso líq. (kg)', 'Arrobas (@)', 'Valor (R$)'];
   cab.forEach((h,c)=>put(9,c,xsCel(h,sTabHdr)));
 
-  const linhas = [...pesagens].reverse();
+  const linhas = [...pesagens].reverse();   // mais antiga primeiro
   linhas.forEach((p, i) => {
     const r = 10 + i;
     const st = i % 2 === 1 ? sZebra : sCelula;
-    put(r,0,xsCel(i+1, st));
-    put(r,1,xsCel(identWb && p.boi ? p.boi : p.qtd, st));
-    put(r,2,xsCel(p.peso, st, KG));
-    put(r,3,xsCel(Math.max(p.peso - p.qtd*(p.desc||0), 0)/p.qtd, st, KG1));
-    put(r,4,xsCel((Math.max(p.peso - p.qtd*(p.desc||0), 0)*rend)/15, st, ARR));
-    put(r,5,xsCel(p.valor > 0 ? p.valor : 0, st, RS));
+    const liq = Math.max(p.peso - p.qtd*(p.desc||0), 0);
+    put(r,0,xsCel(p.num, st));
+    put(r,1,xsCel(p.boi || '—', st));            // o brinco vem da LINHA, não do modo atual
+    put(r,2,xsCel(p.qtd, st));
+    put(r,3,xsCel(arred(p.peso,1), st, KG1));
+    put(r,4,xsCel(p.desc || 0, st, KG));
+    put(r,5,xsCel(arred(liq,1), st, KG1));
+    put(r,6,xsCel((liq*rend)/15, st, ARR));
+    put(r,7,xsCel(p.valor > 0 ? p.valor : 0, st, RS));
   });
 
   const rTot = 10 + linhas.length;
   put(rTot,0,xsCel('TOTAL', sTotal));
-  put(rTot,1,xsCel(totQtd, sTotal));
-  put(rTot,2,xsCel(totPeso, sTotal, KG));
-  put(rTot,3,xsCel((totPeso - descTot)/totQtd, sTotal, KG1));
-  put(rTot,4,xsCel(totArr, sTotal, ARR));
-  put(rTot,5,xsCel(totVal, sTotal, RS));
+  put(rTot,1,xsCel('', sTotal));
+  put(rTot,2,xsCel(totQtd, sTotal));
+  put(rTot,3,xsCel(arred(totPeso,1), sTotal, KG1));
+  put(rTot,4,xsCel(arred(descTot,1), sTotal, KG1));
+  put(rTot,5,xsCel(arred(totPeso - descTot,1), sTotal, KG1));
+  put(rTot,6,xsCel(totArr, sTotal, ARR));
+  put(rTot,7,xsCel(totVal, sTotal, RS));
 
   // Resumo
   let r = rTot + 2;
   put(r,0,xsCel('📊  RESUMO DO LOTE', sSecao));
-  for (let c=1;c<6;c++) put(r,c,xsCel('', sSecao));
-  mesclar(r,0,r,5);
+  for (let c=1;c<=UC;c++) put(r,c,xsCel('', sSecao));
+  mesclar(r,0,r,UC);
   const resumo = [
     [`Total de ${aX.p}`, totQtd, `#,##0 "${aX.p.toLowerCase()}"`],
-    ['Total de Balançadas', linhas.length, '#,##0'],
-    ['Peso Total', totPeso, KG],
+    [temIdent && !temBalanc ? 'Total de Pesagens' : 'Total de Balançadas', linhas.length, '#,##0'],
+    ['Peso na Balança (bruto)', arred(totPeso,1), KG1],
+    ['Desconto Total', arred(descTot,1), KG1],
+    ['Peso Líquido (base do cálculo)', arred(totPeso - descTot,1), KG1],
     ['Total de Arrobas', totArr, ARR],
-    [`Média de kg por Cabeça (c/ desconto)`, (totPeso - descTot)/totQtd, KG1],
-    [`Média de @ por Cabeça`, totArr/totQtd, ARR],
+    ['Média de kg por Cabeça (líquida)', (totPeso - descTot)/totQtd, KG1],
+    ['Média de @ por Cabeça', totArr/totQtd, ARR],
     ['Rendimento Usado', (window._rend || 50)/100, '0.0%']
   ];
   resumo.forEach((l, i) => {
     const rr = r + 1 + i;
     put(rr,0,xsCel(l[0], sResRot));
-    for (let c=1;c<4;c++) put(rr,c,xsCel('', sResRot));
-    mesclar(rr,0,rr,3);
-    put(rr,4,xsCel(l[1], sResVal, l[2]));
-    put(rr,5,xsCel('', sResVal));
-    mesclar(rr,4,rr,5);
+    for (let c=1;c<5;c++) put(rr,c,xsCel('', sResRot));
+    mesclar(rr,0,rr,4);
+    put(rr,5,xsCel(l[1], sResVal, l[2]));
+    for (let c=6;c<=UC;c++) put(rr,c,xsCel('', sResVal));
+    mesclar(rr,5,rr,UC);
   });
   r = r + 1 + resumo.length;
   put(r,0,xsCel('💰 VALOR TOTAL DO LOTE', sDestaq));
-  for (let c=1;c<4;c++) put(r,c,xsCel('', sDestaq));
-  mesclar(r,0,r,3);
-  put(r,4,xsCel(totVal, sDestVal, RS));
-  put(r,5,xsCel('', sDestVal));
-  mesclar(r,4,r,5);
+  for (let c=1;c<5;c++) put(r,c,xsCel('', sDestaq));
+  mesclar(r,0,r,4);
+  put(r,5,xsCel(totVal, sDestVal, RS));
+  for (let c=6;c<=UC;c++) put(r,c,xsCel('', sDestVal));
+  mesclar(r,5,r,UC);
 
   if (window._compra > 0 && totVal > 0) {
     r += 1;
-    put(r,0,xsCel('Lucro / Prejuízo', sResRot));
-    for (let c=1;c<4;c++) put(r,c,xsCel('', sResRot));
-    mesclar(r,0,r,3);
-    put(r,4,xsCel(totVal - window._compra, sResVal, RS));
-    put(r,5,xsCel('', sResVal));
-    mesclar(r,4,r,5);
+    const lucro = totVal - window._compra;
+    put(r,0,xsCel(lucro >= 0 ? 'Lucro (venda − compra do lote)' : 'Prejuízo (venda − compra do lote)', sResRot));
+    for (let c=1;c<5;c++) put(r,c,xsCel('', sResRot));
+    mesclar(r,0,r,4);
+    put(r,5,xsCel(lucro, sResVal, RS));
+    for (let c=6;c<=UC;c++) put(r,c,xsCel('', sResVal));
+    mesclar(r,5,r,UC);
   }
 
   // Monta a planilha
@@ -1253,9 +1409,9 @@ function montarRelatorioWb() {
   A.forEach((linha, ri) => (linha || []).forEach((cel, ci) => {
     if (cel) ws[XLSX.utils.encode_cell({ r: ri, c: ci })] = cel;
   }));
-  ws['!ref'] = XLSX.utils.encode_range({ s:{r:0,c:0}, e:{r:r,c:5} });
+  ws['!ref'] = XLSX.utils.encode_range({ s:{r:0,c:0}, e:{r:r,c:UC} });
   ws['!merges'] = merges;
-  ws['!cols'] = [{wch:16},{wch:12},{wch:14},{wch:14},{wch:14},{wch:16}];
+  ws['!cols'] = [{wch:6},{wch:12},{wch:9},{wch:15},{wch:13},{wch:14},{wch:13},{wch:15}];
   ws['!rows'] = [{hpt:28},{hpt:18}];
 
   const wb = XLSX.utils.book_new();
@@ -1272,14 +1428,84 @@ function xlsxDisponivel() {
   return false;
 }
 
-function exportarExcel() {
-  if (pesagens.length === 0) { alert('Nenhuma pesagem para exportar!'); return; }
-  if (!xlsxDisponivel()) return;
-  try {
-    const { wb, nome } = montarRelatorioWb();
-    XLSX.writeFile(wb, nome);
-  } catch (e) { alert('Deu problema ao gerar a planilha: ' + e.message); }
+// Se a biblioteca da planilha não carregou (aconteceu com o cache antigo),
+// tenta buscar de novo antes de desistir.
+function garantirXlsx() {
+  return new Promise(resolve => {
+    if (typeof XLSX !== 'undefined') return resolve(true);
+    const s = document.createElement('script');
+    s.src = '/xlsx.bundle.js?v=' + APP_VERSAO;
+    s.onload  = () => resolve(typeof XLSX !== 'undefined');
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+    setTimeout(() => resolve(typeof XLSX !== 'undefined'), 10000);
+  });
 }
+
+const ehAppInstalado = () =>
+  window.navigator.standalone === true ||
+  (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+
+// ─── Entrega da planilha ─────────────────────────────────────────────────────
+// Um caminho só, com plano B e plano C — e avisando de verdade quando falha,
+// em vez de não acontecer nada quando o usuário toca no botão.
+async function entregarPlanilha(dicaDestino) {
+  if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
+
+  if (typeof XLSX === 'undefined') {
+    const veio = await garantirXlsx();
+    if (!veio) {
+      alert('📵 Não deu pra carregar a parte do app que monta a planilha.\n\nConecte na internet uma vez e toque no botão de novo.\n\nEnquanto isso, o relatório completo sai pelo WhatsApp normalmente.');
+      return;
+    }
+  }
+
+  let wb, nome, dados;
+  try {
+    ({ wb, nome } = montarRelatorioWb());
+    dados = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  } catch (e) {
+    alert('Deu problema ao montar a planilha:\n\n' + (e && e.message ? e.message : e) + '\n\nManda pelo WhatsApp que o relatório vai completo.');
+    return;
+  }
+
+  const tipo = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const blob = new Blob([dados], { type: tipo });
+  window._exportou = true;
+
+  // 1) Tela de compartilhar do celular — é o caminho bom no iPhone
+  try {
+    const arquivo = new File([blob], nome, { type: tipo });
+    if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+      await navigator.share({ files: [arquivo], title: nome });
+      return;
+    }
+  } catch (e) {
+    if (e && (e.name === 'AbortError' || e.name === 'NotAllowedError')) return; // usuário fechou
+  }
+
+  // 2) Abrir o arquivo pra o celular cuidar dele (app instalado não baixa direto)
+  const url = URL.createObjectURL(blob);
+  if (ehAppInstalado()) {
+    alert('📄 A planilha está pronta!\n\nVou abrir ela agora. Na tela que aparecer, toque no botão de compartilhar do iPhone e escolha ' + dicaDestino + '.');
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    return;
+  }
+
+  // 3) Navegador normal: baixa o arquivo
+  try {
+    const a = document.createElement('a');
+    a.href = url; a.download = nome; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    alert('📄 Planilha baixada: ' + nome + '\n\nAbra o arquivo e escolha ' + dicaDestino + '.');
+  } catch (e) {
+    alert('Não consegui entregar o arquivo neste aparelho.\n\nManda pelo WhatsApp que o relatório vai completo.');
+  }
+}
+
+function exportarExcel() { entregarPlanilha('o Excel ou as Planilhas'); }
 
 // ─── Modal finalizar ─────────────────────────────────────────────────────────
 function abrirModal() {
@@ -1288,6 +1514,7 @@ function abrirModal() {
   window._finalizado = true;
   const bn = document.getElementById('btnNovoLote');
   if (bn) bn.classList.remove('boi-desab');
+  salvarLocal();
 
   const totBois  = pesagens.reduce((s,r) => s + r.qtd, 0);
   const totPeso  = pesagens.reduce((s,r) => s + r.peso, 0);
@@ -1296,9 +1523,12 @@ function abrirModal() {
   const totArr   = ((totPeso - descTot) * rend) / 15;
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
+  const descTotM = pesagens.reduce((s,r) => s + Math.min(r.qtd * (r.desc || 0), r.peso), 0);
   document.getElementById('modalResumo').textContent =
-    `${totBois} ${anim().p.toLowerCase()} · ${totPeso.toFixed(0)} kg · ${totArr.toFixed(1)}@ · ` +
-    (totValor > 0 ? `R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2})}` : 'sem valor');
+    `${totBois} ${anim().p.toLowerCase()} · ${fmtKg(totPeso)}` +
+    (descTotM > 0 ? ` (líq ${fmtKg(totPeso - descTotM)})` : '') +
+    ` · ${totArr.toFixed(2)}@ · ` +
+    (totValor > 0 ? `R$ ${fmtDin(totValor)}` : 'sem valor');
 
   const modal = document.getElementById('modal');
   modal.style.display = 'flex';
@@ -1309,21 +1539,7 @@ function fecharModal() {
 }
 
 function salvarDispositivo() {
-  if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
-  if (!xlsxDisponivel()) return;
-  try {
-  const { wb, nome } = montarRelatorioWb();
-  const dados = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const arquivo = new File([dados], nome,
-    { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-  // Abre a tela de compartilhar do celular — é só tocar em "Salvar em Arquivos"
-  if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
-    navigator.share({ files: [arquivo], title: nome }).catch(() => {});
-  } else {
-    exportarExcel();
-  }
-  } catch (e) { alert('Deu problema ao gerar a planilha: ' + e.message); }
+  entregarPlanilha('"Salvar em Arquivos"');
 }
 
 function mandarWhatsApp() {
@@ -1337,10 +1553,11 @@ function mandarWhatsApp() {
   const totValor = pesagens.reduce((s,r) => s + r.valor, 0);
 
   const aW = anim();
+  const lucro = (window._compra > 0 && totValor > 0) ? totValor - window._compra : null;
   const linhasPes = [...pesagens].reverse().map(r =>
     r.boi
-      ? `  ${aW.s} nº ${r.boi}: ${r.peso}kg${(r.desc||0)>0?` (desc ${r.desc}kg)`:''} — ${r.arr}@${r.valor>0?' — R$'+r.valor.toFixed(2):''}`
-      : `  #${r.num}: ${r.qtd} ${(r.qtd>1?aW.p:aW.s).toLowerCase()} — ${r.peso}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$'+r.valor.toFixed(2):''}`
+      ? `  #${r.num} ${aW.s} nº ${r.boi}: ${fmtNum(r.peso)}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$ '+fmtDin(r.valor):''}`
+      : `  #${r.num}: ${r.qtd} ${(r.qtd>1?aW.p:aW.s).toLowerCase()} — ${fmtNum(r.peso)}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$ '+fmtDin(r.valor):''}`
   ).join('\n');
 
   const msg =
@@ -1355,17 +1572,26 @@ ${linhasPes}
 ━━━━━━━━━━━━━━━━━━━
 *RESUMO DO LOTE:*
 🐄 Total de ${aW.p.toLowerCase()}: *${totBois}*
-⚖️ Peso total: *${totPeso.toFixed(0)} kg*
+⚖️ Peso na balança: *${fmtKg(totPeso)}*${descTot > 0 ? `\n➖ Desconto total: *${fmtKg(descTot)}*\n✅ Peso líquido: *${fmtKg(totPeso - descTot)}*` : ''}
 📐 Total de @: *${totArr.toFixed(2)} @*
 📊 Média @/cab: *${mediaArr.toFixed(2)} @*
 📊 Média kg/cab: *${mediaKg.toFixed(1)} kg*
-${totValor > 0 ? `💰 Valor total: *R$ ${totValor.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2})}*` : ''}
-🔢 Rendimento: *${window._rend || 50}%*${descTot > 0 ? `\n⚖️ Desconto total: *${descTot} kg*` : ''}
+${totValor > 0 ? `💰 Valor total: *R$ ${fmtDin(totValor)}*` : ''}${lucro !== null ? `\n${lucro >= 0 ? '📈 Lucro' : '📉 Prejuízo'}: *R$ ${fmtDin(Math.abs(lucro))}*` : ''}
+🔢 Rendimento: *${window._rend || 50}%*${precoVenda > 0 ? ` · Preço: *R$ ${fmtDin(precoVenda)}/${unidade==='arroba'?'@':'kg'}*` : ''}
 ━━━━━━━━━━━━━━━━━━━
 _Gerado pela Calculadora de Gado_`;
 
+  window._exportou = true;
+
+  // Lote grande vira uma URL gigante que o WhatsApp às vezes engole calado.
+  // Nesse caso usa a tela de compartilhar do celular, que aguenta o texto todo.
   const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+  if (url.length > 6000 && navigator.share) {
+    navigator.share({ text: msg }).catch(() => window.open(url, '_blank'));
+    return;
+  }
+  const aba = window.open(url, '_blank');
+  if (!aba && navigator.share) navigator.share({ text: msg }).catch(() => {});
 }
 
 // ─── Mandar pro Google Planilhas ─────────────────────────────────────────────
@@ -1373,25 +1599,14 @@ _Gerado pela Calculadora de Gado_`;
 // celular — é só escolher o app Google Planilhas (ou Drive) que ela chega
 // prontinha, sem precisar colar nada.
 function mandarGoogleSheets() {
-  if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
-  if (!xlsxDisponivel()) return;
-  try {
-  const { wb, nome } = montarRelatorioWb();
-  const dados = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const arquivo = new File([dados], nome,
-    { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-  if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
-    navigator.share({ files: [arquivo], title: nome }).catch(() => {});
-  } else {
-    XLSX.writeFile(wb, nome);
-    alert('📊 Planilha baixada!\n\nAbra o arquivo baixado e escolha o app Google Planilhas (ou Drive) — ela já vem formatada, prontinha.');
-  }
-  } catch (e) { alert('Deu problema ao gerar a planilha: ' + e.message); }
+  entregarPlanilha('o Google Planilhas (ou o Drive)');
 }
 
 function novoLote() {
-  if (confirm('Tem certeza? Todos os dados do lote atual serão apagados.')) {
+  const aviso = window._exportou
+    ? 'Começar um lote novo? As pesagens deste lote serão apagadas do celular.\n\n(Você já salvou/mandou o relatório deste lote.)'
+    : '⚠️ Você ainda NÃO salvou nem mandou o relatório deste lote!\n\nSe começar outro agora, essas pesagens se perdem pra sempre.\n\nQuer apagar mesmo assim?';
+  if (confirm(aviso)) {
     somTroca();
     limparLocal();
     location.reload();
@@ -1408,12 +1623,17 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 13;
+const APP_VERSAO = 14;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 
 // Botão: limpa cache antigo, renova o service worker e recarrega
 async function atualizarApp() {
+  // Sem internet, apagar o cache deixa o app sem NADA pra abrir. Melhor nem tentar.
+  if (navigator.onLine === false) {
+    alert('📵 Sem internet agora.\n\nO app continua funcionando normal com o que já está no celular. Quando pegar sinal, toque aqui de novo pra buscar a versão nova.');
+    return;
+  }
   try {
     if ('caches' in window) {
       const nomes = await caches.keys();
