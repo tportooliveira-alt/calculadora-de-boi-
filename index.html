@@ -247,6 +247,13 @@ body.sol .recebido-linha{background:#121212;color:#fff}
 .folha-caixa .pronto{min-height:58px;border:none;background:linear-gradient(135deg,#166534,#14532d);color:#fff;font-weight:900;font-size:17px;letter-spacing:.04em;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 #0f3d20}
 .folha-caixa .discreto{min-height:46px;background:none;border:none;color:#666;font-size:14px;text-decoration:underline;cursor:pointer;font-family:inherit}
 .folha-caixa{max-height:92vh;overflow-y:auto}
+.aj-secao{margin-top:10px;padding-top:12px;border-top:2px solid rgba(212,175,55,.55);font-size:14px;font-weight:900;color:#8B4513}
+.aj-secao small{display:block;font-size:11px;font-weight:700;color:#6b533c;margin-top:2px}
+.aj-estado{font-size:12px;font-weight:700;color:#6b533c;min-height:18px;word-break:break-word}
+.aj-estado.bom{color:#166534}
+.aj-estado.ruim{color:#b91c1c}
+body.sol .aj-secao{color:#f5c518}
+body.sol .aj-secao small,body.sol .aj-estado{color:#cfc3ad}
 .aj-campo{display:flex;flex-direction:column;gap:4px}
 .aj-campo label{font-size:13px;font-weight:800;color:#654321}
 .aj-campo select{min-height:56px;padding:0 10px;border:2px solid #d4af37;border-radius:12px;background:#fffdf7;color:#2d1f13;font-size:16px;font-weight:700;font-family:inherit}
@@ -511,6 +518,13 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
       <div class="aj-campo"><label>Rendimento (%)</label><input id="aRendimento" type="number" inputmode="decimal" step="0.1" min="1" max="100"></div>
       <div class="aj-campo"><label>Preço de Compra do Lote (R$) — opcional</label><input id="aCompra" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
       <button type="button" class="btn-balanca" id="btnBalanca" style="display:none" onclick="procurarBalanca()">🔌 PROCURAR BALANÇA BLUETOOTH</button>
+
+      <div class="aj-secao">📊 Planilha da fazenda <small>opcional — cada lote finalizado cai sozinho nela</small></div>
+      <div class="aj-campo"><label>Endereço da planilha</label><input id="aPlanilhaUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/.../exec"></div>
+      <div class="aj-campo"><label>Senha que você pôs no código</label><input id="aPlanilhaSenha" type="text" placeholder="ex: boi704"></div>
+      <button type="button" class="btn-balanca" onclick="testarPlanilha()">🔍 TESTAR A PLANILHA</button>
+      <div id="planilhaEstado" class="aj-estado"></div>
+
       <button type="button" class="pronto" onclick="salvarAjustes()">✓ PRONTO</button>
       <button type="button" class="discreto" onclick="fecharAjustes()">Voltar sem mudar nada</button>
     </div>
@@ -907,6 +921,10 @@ function abrirAjustes() {
   document.getElementById('aUnidade').value    = unidade || 'arroba';
   document.getElementById('aRendimento').value = window._rend || 50;
   document.getElementById('aCompra').value     = window._compra || '';
+  document.getElementById('aPlanilhaUrl').value   = window._prefs.planilhaUrl || '';
+  document.getElementById('aPlanilhaSenha').value = window._prefs.planilhaSenha || '';
+  document.getElementById('planilhaEstado').textContent = window._prefs.planilhaUrl ? 'Planilha ligada.' : '';
+  document.getElementById('planilhaEstado').className = 'aj-estado' + (window._prefs.planilhaUrl ? ' bom' : '');
   mostrarBotaoBalanca();
   document.getElementById('ajusteSheet').style.display = 'flex';
 }
@@ -918,6 +936,12 @@ function salvarAjustes() {
   const venda= parseFloat(document.getElementById('aVenda').value) || 0;
   const compra=parseFloat(document.getElementById('aCompra').value) || 0;
   if (!rend || rend <= 0 || rend > 100) rend = 50;   // rendimento só faz sentido de 1 a 100
+
+  // Endereço da planilha da fazenda fica nas preferências: é do aparelho, não
+  // do lote — vale pro próximo lote também.
+  window._prefs.planilhaUrl   = document.getElementById('aPlanilhaUrl').value.trim();
+  window._prefs.planilhaSenha = document.getElementById('aPlanilhaSenha').value.trim();
+  salvarPrefs();
 
   window._vendedor = nome || 'Não informado';
   window._rend     = rend;
@@ -2178,8 +2202,97 @@ _Pesado na Calculadora de Boi_`;
 // Gera a MESMA planilha formatada do Excel e abre a tela de compartilhar do
 // celular — é só escolher o app Google Planilhas (ou Drive) que ela chega
 // prontinha, sem precisar colar nada.
-function mandarGoogleSheets() {
-  entregarPlanilha('o Google Planilhas (ou o Drive)');
+// ─── Planilha da fazenda ─────────────────────────────────────────────────────
+// O endereço é de um script que o próprio dono publica dentro da planilha dele
+// (passo a passo em planilha-fazenda/COMO-LIGAR.md). Os dados vão do celular
+// direto pra planilha — não passam por servidor de ninguém.
+//
+// O envio vai como texto puro de propósito: com "application/json" o navegador
+// manda antes uma pergunta de permissão que o Google não responde, e aí a
+// mensagem não sai do lugar.
+function planilhaLigada() { return !!String(window._prefs.planilhaUrl || '').trim(); }
+
+function estadoPlanilha(txt, tipo) {
+  const el = document.getElementById('planilhaEstado');
+  if (!el) return;
+  el.textContent = txt;
+  el.className = 'aj-estado' + (tipo ? ' ' + tipo : '');
+}
+
+function enderecoValido(url) {
+  return /^https:\/\/script\.google\.com\/macros\/s\/[^\/]+\/exec$/.test(url);
+}
+
+async function testarPlanilha() {
+  const url = document.getElementById('aPlanilhaUrl').value.trim();
+  if (!url) { estadoPlanilha('Cole primeiro o endereço da planilha.', 'ruim'); return; }
+  if (!enderecoValido(url)) {
+    estadoPlanilha('O endereço tem que começar com https://script.google.com/macros/s/ e terminar em /exec', 'ruim');
+    return;
+  }
+  somClique();
+  estadoPlanilha('Falando com a planilha…');
+  try {
+    const r = await fetch(url, { method: 'GET', redirect: 'follow' });
+    const d = JSON.parse(await r.text());
+    if (d.ok && d.encontrou_a_aba) estadoPlanilha('✓ Achei sua planilha e a aba PESAGENS.', 'bom');
+    else if (d.ok) estadoPlanilha('Falei com o script, mas não achei a aba PESAGENS na planilha.', 'ruim');
+    else estadoPlanilha('A planilha respondeu: ' + (d.erro || '?'), 'ruim');
+  } catch (e) {
+    estadoPlanilha('Não consegui falar com a planilha. Confira a internet e se o endereço termina em /exec.', 'ruim');
+  }
+}
+
+async function mandarPraPlanilha() {
+  const url = String(window._prefs.planilhaUrl || '').trim();
+  const corpo = {
+    senha: window._prefs.planilhaSenha || '',
+    lote: window._vendedor && window._vendedor !== 'Não informado' ? window._vendedor : 'Lote ' + new Date().toLocaleDateString('pt-BR'),
+    vendedor: window._vendedor || '',
+    rendimento: window._rend || 50,
+    // A planilha trabalha em R$/@. Quem pesa por quilo tem o preço convertido
+    // aqui, senão a conta lá dentro sairia diferente da que o app mostrou:
+    // valor = peso × R$/kg  e  valor = (peso × rend / 15) × R$/@
+    preco: unidade === 'arroba' ? precoVenda : precoVenda * 15 / ((window._rend || 50) / 100),
+    data: new Date().toISOString(),
+    pesagens: pesagens.slice().reverse().map(p => ({
+      boi: p.boi || '', qtd: p.qtd || 1, peso: p.peso || 0, desconto: p.desc || 0,
+    })),
+  };
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(corpo),
+    redirect: 'follow',
+  });
+  return JSON.parse(await r.text());
+}
+
+async function mandarGoogleSheets() {
+  // Sem planilha ligada, continua fazendo o de sempre: gera o arquivo pra
+  // mandar pra quem for.
+  if (!planilhaLigada()) { entregarPlanilha('o Google Planilhas (ou o Drive)'); return; }
+  if (pesagens.length === 0) { alert('Nenhuma pesagem registrada!'); return; }
+
+  somClique();
+  try {
+    const resp = await mandarPraPlanilha();
+    if (resp && resp.ok) {
+      window._exportou = true;
+      somSalvo();
+      alert('✅ Foi pra sua planilha!\n\n' + resp.escritas + ' ' +
+            (resp.escritas === 1 ? 'pesagem entrou' : 'pesagens entraram') +
+            ' na aba PESAGENS.');
+    } else {
+      const erro = resp && resp.erro ? resp.erro : 'a planilha não explicou o motivo';
+      alert('Não deu pra mandar pra sua planilha: ' + erro +
+            '\n\nO relatório continua saindo pelo WhatsApp normalmente.');
+    }
+  } catch (e) {
+    alert('📵 Não consegui falar com sua planilha agora.\n\n' +
+          'Precisa de internet nessa hora. O lote continua guardado no celular — ' +
+          'é só tocar de novo quando pegar sinal.');
+  }
 }
 
 function novoLote() {
@@ -2203,7 +2316,7 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 21;
+const APP_VERSAO = 22;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 preencherCadastroComPrefs();
