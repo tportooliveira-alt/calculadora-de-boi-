@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Tela de Pesagem" description="Tela de pesagem completa para iPhone 390px, em duas variações de arranjo." -->
+<helmet><script src="./ds-base.js"></script><style>body{margin:0}</style></helmet>
+<div style="min-height:100vh;background:#efe9dc;background-image:radial-gradient(circle at 20% 0%,#f7f2e6,#e7dfcd 70%);padding:40px 32px 64px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#654321">
+<div style="max-width:1120px;margin:0 auto 34px;display:flex;flex-direction:column;gap:8px">
+<div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8B4513;font-weight:700">Tela de pesagem · iPhone 390px</div>
+<div style="font-size:30px;font-weight:800;letter-spacing:-.01em;color:#2d1f13">Duas variações para escolher</div>
+<div style="font-size:15px;max-width:620px;line-height:1.5;color:#6b533c">Mesmas peças do design system, dois arranjos: a pilha contínua do jeito do app, e uma versão com resumo fixo no topo e teclado em bloco escuro. Pode digitar nos teclados.</div>
+</div>
+<div style="max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(390px,1fr));gap:48px;justify-items:center">
+
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8B4513">Variação 1</span><span style="font-size:14px;color:#6b533c">Pilha contínua, acabamento em ouro</span></div>
+<div style="width:414px;padding:11px;border-radius:44px;background:linear-gradient(160deg,#4a3421,#1d1309);box-shadow:0 34px 70px -26px rgba(45,31,19,.6),inset 0 0 0 1px rgba(212,175,55,.35)">
+<div class="boi-raiz" style="width:392px;border-radius:34px;overflow:hidden;background:var(--boi-cream-100);display:flex;flex-direction:column">
+<div style="background:linear-gradient(135deg,var(--boi-brown-700),var(--boi-brown-900));color:var(--boi-cream-100);display:flex;justify-content:space-between;align-items:center;padding:8px 22px 2px;font-size:12px;font-weight:700;letter-spacing:.04em"><span>07:42</span><span style="opacity:.75">Curral 3 · offline</span></div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.Cabecalho" cliente="Fazenda São Luiz" preco="R$ 300,00/@" comAcoes="{{ verdadeiro }}" hint-size="100%,150px"></x-import>
+<div style="display:flex;flex-direction:column;gap:14px;padding:14px 14px 20px">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.DisplayBalanca" peso="{{ pesoA }}" hint-size="100%,120px"></x-import>
+<div style="display:flex;flex-direction:column;gap:10px;padding:12px 12px 14px;background:#fffdf7;border:2px solid rgba(212,175,55,.55);border-radius:16px;box-shadow:0 2px 0 rgba(139,69,19,.08)">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8B4513">Do nosso jeito</span><span style="flex:1;height:2px;background:linear-gradient(90deg,rgba(212,175,55,.7),rgba(212,175,55,0))"></span></div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.ReguaQuantidade" rotulo="Bois:" selecionado="{{ quatro }}" hint-size="100%,70px"></x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.ChipsDesconto" selecionado="{{ vinte }}" hint-size="100%,70px"></x-import>
+</div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.Teclado" modo="normal" aoDigitar="{{ digitarA }}" aoApagar="{{ apagarA }}" aoLimpar="{{ limparA }}" aoConfirmar="{{ confirmarA }}" hint-size="100%,300px"></x-import>
+<div style="display:flex;align-items:center;gap:10px;padding-top:2px"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8B4513">Pesagens do lote</span><span style="flex:1;height:2px;background:linear-gradient(90deg,rgba(212,175,55,.7),rgba(212,175,55,0))"></span></div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.TabelaPesagens" colunaQtd="Qtd" linhas="{{ linhas }}" hint-size="100%,180px"></x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.CardResumo" itens="{{ itensResumo }}" hint-size="100%,240px"></x-import>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8B4513">Variação 2</span><span style="font-size:14px;color:#6b533c">Resumo fixo no topo, teclado em bloco escuro</span></div>
+<div style="width:414px;padding:11px;border-radius:44px;background:linear-gradient(160deg,#4a3421,#1d1309);box-shadow:0 34px 70px -26px rgba(45,31,19,.6),inset 0 0 0 1px rgba(212,175,55,.35)">
+<div class="boi-raiz" style="width:392px;border-radius:34px;overflow:hidden;background:var(--boi-cream-100);display:flex;flex-direction:column">
+<div style="background:linear-gradient(135deg,var(--boi-brown-700),var(--boi-brown-900));color:var(--boi-cream-100);display:flex;justify-content:space-between;align-items:center;padding:8px 22px 2px;font-size:12px;font-weight:700;letter-spacing:.04em"><span>07:42</span><span style="opacity:.75">Curral 3 · offline</span></div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.Cabecalho" cliente="Fazenda São Luiz" preco="R$ 300,00/@" comAcoes="{{ verdadeiro }}" hint-size="100%,150px"></x-import>
+<div style="display:flex;gap:1px;background:rgba(212,175,55,.5);border-bottom:2px solid rgba(212,175,55,.5)">
+<div style="flex:1;background:#fffdf7;padding:10px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8B4513">Bois</span><span style="font-size:20px;font-weight:800;color:#2d1f13;font-variant-numeric:tabular-nums">7</span></div>
+<div style="flex:1;background:#fffdf7;padding:10px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8B4513">Peso</span><span style="font-size:20px;font-weight:800;color:#2d1f13;font-variant-numeric:tabular-nums">3150 kg</span></div>
+<div style="flex:1.2;background:linear-gradient(135deg,var(--boi-brown-950),var(--boi-brown-800));padding:10px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,228,193,.85)">Total</span><span style="font-size:20px;font-weight:800;color:var(--boi-gold-400);font-variant-numeric:tabular-nums">R$ 30.900</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:14px 14px 8px">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.DisplayBalanca" peso="{{ pesoB }}" hint-size="100%,120px"></x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.ReguaQuantidade" rotulo="Bois:" selecionado="{{ quatro }}" hint-size="100%,70px"></x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.ChipsDesconto" selecionado="{{ vinte }}" hint-size="100%,70px"></x-import>
+</div>
+<div style="margin:6px 8px 14px;padding:12px 10px 14px;border-radius:22px;background:linear-gradient(160deg,#3d2b1f,#241710);border:2px solid rgba(212,175,55,.45);box-shadow:inset 0 1px 0 rgba(244,228,193,.12)">
+<div style="display:flex;align-items:center;gap:8px;padding:0 6px 10px"><span style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--boi-gold-500)">Toca na caixinha</span><span style="flex:1;height:1px;background:rgba(212,175,55,.35)"></span></div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.Teclado" modo="normal" aoDigitar="{{ digitarB }}" aoApagar="{{ apagarB }}" aoLimpar="{{ limparB }}" aoConfirmar="{{ confirmarB }}" hint-size="100%,300px"></x-import>
+</div>
+<div style="padding:0 14px 20px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8B4513">Últimas pesagens</span><span style="flex:1;height:2px;background:linear-gradient(90deg,rgba(212,175,55,.7),rgba(212,175,55,0))"></span></div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.TabelaPesagens" colunaQtd="Qtd" linhas="{{ linhas }}" hint-size="100%,180px"></x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.CardResumo" titulo="Fechamento do lote" itens="{{ itensResumo }}" hint-size="100%,240px"></x-import>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:1700}}">
+class Component extends DCLogic {
+  state = { pesoA: '1800', pesoB: '1800' };
+  dig(k, d) { this.setState(s => ({ [k]: (s[k] === '0' ? '' : s[k]) + d })); }
+  del(k) { this.setState(s => ({ [k]: s[k].length > 1 ? s[k].slice(0, -1) : '0' })); }
+  clr(k) { this.setState({ [k]: '0' }); }
+  renderVals() {
+    return {
+      verdadeiro: true, quatro: 4, vinte: 20,
+      pesoA: this.state.pesoA, pesoB: this.state.pesoB,
+      digitarA: d => this.dig('pesoA', d), apagarA: () => this.del('pesoA'), limparA: () => this.clr('pesoA'), confirmarA: () => this.clr('pesoA'),
+      digitarB: d => this.dig('pesoB', d), apagarB: () => this.del('pesoB'), limparB: () => this.clr('pesoB'), confirmarB: () => this.clr('pesoB'),
+      linhas: [
+        { num: 2, qtd: '3', desconto: '-20kg', peso: '1350', arrobas: '43.00@', valor: 'R$12900' },
+        { num: 1, qtd: '4', peso: '1800', arrobas: '60.00@', valor: 'R$18000' }
+      ],
+      itensResumo: [
+        { rotulo: 'Total de Bois', valor: '7 bois' },
+        { rotulo: 'Peso Total', valor: '3150 kg' },
+        { rotulo: 'Média de @', valor: '14.71 @/cab' },
+        { rotulo: 'Média de kg/boi', valor: '441.4 kg/cab' },
+        { rotulo: 'Valor Total', valor: 'R$ 30.900,00', destaque: 'dinheiro', largo: true },
+        { rotulo: 'Base de cálculo', valor: '50% rendimento · desconto total 60 kg', destaque: 'texto', largo: true }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

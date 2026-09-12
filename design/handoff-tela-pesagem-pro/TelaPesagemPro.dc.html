@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Tela de Pesagem Pro" description="Fluxo cadastro → pesagem → finalizar para iPhone 390px: uma mão, alto contraste, som e toque por tecla, meta do lote, alerta de peso, desfazer e modo com números." -->
+<helmet><script src="./ds-base.js"></script><style>body{margin:0}
+@keyframes boi-entra{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes boi-sobe{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes boi-flash{0%{box-shadow:0 0 0 0 rgba(212,175,55,.9)}100%{box-shadow:0 0 0 22px rgba(212,175,55,0)}}
+@keyframes boi-esvazia{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@keyframes boi-treme{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.boi-treme{animation:boi-treme .35s ease !important}
+.boi-desab{opacity:.4;pointer-events:none}
+.boi-pro{--p-sup:#fffdf7;--p-ink:#2d1f13;--p-lbl:#8B4513;--p-sec:#6b533c;--p-borda:rgba(212,175,55,.55);--p-moldura:#3d2b1f;--p-moldura-2:#20150e;--p-trilho:rgba(139,69,19,.15)}
+.boi-pro .boi-tecla{height:72px;font-size:28px;font-weight:800;border-radius:14px;border-width:2px;box-shadow:0 3px 0 rgba(45,31,19,.28),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .06s ease,box-shadow .06s ease,filter .06s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.boi-pro .boi-tecla:active{transform:translateY(3px) scale(.97);box-shadow:0 0 0 rgba(45,31,19,.28),inset 0 3px 8px rgba(45,31,19,.35);filter:brightness(1.06)}
+.boi-pro .boi-tecla--alternar{font-size:14px;font-weight:900;letter-spacing:.02em;line-height:1.15;padding:0 6px;text-align:center}
+.boi-pro .boi-tecla--apagar{font-size:18px}
+.boi-pro .boi-tecla--limpar{font-size:15px;font-weight:900}
+.boi-pro .boi-tecla--confirmar{box-shadow:0 4px 0 #0f3d20,0 10px 22px -10px rgba(22,101,52,.8),inset 0 1px 0 rgba(255,255,255,.25);border-color:#2f8a52}
+.boi-pro .boi-tecla--confirmar:active{box-shadow:0 0 0 #0f3d20,inset 0 3px 10px rgba(0,0,0,.45)}
+.boi-pro .boi-chip,.boi-pro .boi-regua-trilho,.boi-pro .boi-modo,.boi-pro .boi-campo-entrada,.boi-pro .boi-campo-seleta{box-shadow:0 2px 0 rgba(45,31,19,.18)}
+.boi-pro .boi-chip{height:50px;font-size:15px;border-radius:12px;transition:transform .06s ease}
+.boi-pro .boi-modo{border-radius:12px;min-height:56px;transition:transform .06s ease}
+.boi-pro .boi-chip:active,.boi-pro .boi-modo:active{transform:translateY(2px) scale(.97)}
+.boi-pro .boi-campo-entrada,.boi-pro .boi-campo-seleta{border-radius:12px;min-height:52px;font-size:17px;font-weight:700}
+.boi-pro .boi-display{border-radius:14px;box-shadow:0 10px 26px -14px rgba(0,0,0,.8),inset 0 1px 0 rgba(244,228,193,.18)}
+.boi-pro .boi-tabela{border-radius:12px}
+.boi-pro .boi-botao-principal{min-height:60px;font-size:18px;border-radius:14px;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+.boi-pro .boi-botao-modal{min-height:52px;border-radius:12px}
+.boi-pro .boi-folha{border-radius:24px 24px 0 0}
+.boi-sol{--boi-fundo:#000;--boi-dourado:#f5c518;--boi-dinheiro:#ffd84a;--boi-texto:#f7ecd6;--boi-creme:#f7ecd6;--boi-texto-suave:#cfc3ad;--boi-display-1:#000;--boi-display-2:#161616;--boi-zebra:#111;--boi-linha:#2a2a2a;--boi-marrom:#1c1c1c;--boi-marrom-escuro:#000;--boi-placeholder:#8a8070;--p-sup:#121212;--p-ink:#fff;--p-lbl:#f5c518;--p-sec:#e8dcc8;--p-borda:rgba(245,197,24,.75);--p-moldura:#101010;--p-moldura-2:#000;--p-trilho:rgba(255,255,255,.14)}
+.boi-sol .boi-tecla,.boi-sol .boi-chip,.boi-sol .boi-regua-trilho,.boi-sol .boi-modo,.boi-sol .boi-tabela,.boi-sol .boi-campo-entrada,.boi-sol .boi-campo-seleta{background:#121212;color:#fff}
+.boi-sol .boi-tecla{box-shadow:0 3px 0 #000,inset 0 1px 0 rgba(255,255,255,.1)}
+.boi-sol .boi-tecla:active{background:var(--boi-dourado);color:#000}
+.boi-sol .boi-tecla--apagar{background:#d11f1f;color:#fff}.boi-sol .boi-tecla--limpar{background:#c2410c;color:#fff}.boi-sol .boi-tecla--confirmar{background:linear-gradient(135deg,#22a04f,#15803d);color:#fff}.boi-sol .boi-tecla--alternar{background:#000;color:var(--boi-dourado)}
+.boi-sol .boi-regua-item{color:#fff}.boi-sol .boi-regua-item--longe{color:#6f6a60}.boi-sol .boi-regua-item--selecionado{background:#000;color:var(--boi-dourado)}.boi-sol .boi-regua-rotulo{color:#fff}
+.boi-sol .boi-tabela-corpo span{color:#fff}.boi-sol .boi-tabela-num{color:var(--boi-dourado)}.boi-sol .boi-tabela-desconto{color:#ffb020}
+.boi-sol .boi-modo-sub{color:#cfc3ad}.boi-sol .boi-cabecalho{background:#000}.boi-sol .boi-folha-titulo{color:var(--boi-dourado)}.boi-sol .boi-folha-resumo{color:#cfc3ad}.boi-sol .boi-botao-modal--contorno{background:#121212;color:#fff}</style></helmet>
+<div style="min-height:100vh;background:#efe9dc;background-image:radial-gradient(circle at 25% -10%,#f8f3e7,#e4dbc8 70%);padding:40px 24px 72px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#654321;display:flex;flex-direction:column;align-items:center;gap:26px">
+<div style="width:100%;max-width:760px;display:flex;flex-direction:column;gap:8px">
+<div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8B4513;font-weight:800">Pesagem · iPhone 390px · uso de uma mão</div>
+<div style="font-size:30px;font-weight:800;letter-spacing:-.01em;color:#2d1f13">Versão Pro</div>
+<div style="font-size:15px;max-width:620px;line-height:1.5;color:#6b533c">Cadastro do lote (sem números ou com números) → pesagem → folha de finalizar. Barra de meta no topo (toque para mudar), FINALIZAR e NOVO LOTE junto do polegar, alerta de peso, desfazer em 5 s e Modo Sol. A tela rola como no celular.</div>
+</div>
+<div style="width:414px;padding:11px;border-radius:46px;background:linear-gradient(160deg,#4a3421,#17100a);box-shadow:0 40px 80px -30px rgba(45,31,19,.7),inset 0 0 0 1px rgba(212,175,55,.4)">
+<div class="boi-raiz boi-pro {{ classeSol }}" style="position:relative;width:392px;height:844px;border-radius:36px;overflow:hidden;background:var(--boi-fundo)">
+<div style="position:absolute;inset:0;overflow-y:auto;display:flex;flex-direction:column">
+<div style="background:linear-gradient(135deg,var(--boi-marrom),var(--boi-marrom-escuro));color:var(--boi-creme);display:flex;justify-content:space-between;align-items:center;padding:9px 24px 2px;font-size:12px;font-weight:800;letter-spacing:.04em"><span>07:42</span><span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--boi-dourado);display:inline-block"></span>Curral 3 · offline</span></div>
+
+<sc-if value="{{ telaCadastro }}" hint-placeholder-val="{{ false }}">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.Cabecalho" hint-size="100%,70px"></x-import>
+<div style="display:flex;flex-direction:column;gap:14px;padding:16px 16px 28px">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--p-lbl)">Novo lote</span><span style="flex:1;height:2px;background:linear-gradient(90deg,var(--p-borda),rgba(212,175,55,0))"></span></div>
+<div onClick="{{ editarNome }}" style="cursor:pointer"><x-import component-from-global-scope="CalculadoraDeBoiDs.CampoRotulado" rotulo="Vendedor / Comprador" valor="{{ cadNome }}" placeholder="Nome" hint-size="100%,76px"></x-import></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div onClick="{{ editarPreco }}" style="cursor:pointer"><x-import component-from-global-scope="CalculadoraDeBoiDs.CampoRotulado" rotulo="Preço da arroba" valor="{{ cadPrecoTexto }}" hint-size="100%,76px"></x-import></div>
+<div onClick="{{ editarMeta }}" style="cursor:pointer"><x-import component-from-global-scope="CalculadoraDeBoiDs.CampoRotulado" rotulo="Meta de cabeças" explicacao="opcional" valor="{{ cadMetaTexto }}" placeholder="Ex: 50" hint-size="100%,76px"></x-import></div>
+<div onClick="{{ editarRendimento }}" style="cursor:pointer"><x-import component-from-global-scope="CalculadoraDeBoiDs.CampoRotulado" rotulo="Rendimento de carcaça" valor="{{ cadRendimentoTexto }}" hint-size="100%,76px"></x-import></div>
+<div onClick="{{ editarDesconto }}" style="cursor:pointer"><x-import component-from-global-scope="CalculadoraDeBoiDs.CampoRotulado" rotulo="Desconto padrão" valor="{{ cadDescontoTexto }}" hint-size="100%,76px"></x-import></div>
+</div>
+<div onClick="{{ editarTipo }}" style="cursor:pointer"><x-import component-from-global-scope="CalculadoraDeBoiDs.CampoRotulado" rotulo="🐄 O que vai pesar?" valor="{{ cadTipo }}" tipo="seleta" hint-size="100%,76px"></x-import></div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<span style="font-size:13px;font-weight:800;color:var(--boi-texto)">Como vai pesar?</span>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.BotoesModo" selecionado="{{ modo }}" aoEscolher="{{ escolherModo }}" hint-size="100%,60px"></x-import>
+<span style="font-size:12px;color:var(--p-sec);font-weight:600">{{ explicacaoModo }}</span>
+</div>
+<div style="padding-top:6px"><x-import component-from-global-scope="CalculadoraDeBoiDs.BotaoPrincipal" onClick="{{ comecar }}" hint-size="100%,60px">✓ COMEÇAR PESAGEM</x-import></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaPesagem }}" hint-placeholder-val="{{ true }}">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.Cabecalho" cliente="{{ cabecalhoCliente }}" preco="{{ cabecalhoPreco }}" hint-size="100%,70px"></x-import>
+<div style="display:flex;align-items:stretch;gap:1px;background:var(--p-borda);border-bottom:2px solid var(--boi-dourado)">
+<div style="flex:1;background:var(--p-sup);padding:8px 12px;display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--p-lbl)">Cabeças</span><span style="font-size:18px;font-weight:800;color:var(--p-ink);font-variant-numeric:tabular-nums">{{ totalCabecas }}</span></div>
+<div style="flex:1.1;background:var(--p-sup);padding:8px 12px;display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--p-lbl)">Peso</span><span style="font-size:18px;font-weight:800;color:var(--p-ink);font-variant-numeric:tabular-nums">{{ totalPeso }}</span></div>
+<div style="flex:1.3;background:linear-gradient(135deg,var(--boi-display-1),var(--boi-display-2));padding:8px 12px;display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--boi-creme)">Total</span><span style="font-size:18px;font-weight:800;color:var(--boi-dinheiro);font-variant-numeric:tabular-nums">{{ totalValor }}</span></div>
+</div>
+<div onClick="{{ editarMeta }}" style="display:flex;flex-direction:column;gap:5px;padding:8px 14px 9px;background:var(--p-sup);border-bottom:2px solid var(--p-borda);cursor:pointer">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--p-lbl)">Meta do lote</span><span style="font-size:13px;font-weight:800;color:var(--p-ink);font-variant-numeric:tabular-nums">{{ progressoTexto }}</span></div>
+<div style="height:10px;border-radius:999px;background:var(--p-trilho);overflow:hidden">{{ barra }}</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:12px 14px 8px">
+<div class="{{ classeTreme }}" style="animation:none">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.DisplayBalanca" peso="{{ peso }}" numeroAnimal="{{ numeroAnimal }}" rotuloNumero="{{ rotuloNumero }}" campoAtivo="{{ campoAtivo }}" hint-size="100%,100px"></x-import>
+</div>
+<sc-if value="{{ temAlerta }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:14px;background:#fff3c4;border:3px solid #d97706;color:#4a2b05;box-shadow:0 8px 20px -12px rgba(0,0,0,.5)">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px;line-height:1">⚠️</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:900">{{ alertaTitulo }}</span><span style="font-size:13px;font-weight:600">{{ alertaTexto }}</span></div></div>
+<div style="display:flex;gap:8px">
+<button type="button" onClick="{{ corrigir }}" style="flex:1;min-height:48px;border:2px solid #4a2b05;background:#fffdf7;color:#4a2b05;font-family:inherit;font-weight:900;font-size:14px;border-radius:12px;cursor:pointer">CORRIGIR</button>
+<button type="button" onClick="{{ salvarMesmoAssim }}" style="flex:1.2;min-height:48px;border:none;background:#166534;color:#fff;font-family:inherit;font-weight:900;font-size:14px;border-radius:12px;cursor:pointer;box-shadow:0 3px 0 #0f3d20">SALVAR ASSIM MESMO</button>
+</div>
+</div>
+</sc-if>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="flex:1;display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:13px;font-weight:800;color:var(--p-lbl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">≈ {{ previaArrobas }} · {{ previaValor }}</span><span style="font-size:11px;font-weight:700;color:var(--p-sec)">{{ dicaModo }}</span></div>
+<button type="button" onClick="{{ alternarModo }}" style="min-height:44px;padding:0 12px;border:2px solid var(--boi-dourado);background:var(--p-sup);color:var(--p-ink);font-family:inherit;font-weight:800;font-size:11px;letter-spacing:.06em;border-radius:999px;cursor:pointer;white-space:nowrap">{{ rotuloModo }}</button>
+<button type="button" onClick="{{ alternarSom }}" aria-label="Som" style="width:44px;height:44px;border:2px solid var(--boi-dourado);background:var(--p-sup);font-size:18px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">{{ iconeSom }}</button>
+<button type="button" onClick="{{ alternarSol }}" aria-label="Modo sol" style="width:44px;height:44px;border:2px solid var(--boi-dourado);background:var(--p-sup);font-size:18px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">☀️</button>
+</div>
+<sc-if value="{{ modoNormal }}" hint-placeholder-val="{{ true }}">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.ReguaQuantidade" rotulo="{{ rotuloRegua }}" selecionado="{{ qtd }}" hint-size="100%,60px"></x-import>
+</sc-if>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.ChipsDesconto" selecionado="{{ desconto }}" aoEscolher="{{ escolherDesconto }}" hint-size="100%,50px"></x-import>
+</div>
+<div style="margin:2px 10px 10px;padding:10px 10px 12px;border-radius:24px;background:linear-gradient(165deg,var(--p-moldura),var(--p-moldura-2));border:2px solid var(--p-borda);box-shadow:inset 0 1px 0 rgba(244,228,193,.14),0 16px 30px -20px rgba(0,0,0,.9)">
+<div style="display:flex;align-items:center;gap:8px;padding:0 6px 8px"><span style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--boi-dourado)">Toca na caixinha</span><span style="flex:1;height:1px;background:rgba(212,175,55,.35)"></span><span style="font-size:10px;font-weight:800;letter-spacing:.1em;color:rgba(244,228,193,.75)">verde = entra no lote</span></div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.Teclado" modo="{{ modo }}" aoDigitar="{{ digitar }}" aoApagar="{{ apagar }}" aoLimpar="{{ limpar }}" aoConfirmar="{{ confirmar }}" aoAlternar="{{ alternarCampo }}" hint-size="100%,320px"></x-import>
+</div>
+<div style="display:flex;gap:10px;padding:0 14px 12px">
+<button type="button" onClick="{{ finalizar }}" style="flex:1.3;min-height:56px;border:3px solid var(--boi-dourado);background:linear-gradient(135deg,var(--boi-marrom),var(--boi-marrom-escuro));color:var(--boi-dourado);font-family:inherit;font-weight:900;font-size:15px;letter-spacing:.06em;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.35)">✓ FINALIZAR</button>
+<button type="button" onClick="{{ novoLote }}" class="{{ classeNovoLote }}" style="flex:1;min-height:56px;border:2px solid var(--boi-dourado);background:var(--p-sup);color:var(--p-ink);font-family:inherit;font-weight:900;font-size:15px;letter-spacing:.06em;border-radius:14px;cursor:pointer;box-shadow:0 3px 0 rgba(45,31,19,.2)">+ NOVO LOTE</button>
+</div>
+<div style="padding:0 14px 24px;display:flex;flex-direction:column;gap:12px">
+<sc-if value="{{ temDesfazer }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:#14532d;box-shadow:0 8px 20px -10px rgba(0,0,0,.6);animation:boi-entra .22s ease,boi-flash .6s ease-out">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px">
+<span style="flex:1;color:#fff;font-size:14px;font-weight:800;line-height:1.3">{{ aviso }}</span>
+<button type="button" onClick="{{ desfazer }}" style="min-height:52px;min-width:120px;border:2px solid rgba(255,255,255,.7);background:#fff;color:#14532d;font-family:inherit;font-weight:900;font-size:15px;letter-spacing:.04em;border-radius:12px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.35)">↶ DESFAZER</button>
+</div>
+<div style="height:5px;background:rgba(255,255,255,.2)"><div style="height:100%;background:var(--boi-dourado);transform-origin:left;animation:boi-esvazia 5s linear forwards"></div></div>
+</div>
+</sc-if>
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--p-lbl)">No lote</span><span style="flex:1;height:2px;background:linear-gradient(90deg,var(--p-borda),rgba(212,175,55,0))"></span><span style="font-size:11px;font-weight:800;color:var(--p-sec)">{{ estadoLote }}</span></div>
+<div style="animation:boi-entra .22s ease">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.TabelaPesagens" colunaQtd="{{ colunaQtd }}" linhas="{{ linhas }}" aoExcluir="{{ excluir }}" hint-size="100%,180px"></x-import>
+</div>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.CardResumo" titulo="Fechamento do lote" itens="{{ itensResumo }}" hint-size="100%,240px"></x-import>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{ temFolha }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(20,12,6,.62);display:flex;flex-direction:column;justify-content:flex-end;z-index:5">
+<div onClick="{{ fecharFolha }}" style="flex:1"></div>
+<div style="background:var(--boi-fundo);border-radius:24px 24px 0 0;border-top:4px solid var(--boi-dourado);padding:16px 14px 22px;display:flex;flex-direction:column;gap:12px;animation:boi-sobe .22s ease">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:17px;font-weight:900;color:var(--p-ink)">{{ folhaTitulo }}</span><button type="button" onClick="{{ fecharFolha }}" style="min-width:44px;min-height:44px;border:2px solid var(--boi-dourado);background:var(--p-sup);color:var(--p-ink);font-family:inherit;font-weight:900;font-size:14px;border-radius:999px;cursor:pointer">✕</button></div>
+<sc-if value="{{ folhaNumerica }}" hint-placeholder-val="{{ true }}">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.DisplayBalanca" peso="{{ folhaValor }}" unidade="{{ folhaUnidade }}" hint-size="100%,100px"></x-import>
+<span style="font-size:12px;font-weight:700;color:var(--p-sec)">{{ folhaDica }}</span>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.Teclado" modo="normal" aoDigitar="{{ folhaDigitar }}" aoApagar="{{ folhaApagar }}" aoLimpar="{{ folhaLimpar }}" aoConfirmar="{{ folhaConfirmar }}" hint-size="100%,320px"></x-import>
+</sc-if>
+<sc-if value="{{ folhaTexto }}" hint-placeholder-val="{{ false }}">
+<input value="{{ folhaValor }}" onChange="{{ folhaDigitarTexto }}" placeholder="Nome do vendedor ou comprador" autoFocus="{{ verdadeiro }}" style="width:100%;box-sizing:border-box;min-height:56px;padding:0 14px;border:2px solid var(--boi-dourado);border-radius:12px;background:var(--p-sup);color:var(--p-ink);font-family:inherit;font-size:18px;font-weight:700;outline:none">
+<button type="button" onClick="{{ folhaConfirmar }}" style="min-height:60px;border:none;background:linear-gradient(135deg,#166534,#14532d);color:#fff;font-family:inherit;font-weight:900;font-size:17px;letter-spacing:.04em;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 #0f3d20">✓ PRONTO</button>
+</sc-if>
+<sc-if value="{{ folhaTipo }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ tipos }}" as="t" hint-placeholder-count="3">
+<button type="button" onClick="{{ t.escolher }}" class="{{ t.classe }}" style="min-height:60px;border:2px solid var(--boi-dourado);background:var(--p-sup);color:var(--p-ink);font-family:inherit;font-weight:900;font-size:18px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 18px"><span>{{ t.nome }}</span><span style="font-size:13px;font-weight:800;color:var(--p-sec)">{{ t.marca }}</span></button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ temFolhaFinal }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(20,12,6,.62);display:flex;flex-direction:column;justify-content:flex-end;z-index:6">
+<div onClick="{{ fecharFolhaFinal }}" style="flex:1"></div>
+<div style="animation:boi-sobe .22s ease">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.FolhaFinalizar" resumo="{{ resumoLinha }}" hint-size="100%,400px">
+<x-import component-from-global-scope="CalculadoraDeBoiDs.BotaoModal" variante="casa" onClick="{{ exportar }}" hint-size="100%,52px">📥 SALVAR EM ARQUIVOS DO CELULAR</x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.BotaoModal" variante="whatsapp" onClick="{{ exportar }}" hint-size="100%,52px">💬 MANDAR PRO WHATSAPP</x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.BotaoModal" variante="planilha" onClick="{{ exportar }}" hint-size="100%,52px">📊 MANDAR PRO GOOGLE PLANILHAS</x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.BotaoModal" variante="contorno" onClick="{{ novoLote }}" hint-size="100%,52px">+ NOVO LOTE</x-import>
+<x-import component-from-global-scope="CalculadoraDeBoiDs.BotaoModal" variante="discreto" onClick="{{ fecharFolhaFinal }}" hint-size="100%,48px">Voltar</x-import>
+</x-import>
+</div>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:1000},&quot;comecarNaPesagem&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Tela&quot;},&quot;modoSol&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Tela&quot;},&quot;limiteMin&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:150,&quot;min&quot;:50,&quot;max&quot;:400,&quot;unit&quot;:&quot;kg&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Alerta de peso&quot;},&quot;limiteMax&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:900,&quot;min&quot;:500,&quot;max&quot;:1500,&quot;unit&quot;:&quot;kg&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Alerta de peso&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const naPesagem = props.comecarNaPesagem ?? true;
+    this.state = {
+      tela: naPesagem ? 'pesagem' : 'cadastro',
+      cad: { nome: naPesagem ? 'Fazenda São Luiz' : '', preco: '300', meta: naPesagem ? '50' : '', tipo: 'Boi', rendimento: '50', desconto: '0' },
+      modo: 'normal', peso: '0', numero: '', campo: 'numero', qtd: 4, desconto: naPesagem ? 20 : 0,
+      som: true, sol: null, alerta: null, desfazer: null, treme: 0, folha: null, folhaFinal: false, finalizado: false, metaBatida: false,
+      linhas: naPesagem ? [
+        { num: 2, qtd: '3', desconto: '-20kg', peso: '1350', arrobas: '45.00@', valor: 'R$13500' },
+        { num: 1, qtd: '4', peso: '1800', arrobas: '60.00@', valor: 'R$18000' }
+      ] : []
+    };
+  }
+  ctx() {
+    if (!this._ac) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) this._ac = new AC(); }
+    if (this._ac && this._ac.state === 'suspended') this._ac.resume();
+    return this._ac;
+  }
+  tom(freqs, dur, tipo, vol) {
+    if (!this.state.som) return;
+    const ac = this.ctx(); if (!ac) return;
+    freqs.forEach((f, i) => {
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i * dur * 0.75;
+      o.type = tipo; o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
+    });
+  }
+  clique() { this.tom([880], 0.05, 'square', 0.09); this.vibrar(8); }
+  vibrar(p) { if (navigator.vibrate) navigator.vibrate(p); }
+  limites() { return { min: this.props.limiteMin ?? 150, max: this.props.limiteMax ?? 900 }; }
+  num(s) { const n = parseFloat(String(s).replace(',', '.')); return isNaN(n) ? 0 : n; }
+  preco() { return this.num(this.state.cad.preco) || 300; }
+  rendimento() { return (this.num(this.state.cad.rendimento) || 50) / 100; }
+  meta() { return parseInt(this.state.cad.meta, 10) || 0; }
+  calc(pesoKg, qtd, desc) {
+    const liquido = Math.max(0, pesoKg - desc * qtd);
+    const arrobas = liquido * this.rendimento() / 15;
+    return { liquido, arrobas, valor: arrobas * this.preco() };
+  }
+  brl(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  ident() { return this.state.modo === 'identificado'; }
+  nomes() {
+    const t = this.state.cad.tipo;
+    return t === 'Vaca' ? { s: 'vaca', p: 'vacas', P: 'Vacas', N: 'VACA Nº', col: 'Vaca Nº' }
+      : t === 'Novilha' ? { s: 'novilha', p: 'novilhas', P: 'Novilhas', N: 'NOVILHA Nº', col: 'Novilha Nº' }
+      : { s: 'boi', p: 'bois', P: 'Bois', N: 'BOI Nº', col: 'Boi Nº' };
+  }
+  cabecas() { const ident = this.ident(); return this.state.linhas.reduce((a, l) => a + (ident ? 1 : (parseInt(l.qtd, 10) || 0)), 0); }
+  digitar(d) {
+    this.clique();
+    this.setState(s => {
+      if (s.modo === 'identificado' && s.campo === 'numero') return { numero: (s.numero + d).slice(0, 4), alerta: null };
+      return { peso: ((s.peso === '0' ? '' : s.peso) + d).slice(0, 5), alerta: null };
+    });
+  }
+  apagar() {
+    this.tom([260], 0.09, 'sine', 0.13); this.vibrar(14);
+    this.setState(s => {
+      if (s.modo === 'identificado' && s.campo === 'numero') return { numero: s.numero.slice(0, -1), alerta: null };
+      return { peso: s.peso.length > 1 ? s.peso.slice(0, -1) : '0', alerta: null };
+    });
+  }
+  limpar() { this.tom([330, 200], 0.09, 'sawtooth', 0.1); this.vibrar([12, 40, 12]); this.setState({ peso: '0', numero: '', campo: 'numero', alerta: null }); }
+  alternarCampo() { this.tom([560], 0.05, 'square', 0.08); this.vibrar(8); this.setState(s => ({ campo: s.campo === 'numero' ? 'peso' : 'numero' })); }
+  erro() {
+    this.tom([180, 150], 0.12, 'sine', 0.12); this.vibrar([30, 60, 30]);
+    clearTimeout(this._tt);
+    this.setState({ treme: 0 }, () => {
+      requestAnimationFrame(() => { this.setState({ treme: 1 }); this._tt = setTimeout(() => this.setState({ treme: 0 }), 400); });
+    });
+  }
+  confirmar() {
+    if (this.state.finalizado) return this.erro();
+    const kg = parseInt(this.state.peso, 10) || 0;
+    if (!kg) return this.erro();
+    if (this.ident() && !this.state.numero) { this.erro(); this.setState({ campo: 'numero' }); return; }
+    const qtd = this.ident() ? 1 : this.state.qtd;
+    const porCab = kg / qtd, { min, max } = this.limites();
+    if (porCab < min || porCab > max) {
+      this.tom([440, 440], 0.18, 'square', 0.12); this.vibrar([60, 80, 60]);
+      this.setState({ alerta: {
+        titulo: porCab < min ? 'Peso muito baixo' : 'Peso muito alto',
+        texto: Math.round(porCab) + ' kg por cabeça. O normal fica entre ' + min + ' e ' + max + ' kg. Confere na balança?'
+      } });
+      return;
+    }
+    this.salvar();
+  }
+  salvar() {
+    const kg = parseInt(this.state.peso, 10) || 0;
+    const qtd = this.ident() ? 1 : this.state.qtd;
+    const n = this.nomes();
+    this.tom([523, 784, 1046], 0.13, 'triangle', 0.14); this.vibrar([18, 40, 30]);
+    const { liquido, arrobas, valor } = this.calc(kg, qtd, this.state.desconto);
+    const anterior = this.state.linhas;
+    this.setState(s => {
+      const num = (s.linhas[0] ? s.linhas[0].num : 0) + 1;
+      const linha = { num, qtd: s.modo === 'identificado' ? s.numero : String(qtd), peso: String(liquido), arrobas: arrobas.toFixed(2) + '@', valor: 'R$' + Math.round(valor) };
+      if (s.desconto) linha.desconto = '-' + s.desconto + 'kg';
+      const texto = s.modo === 'identificado'
+        ? '✓ ' + n.s.charAt(0).toUpperCase() + n.s.slice(1) + ' nº ' + s.numero + ': ' + liquido + ' kg salvo'
+        : '✓ #' + num + ' salva: ' + liquido + ' kg — ' + qtd + ' ' + n.p + (s.desconto ? ' — desc ' + s.desconto + ' kg/cab' : '');
+      return { linhas: [linha, ...s.linhas], peso: '0', numero: '', campo: 'numero', alerta: null, desfazer: { texto, anterior, peso: s.peso, numero: s.numero } };
+    }, () => this.checarMeta());
+    clearTimeout(this._t); this._t = setTimeout(() => this.setState({ desfazer: null }), 5000);
+  }
+  checarMeta() {
+    const m = this.meta();
+    if (m && !this.state.metaBatida && this.cabecas() >= m) {
+      setTimeout(() => { this.tom([660, 880, 1320, 1760], 0.16, 'triangle', 0.14); this.vibrar([40, 60, 40, 60, 120]); }, 350);
+      this.setState({ metaBatida: true });
+    }
+  }
+  desfazer() {
+    const d = this.state.desfazer; if (!d) return;
+    clearTimeout(this._t);
+    this.tom([600, 400], 0.1, 'triangle', 0.12); this.vibrar([20, 30, 20]);
+    this.setState({ linhas: d.anterior, peso: d.peso, numero: d.numero, campo: 'peso', desfazer: null }, () => {
+      if (this.meta() && this.cabecas() < this.meta()) this.setState({ metaBatida: false });
+    });
+  }
+  excluir(num) { this.tom([300, 180], 0.1, 'sine', 0.12); this.setState(s => ({ linhas: s.linhas.filter(l => l.num !== num) })); }
+  abrirFolha(campo) {
+    this.clique();
+    const c = this.state.cad;
+    const valor = campo === 'nome' ? c.nome : campo === 'tipo' ? c.tipo : (c[campo] || '0');
+    this.setState({ folha: { campo, valor } });
+  }
+  folhaSalvar() {
+    const f = this.state.folha; if (!f) return;
+    this.tom([523, 784], 0.1, 'triangle', 0.12); this.vibrar([12, 30, 12]);
+    this.setState(s => {
+      const cad = Object.assign({}, s.cad);
+      let v = f.valor;
+      if (f.campo !== 'nome' && f.campo !== 'tipo') v = v === '' || v === '.' ? '0' : v.replace(/^0+(?=\d)/, '');
+      cad[f.campo] = v;
+      const extra = f.campo === 'desconto' ? { desconto: parseInt(v, 10) || 0 } : {};
+      return Object.assign({ cad, folha: null, metaBatida: false }, extra);
+    }, () => this.checarMeta());
+  }
+  finalizar() {
+    if (!this.state.linhas.length) return this.erro();
+    this.tom([523, 659, 784, 1046], 0.14, 'triangle', 0.14); this.vibrar([20, 40, 20, 40, 60]);
+    this.setState({ finalizado: true, folhaFinal: true, desfazer: null, alerta: null });
+  }
+  novoLote() {
+    if (!this.state.finalizado) return this.erro();
+    this.tom([784, 1046], 0.1, 'triangle', 0.12); this.vibrar([12, 30, 12]);
+    this.setState(s => ({ tela: 'cadastro', folhaFinal: false, finalizado: false, metaBatida: false, linhas: [], peso: '0', numero: '', campo: 'numero', alerta: null, desfazer: null, cad: Object.assign({}, s.cad, { nome: '', meta: '' }) }));
+  }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._tt); }
+  renderVals() {
+    const s = this.state, c = s.cad, ident = this.ident(), n = this.nomes();
+    const sol = s.sol ?? this.props.modoSol ?? false;
+    const kg = parseInt(s.peso, 10) || 0;
+    const previa = this.calc(kg, ident ? 1 : s.qtd, s.desconto);
+    const cab = this.cabecas();
+    const pesoTotal = s.linhas.reduce((a, l) => a + (parseInt(l.peso, 10) || 0), 0);
+    const arrobasTotal = pesoTotal * this.rendimento() / 15;
+    const valorTotal = arrobasTotal * this.preco();
+    const meta = this.meta();
+    const pct = meta ? Math.min(100, Math.round(cab / meta * 100)) : 0;
+    const f = s.folha;
+    const rotulos = { preco: 'Preço da arroba', meta: 'Meta de cabeças', rendimento: 'Rendimento de carcaça', desconto: 'Desconto padrão', nome: 'Vendedor / Comprador', tipo: 'O que vai pesar?' };
+    const unidades = { preco: 'R$/@', meta: n.p, rendimento: '%', desconto: 'kg/cab' };
+    const dicas = { preco: 'Use o ponto para centavos: 300.50', meta: 'Deixe 0 para pesar sem meta', rendimento: 'Boi gordo costuma dar 50 a 54%', desconto: 'Desconto por cabeça, ex.: 20 kg para fêmea prenha' };
+    const tipos = ['Boi', 'Vaca', 'Novilha'].map(t => ({
+      nome: t, marca: (f && f.valor === t) ? '✓ escolhido' : '', classe: '',
+      escolher: () => { this.clique(); this.setState({ folha: { campo: 'tipo', valor: t } }, () => this.folhaSalvar()); }
+    }));
+    return {
+      verdadeiro: true,
+      classeSol: sol ? 'boi-sol' : '',
+      telaCadastro: s.tela === 'cadastro', telaPesagem: s.tela === 'pesagem',
+      cadNome: c.nome, cadTipo: c.tipo,
+      cadPrecoTexto: this.brl(this.preco()) + '/@',
+      cadMetaTexto: meta ? meta + ' ' + n.p : '',
+      cadRendimentoTexto: (this.num(c.rendimento) || 50) + '%',
+      cadDescontoTexto: (parseInt(c.desconto, 10) || 0) + ' kg/cab',
+      explicacaoModo: ident ? 'Cada animal entra com o número do brinco e o peso.' : 'Pesa a balançada inteira: só a quantidade e o peso.',
+      editarNome: () => this.abrirFolha('nome'), editarPreco: () => this.abrirFolha('preco'), editarMeta: () => this.abrirFolha('meta'),
+      editarRendimento: () => this.abrirFolha('rendimento'), editarDesconto: () => this.abrirFolha('desconto'), editarTipo: () => this.abrirFolha('tipo'),
+      comecar: () => { this.tom([523, 784, 1046], 0.13, 'triangle', 0.14); this.vibrar([18, 40, 30]); this.setState({ tela: 'pesagem', finalizado: false }); },
+      cabecalhoCliente: c.nome || '—', cabecalhoPreco: this.brl(this.preco()) + '/@',
+      progressoTexto: meta ? cab + ' de ' + meta + ' ' + n.p + (s.metaBatida ? ' · meta batida ✓' : '') : cab + ' ' + n.p + ' · toque para pôr meta',
+      barra: React.createElement('div', { style: { height: '100%', width: (meta ? pct : 0) + '%', borderRadius: 999, background: s.metaBatida ? 'linear-gradient(90deg,#16a34a,#22c55e)' : 'linear-gradient(90deg,var(--boi-dourado),#f0d060)', transition: 'width .45s ease, background .3s ease' } }),
+      peso: s.peso, qtd: s.qtd, desconto: s.desconto, modo: s.modo, modoNormal: !ident,
+      rotuloRegua: n.P + ':',
+      numeroAnimal: ident ? (s.numero || '—') : undefined,
+      rotuloNumero: ident ? n.N : undefined,
+      campoAtivo: ident ? s.campo : undefined,
+      colunaQtd: ident ? n.col : 'Qtd',
+      rotuloModo: ident ? '🔢 COM Nº' : 'SEM Nº',
+      dicaModo: s.finalizado ? 'lote finalizado · toque NOVO LOTE' : ident ? (s.campo === 'numero' ? 'digitando o número do brinco' : 'digitando o peso') : s.qtd + ' ' + n.p + ' na balança',
+      classeTreme: s.treme ? 'boi-treme' : '',
+      classeNovoLote: s.finalizado ? '' : 'boi-desab',
+      estadoLote: s.finalizado ? 'FINALIZADO' : 'em andamento',
+      linhas: s.linhas,
+      digitar: d => this.digitar(d), apagar: () => this.apagar(), limpar: () => this.limpar(),
+      confirmar: () => this.confirmar(), alternarCampo: () => this.alternarCampo(), excluir: num => this.excluir(num),
+      escolherDesconto: v => { this.tom([660], 0.05, 'square', 0.08); this.setState({ desconto: v }); },
+      escolherModo: m => { this.tom([660], 0.05, 'square', 0.08); this.setState({ modo: m, peso: '0', numero: '', campo: 'numero', alerta: null }); },
+      alternarModo: () => { this.tom([660], 0.05, 'square', 0.08); this.setState(x => ({ modo: x.modo === 'normal' ? 'identificado' : 'normal', peso: '0', numero: '', campo: 'numero', alerta: null })); },
+      alternarSom: () => { this.tom([700], 0.05, 'square', 0.08); this.setState(x => ({ som: !x.som })); },
+      alternarSol: () => { this.tom([700], 0.05, 'square', 0.08); this.setState({ sol: !sol }); },
+      iconeSom: s.som ? '🔊' : '🔇',
+      temAlerta: !!s.alerta, alertaTitulo: s.alerta ? s.alerta.titulo : '', alertaTexto: s.alerta ? s.alerta.texto : '',
+      corrigir: () => { this.tom([260], 0.09, 'sine', 0.13); this.setState({ alerta: null, campo: 'peso' }); },
+      salvarMesmoAssim: () => this.salvar(),
+      temDesfazer: !!s.desfazer, aviso: s.desfazer ? s.desfazer.texto : '', desfazer: () => this.desfazer(),
+      finalizar: () => this.finalizar(), novoLote: () => this.novoLote(),
+      temFolha: !!f,
+      folhaTitulo: f ? rotulos[f.campo] : '',
+      folhaNumerica: !!f && f.campo !== 'nome' && f.campo !== 'tipo',
+      folhaTexto: !!f && f.campo === 'nome',
+      folhaTipo: !!f && f.campo === 'tipo',
+      folhaValor: f ? f.valor : '',
+      folhaUnidade: f ? unidades[f.campo] || '' : '',
+      folhaDica: f ? dicas[f.campo] || '' : '',
+      tipos,
+      fecharFolha: () => { this.tom([260], 0.07, 'sine', 0.1); this.setState({ folha: null }); },
+      folhaDigitar: d => { this.clique(); this.setState(x => { const v = x.folha.valor; if (d === '.' && (v.includes('.') || x.folha.campo !== 'preco')) return null; return { folha: Object.assign({}, x.folha, { valor: ((v === '0' && d !== '.') ? '' : v) + d }) }; }); },
+      folhaApagar: () => { this.tom([260], 0.09, 'sine', 0.13); this.setState(x => ({ folha: Object.assign({}, x.folha, { valor: x.folha.valor.length > 1 ? x.folha.valor.slice(0, -1) : '0' }) })); },
+      folhaLimpar: () => { this.tom([330, 200], 0.09, 'sawtooth', 0.1); this.setState(x => ({ folha: Object.assign({}, x.folha, { valor: '0' }) })); },
+      folhaConfirmar: () => this.folhaSalvar(),
+      folhaDigitarTexto: e => { const v = e.target.value; this.setState(x => ({ folha: Object.assign({}, x.folha, { valor: v }) })); },
+      temFolhaFinal: s.folhaFinal,
+      fecharFolhaFinal: () => { this.tom([260], 0.07, 'sine', 0.1); this.setState({ folhaFinal: false }); },
+      exportar: () => { this.tom([784, 1046], 0.1, 'triangle', 0.12); this.vibrar([12, 30, 12]); },
+      resumoLinha: cab + ' ' + n.p + ' · ' + pesoTotal.toLocaleString('pt-BR') + ' kg · ' + arrobasTotal.toFixed(1) + '@ · ' + this.brl(valorTotal),
+      previaArrobas: previa.arrobas.toFixed(2) + '@', previaValor: this.brl(previa.valor),
+      totalCabecas: cab + ' ' + (cab === 1 ? n.s : n.p),
+      totalPeso: pesoTotal.toLocaleString('pt-BR') + ' kg',
+      totalValor: 'R$ ' + Math.round(valorTotal).toLocaleString('pt-BR'),
+      itensResumo: [
+        { rotulo: 'Total de ' + n.P, valor: meta ? cab + ' de ' + meta : cab + ' ' + n.p },
+        { rotulo: 'Peso Total', valor: pesoTotal.toLocaleString('pt-BR') + ' kg' },
+        { rotulo: 'Média de @', valor: (cab ? (arrobasTotal / cab).toFixed(2) : '0.00') + ' @/cab' },
+        { rotulo: 'Média de kg/' + n.s, valor: (cab ? (pesoTotal / cab).toFixed(1) : '0.0') + ' kg/cab' },
+        { rotulo: 'Valor Total', valor: this.brl(valorTotal), destaque: 'dinheiro', largo: true },
+        { rotulo: 'Base de cálculo', valor: Math.round(this.rendimento() * 100) + '% rendimento · ' + this.brl(this.preco()) + '/@ · desconto ' + s.desconto + ' kg/cab' + (meta && !s.metaBatida ? ' · 🐂 faltam ' + Math.max(0, meta - cab) + ' ' + n.p : ''), destaque: 'texto', largo: true }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

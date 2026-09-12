@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+:root{
+--boi-brown-950:#1B110B;--boi-brown-900:#241710;--boi-brown-800:#3A2519;--boi-brown-700:#4E3323;--boi-brown-600:#6B4A33;--boi-brown-400:#9A7455;
+--boi-gold-500:#D6A93C;--boi-gold-400:#EFC763;--boi-gold-600:#A9821F;
+--boi-cream-50:#FAF5ED;--boi-cream-100:#F4ECE0;--boi-cream-200:#E8DCCA;--boi-cream-300:#D6C6AE;
+--boi-clay:#A8452F;--boi-pasture:#5E7B4B;
+--boi-font-ui:'Space Grotesk',Helvetica,sans-serif;--boi-font-num:'IBM Plex Mono',ui-monospace,monospace;
+--boi-r-sm:8px;--boi-r-md:14px;--boi-r-lg:22px;--boi-r-pill:999px;
+--boi-s-1:4px;--boi-s-2:8px;--boi-s-3:12px;--boi-s-4:16px;--boi-s-5:24px;--boi-s-6:32px;
+--boi-shadow-card:0 1px 0 rgba(255,255,255,.35) inset,0 10px 24px -12px rgba(36,23,16,.45);
+}
+body{font-family:var(--boi-font-ui);color:var(--boi-brown-900);background:var(--boi-cream-100)}
+a{color:var(--boi-gold-600)}a:hover{color:var(--boi-brown-800)}
+.boi-num{font-family:var(--boi-font-num);font-variant-numeric:tabular-nums;letter-spacing:-.02em}

@@ -11,3 +11,8 @@
 - O design system NÃO é gerado do index.html: é cópia manual dos estilos. Drift entre app e DS é silencioso — conferir styles.css contra o app a cada versão nova do app.
 - Symlink do chromium é efêmero (container). Sem ele o validate cai em [RENDER_SKIPPED].
 - Dados dos previews (pesos, R$) são amostras estáticas; se a linguagem do app mudar (ex.: novos tipos de animal), atualizar previews.
+
+## Handoffs
+- `design/handoff-tela-pesagem-pro/` (11/09/2026) — spec hi-fi das 3 telas do fluxo de pesagem (cadastro do lote → pesagem → folha de finalizar), o protótipo `TelaPesagemPro.dc.html` e os `.prompt.md` dos 12 componentes usados. São referências de design, não código de produção — o app já ganhou essas telas em `v13` (#16) e `v14` (#17); o pacote fica como a fonte visual dessas versões.
+- Ignorar o `styles.css` DESSE pacote — ele traz o tema do canvas do Claude Design (`--boi-brown-950`, `--boi-gold-500`, fontes Space Grotesk / IBM Plex Mono), não os tokens do projeto. A verdade continua em `design-system/src/styles.css` (marrom `#8B4513`, dourado `#d4af37`, fonte do sistema).
+- O `_ds_bundle.css` do pacote é cópia byte a byte (11.047 bytes) do `design-system/src/styles.css` de 11/09/2026 — snapshot datado, não segunda fonte de verdade.
