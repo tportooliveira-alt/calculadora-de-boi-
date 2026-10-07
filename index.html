@@ -62,8 +62,9 @@ body.sol .marca-rodape a{color:#22c55e}
 .dval{font-size:46px;font-weight:900;color:#d4af37;font-family:-apple-system,system-ui,monospace;font-variant-numeric:tabular-nums}
 .dunit{font-size:15px;color:#f4e4c1;margin-left:6px}
 .dcampo{display:flex;align-items:center;gap:4px;padding:2px 10px;border-radius:8px;border:2px solid transparent}
-.display.ident{justify-content:space-between}
+.display.ident{justify-content:space-between;flex-wrap:wrap}
 .display.ident .dcampo.ativo{border-color:#d4af37;background:rgba(212,175,55,.15)}
+.dlista{flex-basis:100%;margin-top:6px;padding:0 10px;font-size:13px;font-weight:700;color:#f4e4c1;line-height:1.35}
 
 /* QUANTIDADE PICKER */
 .qtd-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
@@ -109,6 +110,8 @@ body.sol .marca-rodape a{color:#22c55e}
 .tab-row:nth-child(even){background:#fdf9f3}
 .tab-row span{font-size:12px;color:#654321;text-align:center;font-weight:600}
 .tab-row span.n{color:#8B4513;font-weight:900}
+.tab-row .nums{display:flex;flex-wrap:wrap;justify-content:center;gap:0 4px;font-size:11px;font-weight:700}
+.tab-row .nums i{font-style:normal}
 .tab-total{background:linear-gradient(135deg,#2d1f13,#3d2b1f);padding:9px 4px}
 .tab-total span{color:#d4af37;font-size:11px;font-weight:900;text-align:center}
 .tab-total .tlbl{font-size:10px;text-align:left;padding-left:2px;letter-spacing:-.02em}
@@ -278,6 +281,7 @@ body.sol .tot-cel.escuro span:last-child{color:#ffd84a}
 body.sol .meta-trilho{background:rgba(255,255,255,.14)}
 body.sol .display{background:linear-gradient(135deg,#000,#161616);border-color:#f5c518}
 body.sol .dval{color:#f5c518}
+body.sol .dlista{color:#fff}
 body.sol .key,body.sol .desc-chip,body.sol .qtd-wrap,body.sol .pill-modo,body.sol .btn-redondo,body.sol .rodape-acoes .rn{background:#121212;color:#fff}
 body.sol .key{box-shadow:0 3px 0 #000,inset 0 1px 0 rgba(255,255,255,.1)}
 body.sol .key:active{background:#f5c518;color:#000}
@@ -340,7 +344,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
         <label id="lblIdent">🏷️ Quer identificar os animais com número?</label>
         <div style="display:flex;gap:8px">
           <button type="button" class="modo-btn sel" id="btnModoNormal" onclick="setModo('normal')">🐂 Do nosso jeito<br><small>por balançada</small></button>
-          <button type="button" class="modo-btn" id="btnModoIdent" onclick="setModo('ident')">Identificar<br><small>nº do boi + peso</small></button>
+          <button type="button" class="modo-btn" id="btnModoIdent" onclick="setModo('ident')">Identificar<br><small>nº de cada boi + peso</small></button>
         </div>
       </div>
       <div class="campo"><label>Vendedor / Comprador</label><input id="iVendedor" type="text" placeholder="Nome"></div>
@@ -388,6 +392,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
           <span class="dval" id="dval">0</span>
           <span class="dunit">kg</span>
         </div>
+        <div class="dlista" id="dlista" style="display:none"></div>
       </div>
 
       <!-- PRÉVIA + MODO + SOM + SOL -->
@@ -427,7 +432,7 @@ body.sol .folha-caixa input{background:#000;color:#fff;border-color:#f5c518}
         <button class="key" onclick="dig('1')">1</button>
         <button class="key" onclick="dig('2')">2</button>
         <button class="key" onclick="dig('3')">3</button>
-        <button class="key" onclick="dig('.')">.</button>
+        <button class="key" id="keyPonto" onclick="teclaPonto()">.</button>
 
         <button class="key prox" id="keyProx" onclick="proximo()">OK</button>
         <button class="key" id="key0" onclick="dig('0')">0</button>
@@ -624,6 +629,7 @@ let peso = '';
 let precoVenda = 0;
 let unidade = 'kg';
 let boiNum = '';
+let boisNum = [];  // números já postos com "+ Nº" na balançada que está no visor
 let alvo = 'peso'; // no modo identificado, alterna entre 'boi' e 'peso'
 
 // ─── Marca de quem entrega o app ─────────────────────────────────────────────
@@ -735,6 +741,16 @@ const arred = (n, c) => Math.round((n + Number.EPSILON) * 10**c) / 10**c;   // m
 function fmtNum(n) { return arred(n, 1).toLocaleString('pt-BR', { maximumFractionDigits: 1 }); }
 function fmtKg(n)  { return fmtNum(n) + ' kg'; }
 function fmtDin(n) { return arred(n, 2).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+// ─── Números dos animais ─────────────────────────────────────────────────────
+// Vários bois pesados juntos ficam na MESMA pesagem, com os números separados
+// por vírgula: "123, 456, 789". Um boi só continua como sempre foi: "123".
+function numerosDe(r) { return String(r.boi || '').split(',').map(s => s.trim()).filter(Boolean); }
+function numerosNoVisor() { return boiNum ? [...boisNum, boiNum] : boisNum.slice(); }
+// "0123" e "123" são o mesmo brinco
+const chaveBoi = n => String(parseInt(n, 10) >= 0 ? parseInt(n, 10) : n);
+// ["1","2","3"] → "1, 2 e 3"
+function listaPt(l) { return l.length > 1 ? l.slice(0, -1).join(', ') + ' e ' + l[l.length - 1] : (l[0] || ''); }
 
 // ─── Persistência localStorage ────────────────────────────────────────────────
 const LS_KEY = 'boi_lote_v1';
@@ -876,6 +892,7 @@ function ativarTelaPesagem() {
   montarDescChips();
   aplicarPrefs();
   renderTabela();
+  pintarTeclaPonto();
   atualizar();
 }
 
@@ -884,7 +901,7 @@ function alternarModoPes() {
   somTroca();
   window._modo = window._modo === 'ident' ? 'normal' : 'ident';
   setModo(window._modo);
-  peso = ''; boiNum = '';
+  peso = ''; boiNum = ''; boisNum = [];
   ativarTelaPesagem();
   salvarLocal();
 }
@@ -1027,7 +1044,9 @@ function lerLinkLote(hash) {
       const arr = (liq * (rend / 100)) / 15;
       return {
         id: base + i, num: parseInt(c[0], 10) || (i + 1), qtd,
-        boi: decodeURIComponent(c[2] || ''), desc, peso,
+        // Brinco é só número. O resto é descartado: esse texto veio de fora e
+        // vai pra tela.
+        boi: (decodeURIComponent(c[2] || '').match(/\d+/g) || []).join(', '), desc, peso,
         arr: arr.toFixed(2),
         valor: preco > 0 ? (uni === 'arroba' ? arr * preco : liq * preco) : 0
       };
@@ -1464,10 +1483,38 @@ function setAlvo(a) {
   alvo = a;
   document.getElementById('boiBox').classList.toggle('ativo', a === 'boi');
   document.getElementById('pesoBox').classList.toggle('ativo', a === 'peso');
+  pintarTeclaPonto();
   atualizarPrevia();
 }
 
 function digitandoBoi() { return window._modo === 'ident' && alvo === 'boi'; }
+
+// Brinco não tem vírgula: com a caixinha do número acesa, a tecla "." vira
+// "+ Nº" e guarda o número pra digitar o do próximo animal da balançada.
+function pintarTeclaPonto() {
+  const k = document.getElementById('keyPonto');
+  if (!k) return;
+  const mais = digitandoBoi();
+  k.textContent = mais ? '+ Nº' : '.';
+  k.classList.toggle('prox', mais);
+}
+function teclaPonto() { if (digitandoBoi()) maisUmNumero(); else dig('.'); }
+
+function maisUmNumero() {
+  fecharAlerta();
+  if (!boiNum) { erroTreme(); return; }
+  if (boisNum.some(n => chaveBoi(n) === chaveBoi(boiNum))) {
+    erroTreme();
+    alert(`O nº ${boiNum} já está nesta balançada.`);
+    boiNum = '';
+    atualizar();
+    return;
+  }
+  somTroca();
+  boisNum.push(boiNum);
+  boiNum = '';
+  atualizar();
+}
 
 function dig(v) {
   somClique();
@@ -1489,14 +1536,21 @@ function dig(v) {
 function apagar() {
   somApagar();
   fecharAlerta();
-  if (digitandoBoi()) { boiNum = boiNum.slice(0,-1); atualizar(); return; }
+  if (digitandoBoi()) {
+    if (boiNum) boiNum = boiNum.slice(0,-1);
+    else if (boisNum.length) boiNum = boisNum.pop();   // traz o último de volta pra corrigir
+    atualizar();
+    return;
+  }
   peso = peso.slice(0,-1); atualizar();
 }
+// CLR limpa só a caixinha acesa: com cinco bois na balança, errar o peso não
+// pode custar digitar os cinco brincos de novo.
 function limpar()  {
   somLimpar();
   fecharAlerta();
-  peso = '';
-  if (window._modo === 'ident') { boiNum = ''; setAlvo('boi'); }
+  if (digitandoBoi()) { boiNum = ''; boisNum = []; }
+  else peso = '';
   atualizar();
 }
 function proximo() {
@@ -1508,6 +1562,14 @@ function atualizar() {
   document.getElementById('dval').textContent = peso || '0';
   const dboi = document.getElementById('dboi');
   if (dboi) dboi.textContent = boiNum || '—';
+  // Depois do primeiro "+ Nº", mostra todos os números que já estão na balança
+  const lista = document.getElementById('dlista');
+  if (lista) {
+    const nums = numerosNoVisor(), a = anim();
+    const mostra = window._modo === 'ident' && boisNum.length > 0;
+    lista.style.display = mostra ? 'block' : 'none';
+    lista.textContent = mostra ? `${nums.length} ${(nums.length > 1 ? a.p : a.s).toLowerCase()} na balança: ${nums.join(' · ')}` : '';
+  }
   atualizarPrevia();
 }
 
@@ -1518,7 +1580,7 @@ function atualizarPrevia() {
   if (!elP) return;
   const ident = window._modo === 'ident';
   const p = parseFloat(peso) || 0;
-  const qtd = ident ? 1 : (parseInt(document.getElementById('iQtd').value) || 1);
+  const qtd = ident ? Math.max(numerosNoVisor().length, 1) : (parseInt(document.getElementById('iQtd').value) || 1);
   const desc = window._descSel !== undefined ? window._descSel : (window._desc || 0);
   const rend = (window._rend || 50) / 100;
   const pesoLiq = Math.max(p - qtd * desc, 0);
@@ -1531,7 +1593,9 @@ function atualizarPrevia() {
   elP.textContent = txt;
   const a = anim();
   if (elD) elD.textContent = ident
-    ? (alvo === 'boi' ? 'digitando o número do brinco' : 'digitando o peso')
+    ? (alvo === 'boi'
+        ? (boisNum.length ? 'nº do próximo ou OK pro peso' : 'nº do brinco · + Nº põe outro')
+        : (qtd > 1 ? `peso d${a.art}s ${qtd} ${a.p.toLowerCase()}` : 'digitando o peso'))
     : qtd + ' ' + (qtd > 1 ? a.p : a.s).toLowerCase() + ' na balança';
 }
 
@@ -1618,16 +1682,25 @@ function salvar(forcar) {
   const ident = window._modo === 'ident';
   const p = parseFloat(peso);
   if (!p || p <= 0) { erroTreme(); return; }
+  const nums = ident ? numerosNoVisor() : [];
   if (ident) {
     const an = anim();
-    if (!boiNum) { alert(`Digite o número d${an.art} ${an.s.toLowerCase()}!\n\n(Toca na caixinha ${an.s.toUpperCase()} Nº e digita o número)`); setAlvo('boi'); return; }
-    const chaveBoi = n => String(parseInt(n, 10) >= 0 ? parseInt(n, 10) : n);
-    if (pesagens.some(r => r.boi && chaveBoi(r.boi) === chaveBoi(boiNum))) {
-      if (!confirm(`⚠️ ${an.art === 'a' ? 'A' : 'O'} ${an.s.toLowerCase()} nº ${boiNum} já foi pesad${an.art}!\n\nSalvar mesmo assim?`)) return;
+    if (!nums.length) { alert(`Digite o número d${an.art} ${an.s.toLowerCase()}!\n\n(Toca na caixinha ${an.s.toUpperCase()} Nº e digita o número)`); setAlvo('boi'); return; }
+    const repetido = nums.find((n, i) => nums.findIndex(m => chaveBoi(m) === chaveBoi(n)) !== i);
+    if (repetido) {
+      erroTreme();
+      alert(`O nº ${repetido} está duas vezes nesta balançada.\n\nApague um deles com ⌫ antes de salvar.`);
+      setAlvo('boi');
+      return;
     }
+    // Com "forcar" a pergunta já foi feita: veio do SALVAR ASSIM MESMO do aviso de peso
+    const jaPesados = new Set(pesagens.flatMap(r => numerosDe(r).map(chaveBoi)));
+    const dup = forcar ? [] : nums.filter(n => jaPesados.has(chaveBoi(n)));
+    if (dup.length === 1 && !confirm(`⚠️ ${an.art === 'a' ? 'A' : 'O'} ${an.s.toLowerCase()} nº ${dup[0]} já foi pesad${an.art}!\n\nSalvar mesmo assim?`)) return;
+    if (dup.length > 1 && !confirm(`⚠️ ${an.art === 'a' ? 'As' : 'Os'} ${an.p.toLowerCase()} nº ${listaPt(dup)} já foram pesad${an.art}s!\n\nSalvar mesmo assim?`)) return;
   }
 
-  const qtd         = ident ? 1 : (parseInt(document.getElementById('iQtd').value) || 1);
+  const qtd         = ident ? nums.length : (parseInt(document.getElementById('iQtd').value) || 1);
 
   // Peso por cabeça muito fora do normal pra esse bicho? Pergunta antes de salvar.
   const aL = anim();
@@ -1669,7 +1742,7 @@ function salvar(forcar) {
     id:    Date.now(),
     num:   window._seq,
     qtd,
-    boi:   ident ? boiNum : '',
+    boi:   nums.join(', '),
     desc,
     peso:  p,
     arr:   arr.toFixed(2),
@@ -1683,6 +1756,7 @@ function salvar(forcar) {
   // tela convidando um segundo toque no ✓ (que gravaria a mesma pesagem 2x).
   peso = '';
   boiNum = '';
+  boisNum = [];
 
   renderTabela();
   piscarTotais();
@@ -1719,10 +1793,15 @@ function renderTabela() {
   // cabeça e o peso líquido, pra dar pra conferir a conta na mão.
   body.innerHTML = pesagens.map(r => {
     const liq = Math.max(r.peso - r.qtd * (r.desc || 0), 0);
+    const nums = numerosDe(r);
+    // Coluna estreita: vários bois na mesma balançada viram "3 cab" + os números miúdos
+    const quem = nums.length > 1
+      ? `${nums.length} cab<small class="nums">${nums.map(n => `<i>${n}</i>`).join('')}</small>`
+      : (r.boi ? r.boi : r.qtd);
     return `
     <div class="tab-row">
       <span class="n">${r.num}</span>
-      <span>${r.boi ? r.boi : r.qtd}${(r.desc||0)>0?`<small style="display:block;font-size:10px;color:#8f4700;font-weight:700">-${r.desc}/cab</small>`:''}</span>
+      <span>${quem}${(r.desc||0)>0?`<small style="display:block;font-size:10px;color:#8f4700;font-weight:700">-${r.desc}/cab</small>`:''}</span>
       <span>${fmtNum(r.peso)}${(r.desc||0)>0?`<small style="display:block;font-size:10px;color:#8f4700;font-weight:700">líq ${fmtNum(liq)}</small>`:''}</span>
       <span>${r.arr}@</span>
       <span>${r.valor > 0 ? fmtDin(r.valor) : '—'}</span>
@@ -1826,7 +1905,11 @@ function atualizarFaixas(cab, kg, valor) {
 
 function excluir(id) {
   const r = pesagens.find(x => x.id === id);
-  const desc = r ? (r.boi ? `${anim().s.toLowerCase()} nº ${r.boi} (${r.peso} kg)` : `#${r.num} — ${r.peso} kg`) : 'esta pesagem';
+  const nums = r ? numerosDe(r) : [];
+  const desc = !r ? 'esta pesagem'
+    : nums.length > 1 ? `#${r.num} — ${nums.length} ${anim().p.toLowerCase()} nº ${listaPt(nums)} (${r.peso} kg)`
+    : r.boi ? `${anim().s.toLowerCase()} nº ${r.boi} (${r.peso} kg)`
+    : `#${r.num} — ${r.peso} kg`;
   if (!confirm(`Apagar ${desc}?`)) return;
   somExcluir();
   // Não renumera: o nº de cada pesagem é fixo desde que foi salva, senão a
@@ -1919,9 +2002,8 @@ function montarRelatorioWb() {
   });
 
   // Pesagens (a partir da linha 8)
-  const temIdent  = pesagens.some(p => p.boi);
-  const temBalanc = pesagens.some(p => !p.boi);
-  put(8,0,xsCel(temIdent && !temBalanc ? `⚖️  PESAGENS — UM ${aX.s.toUpperCase()} POR LINHA` : '⚖️  PESAGENS — PESO POR BALANÇADA', sSecao));
+  const umPorLinha = pesagens.every(p => p.boi && p.qtd === 1);
+  put(8,0,xsCel(umPorLinha ? `⚖️  PESAGENS — UM ${aX.s.toUpperCase()} POR LINHA` : '⚖️  PESAGENS — PESO POR BALANÇADA', sSecao));
   for (let c=1;c<=UC;c++) put(8,c,xsCel('', sSecao));
   mesclar(8,0,8,UC);
   const cab = ['Nº', `Nº d${aX.art} ${aX.s}`, 'Cabeças', 'Peso bruto (kg)', 'Desc. (kg/cab)', 'Peso líq. (kg)', 'Arrobas (@)', 'Valor (R$)'];
@@ -1933,7 +2015,8 @@ function montarRelatorioWb() {
     const st = i % 2 === 1 ? sZebra : sCelula;
     const liq = Math.max(p.peso - p.qtd*(p.desc||0), 0);
     put(r,0,xsCel(p.num, st));
-    put(r,1,xsCel(p.boi || '—', st));            // o brinco vem da LINHA, não do modo atual
+    // o brinco vem da LINHA, não do modo atual; vários bois juntos quebram linha na célula
+    put(r,1,xsCel(p.boi || '—', p.qtd > 1 && p.boi ? Object.assign({}, st, { alignment: Object.assign({}, st.alignment, { wrapText: true }) }) : st));
     put(r,2,xsCel(p.qtd, st));
     put(r,3,xsCel(arred(p.peso,1), st, KG1));
     put(r,4,xsCel(p.desc || 0, st, KG));
@@ -1959,7 +2042,7 @@ function montarRelatorioWb() {
   mesclar(r,0,r,UC);
   const resumo = [
     [`Total de ${aX.p}`, totQtd, `#,##0 "${aX.p.toLowerCase()}"`],
-    [temIdent && !temBalanc ? 'Total de Pesagens' : 'Total de Balançadas', linhas.length, '#,##0'],
+    [umPorLinha ? 'Total de Pesagens' : 'Total de Balançadas', linhas.length, '#,##0'],
     ['Peso na Balança (bruto)', arred(totPeso,1), KG1],
     ['Desconto Total', arred(descTot,1), KG1],
     ['Peso Líquido (base do cálculo)', arred(totPeso - descTot,1), KG1],
@@ -2156,7 +2239,9 @@ function mandarWhatsApp() {
   const aW = anim();
   const lucro = (window._compra > 0 && totValor > 0) ? totValor - window._compra : null;
   const linhasPes = [...pesagens].reverse().map(r =>
-    r.boi
+    numerosDe(r).length > 1
+      ? `  #${r.num}: ${r.qtd} ${aW.p.toLowerCase()} (nº ${numerosDe(r).join(', ')}) — ${fmtNum(r.peso)}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$ '+fmtDin(r.valor):''}`
+    : r.boi
       ? `  #${r.num} ${aW.s} nº ${r.boi}: ${fmtNum(r.peso)}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$ '+fmtDin(r.valor):''}`
       : `  #${r.num}: ${r.qtd} ${(r.qtd>1?aW.p:aW.s).toLowerCase()} — ${fmtNum(r.peso)}kg${(r.desc||0)>0?` (desc ${r.desc}kg/cab)`:''} — ${r.arr}@${r.valor>0?' — R$ '+fmtDin(r.valor):''}`
   ).join('\n');
@@ -2255,8 +2340,10 @@ async function mandarPraPlanilha() {
     // valor = peso × R$/kg  e  valor = (peso × rend / 15) × R$/@
     preco: unidade === 'arroba' ? precoVenda : precoVenda * 15 / ((window._rend || 50) / 100),
     data: new Date().toISOString(),
+    // Vários brincos vão separados por " · ": no Google em português a vírgula
+    // é casa decimal, e "12, 5" podia virar o número 12,5.
     pesagens: pesagens.slice().reverse().map(p => ({
-      boi: p.boi || '', qtd: p.qtd || 1, peso: p.peso || 0, desconto: p.desc || 0,
+      boi: numerosDe(p).join(' · '), qtd: p.qtd || 1, peso: p.peso || 0, desconto: p.desc || 0,
     })),
   };
   const r = await fetch(url, {
@@ -2316,7 +2403,7 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 22;
+const APP_VERSAO = 23;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 preencherCadastroComPrefs();
