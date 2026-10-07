@@ -86,6 +86,8 @@ No celular, dentro da Calculadora de Boi:
 2. Lá embaixo, em **Planilha da fazenda**, cole o endereço e escreva a mesma
    senha que você pôs no código.
 3. Toque em **TESTAR** — ele diz na hora se conseguiu falar com a planilha.
+   Depois do teste, aparecem na planilha as abas **CONSULTA**, **ANIMAIS** e
+   **HISTÓRICO**.
 4. **✓ PRONTO**.
 
 Fica salvo no celular. Não precisa fazer de novo.
@@ -99,7 +101,36 @@ Pesa o lote normalmente. No fim, em **✓ FINALIZAR**, aparece o botão
 planilha na hora.
 
 Precisa de internet só nessa hora. Se estiver sem sinal no curral, o lote fica
-guardado no celular e você manda quando chegar em casa.
+guardado no celular e você manda quando chegar em casa — a data que vai pra
+planilha é a do dia em que pesou, não a do dia em que mandou.
+
+Tocou duas vezes sem querer? Não tem problema: a planilha reconhece a pesagem
+que já chegou e não repete.
+
+---
+
+## O histórico de cada animal
+
+Toda pesagem com número de brinco entra no histórico daquele animal. Quando o
+mesmo boi é pesado de novo, outro dia, a planilha mostra quanto ele pesava,
+quanto pesa agora e quanto ganhou.
+
+- **CONSULTA** — digite o número do brinco na casa amarela e aperte Enter.
+  Aparece o peso atual, quanto ganhou desde a pesagem anterior, o ganho total,
+  o ganho por dia e a lista de todas as pesagens dele. `010` e `10` são o
+  mesmo brinco.
+- **ANIMAIS** — um animal por linha, com a primeira e a última pesagem.
+- **HISTÓRICO** — todas as pesagens de todos os animais, um animal embaixo do
+  outro.
+
+**Pesou vários bois juntos?** Cada um fica com o **peso médio** da balançada
+(peso ÷ cabeças) e o histórico avisa: "média da balançada de 5". O peso exato
+de um animal só sai quando ele é pesado sozinho.
+
+**Não digite nas abas ANIMAIS e HISTÓRICO** — elas são refeitas a cada lote
+que chega. Corrigiu ou digitou uma pesagem à mão na aba PESAGENS? Use o menu
+**🐂 Calculadora de Boi** → **Atualizar histórico dos animais** (o menu aparece
+lá em cima, do lado de "Ajuda", depois que você abre a planilha de novo).
 
 ---
 
@@ -111,6 +142,9 @@ guardado no celular e você manda quando chegar em casa.
 | `não encontrei a aba PESAGENS` | A aba foi renomeada ou apagada. Volte o nome para PESAGENS. |
 | `não consegui falar com a planilha` | Sem internet, ou o endereço foi colado errado (tem que terminar em `/exec`). |
 | Foi pra planilha errada | Você criou o script fora da planilha. O Apps Script tem que ser aberto **de dentro dela**, pelo menu Extensões. |
+| O teste manda colar o `Codigo.gs` novo | Sua planilha está com o código de antes do histórico. Cole o `Codigo.gs` desta pasta por cima do antigo (mantendo a sua senha) e publique de novo, como no quadro abaixo. |
+| Não aparecem as abas ANIMAIS, HISTÓRICO e CONSULTA | Toque em **TESTAR** no aplicativo, ou mande um lote. Se mesmo assim não aparecerem, o código na planilha é o antigo (linha de cima). |
+| O boi não aparece na CONSULTA | Ele só entra no histórico se a pesagem tiver data e número de brinco. Pesagem feita no modo **SEM Nº** não tem brinco. |
 
 **Mudou o código depois?** Precisa publicar de novo: **Implantar** →
 **Gerenciar implantações** → lápis → **Versão: Nova versão** → **Implantar**.

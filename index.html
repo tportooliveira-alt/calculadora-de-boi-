@@ -2320,7 +2320,8 @@ async function testarPlanilha() {
   try {
     const r = await fetch(url, { method: 'GET', redirect: 'follow' });
     const d = JSON.parse(await r.text());
-    if (d.ok && d.encontrou_a_aba) estadoPlanilha('✓ Achei sua planilha e a aba PESAGENS.', 'bom');
+    if (d.ok && d.encontrou_a_aba && d.historico) estadoPlanilha('✓ Achei sua planilha. O histórico de cada animal está ligado.', 'bom');
+    else if (d.ok && d.encontrou_a_aba) estadoPlanilha('✓ Achei sua planilha e a aba PESAGENS. Pra ter o histórico de cada animal, cole o Codigo.gs novo no Apps Script e publique uma nova versão.', 'bom');
     else if (d.ok) estadoPlanilha('Falei com o script, mas não achei a aba PESAGENS na planilha.', 'ruim');
     else estadoPlanilha('A planilha respondeu: ' + (d.erro || '?'), 'ruim');
   } catch (e) {
@@ -2339,11 +2340,15 @@ async function mandarPraPlanilha() {
     // aqui, senão a conta lá dentro sairia diferente da que o app mostrou:
     // valor = peso × R$/kg  e  valor = (peso × rend / 15) × R$/@
     preco: unidade === 'arroba' ? precoVenda : precoVenda * 15 / ((window._rend || 50) / 100),
-    data: new Date().toISOString(),
+    // O dia da PESAGEM, não o de mandar: sem sinal no curral, o lote pode ir
+    // no dia seguinte — e o histórico de cada boi conta os dias entre pesagens.
+    // O id de cada pesagem é a hora em que ela foi salva.
+    data: new Date(Math.min(...pesagens.map(p => p.id || Date.now()))).toISOString(),
     // Vários brincos vão separados por " · ": no Google em português a vírgula
     // é casa decimal, e "12, 5" podia virar o número 12,5.
+    // O id deixa a planilha reconhecer pesagem que já chegou (mandou 2 vezes).
     pesagens: pesagens.slice().reverse().map(p => ({
-      boi: numerosDe(p).join(' · '), qtd: p.qtd || 1, peso: p.peso || 0, desconto: p.desc || 0,
+      id: p.id, boi: numerosDe(p).join(' · '), qtd: p.qtd || 1, peso: p.peso || 0, desconto: p.desc || 0,
     })),
   };
   const r = await fetch(url, {
@@ -2367,9 +2372,13 @@ async function mandarGoogleSheets() {
     if (resp && resp.ok) {
       window._exportou = true;
       somSalvo();
-      alert('✅ Foi pra sua planilha!\n\n' + resp.escritas + ' ' +
+      if (resp.escritas === 0 && resp.repetidas) alert('✅ Esse lote já estava na sua planilha.\n\nNada foi repetido.');
+      else alert('✅ Foi pra sua planilha!\n\n' + resp.escritas + ' ' +
             (resp.escritas === 1 ? 'pesagem entrou' : 'pesagens entraram') +
-            ' na aba PESAGENS.');
+            ' na aba PESAGENS.' +
+            (resp.repetidas ? '\n' + resp.repetidas + (resp.repetidas === 1 ? ' já estava lá e não foi repetida.' : ' já estavam lá e não foram repetidas.') : '') +
+            (resp.animais ? '\n\n🐂 Histórico atualizado: ' + resp.animais + ' ' + (resp.animais === 1 ? 'animal' : 'animais') + ' com número.' : '') +
+            (resp.erro_historico ? '\n\n⚠️ As pesagens entraram, mas o histórico dos animais não atualizou: ' + resp.erro_historico : ''));
     } else {
       const erro = resp && resp.erro ? resp.erro : 'a planilha não explicou o motivo';
       alert('Não deu pra mandar pra sua planilha: ' + erro +
@@ -2403,7 +2412,7 @@ function novoLoteGate() {
 }
 
 // ─── Versão e atualização ────────────────────────────────────────────────────
-const APP_VERSAO = 23;
+const APP_VERSAO = 24;
 document.getElementById('vApp').textContent = APP_VERSAO;
 aplicarPrefs();
 preencherCadastroComPrefs();
