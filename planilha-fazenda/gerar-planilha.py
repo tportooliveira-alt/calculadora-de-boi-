@@ -158,7 +158,7 @@ dv_tipo.add(f"D3:D{2+LINHAS}")
 # ─────────────────────────────────────────────────────────── PESAGENS
 cols_pes = [
     ("DATA", 12, DATA), ("LOTE", 12, None), ("VENDEDOR / ORIGEM", 24, None),
-    ("Nº DO BRINCO", 12, None), ("CABEÇAS", 10, INT), ("PESO NA BALANÇA", 15, KG),
+    ("Nº DO BRINCO", 12, "@"), ("CABEÇAS", 10, INT), ("PESO NA BALANÇA", 15, KG),
     ("DESCONTO POR CAB.", 14, KG), ("PESO LÍQUIDO", 14, KG), ("RENDIMENTO", 12, PCT),
     ("ARROBAS", 12, ARROBA), ("R$/@", 12, MOEDA), ("VALOR", 15, MOEDA),
 ]
@@ -268,6 +268,14 @@ texto = [
     ("PESAGENS — é aqui que cai o que vem do aplicativo Calculadora de Boi. Você também pode digitar à mão se quiser.", ""),
     ("LOTES — junta tudo por lote: quando entrou, quando saiu, quantos dias no pasto, quanto engordou, quanto custou, quanto rendeu e o lucro. Só digite o nome do lote na coluna A — o resto vem sozinho das outras abas.", ""),
     ("PAINEL — o resumo da fazenda. Não mexa, só olhe.", ""),
+    ("", ""),
+    ("HISTÓRICO DE CADA ANIMAL", "t"),
+    ("Com a planilha ligada no aplicativo, aparecem mais três abas, montadas sozinhas a partir da PESAGENS: ANIMAIS, HISTÓRICO e CONSULTA.", ""),
+    ("ANIMAIS — um animal por linha, pelo número do brinco: peso na 1ª pesagem, peso atual, quanto ganhou desde a pesagem anterior, ganho total e ganho por dia.", ""),
+    ("HISTÓRICO — todas as pesagens de cada animal, uma embaixo da outra, da mais antiga pra mais nova.", ""),
+    ("CONSULTA — digite o número do brinco na casa amarela e aperte Enter: aparece o resumo e todas as pesagens daquele animal. 010 e 10 são o mesmo brinco.", ""),
+    ("Pesou vários bois juntos? Cada um fica com o peso médio da balançada (peso ÷ cabeças). O peso exato de um animal só sai quando ele é pesado sozinho.", ""),
+    ("Não digite nas abas ANIMAIS e HISTÓRICO: elas são refeitas a cada lote que chega. Corrigiu uma pesagem à mão na PESAGENS? Menu 🐂 Calculadora de Boi → Atualizar histórico dos animais.", ""),
     ("", ""),
     ("O SEGREDO É O NOME DO LOTE", "t"),
     ("Use o MESMO nome de lote nas abas COMPRAS, VENDAS, PESAGENS e CAIXA. É por ele que a planilha junta tudo. Um nome simples resolve: 2026-01 BOI, FAZENDA SÃO LUIZ, LOTE 12.", ""),
